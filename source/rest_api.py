@@ -1,5 +1,5 @@
 import requests
-from torqeedo_modbus_datalogger_v2 import logger
+from source.params import logger
 
 # this method is instead of fetch_raw_json
 def fetch_raw_json(url):

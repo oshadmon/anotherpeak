@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 import re
@@ -10,7 +9,7 @@ from torqeedo_modbus_datalogger_v2 import Helios_DL_devices, Helios_default  # A
 app = Flask(__name__)
 
 # Directory to hold your mock JSON files
-JSON_DIRECTORY = os.path.join(os.path.dirname(__file__), 'home', 'lcdb')  # Change this path to where your mock JSON files are located
+JSON_DIRECTORY = os.path.join(os.path.dirname(__file__).split('server')[0], 'lcdb')  # Change this path to where your mock JSON files are located
 
 
 def __clean_json(data):

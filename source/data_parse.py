@@ -1,5 +1,5 @@
 import datetime
-from torqeedo_modbus_datalogger_v2 import logger
+from source.params import logger
 
 
 def make_it_always_a_float(string):

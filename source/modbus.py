@@ -1,5 +1,9 @@
+import datetime
+import time
+import socket
+
 from pyModbusTCP.client import ModbusClient
-from torqeedo_modbus_datalogger_v2 import logger
+from source.params import logger, registers_info
 
 # Define the Modbus client start address and the number of registers to read
 base_address = 40001
@@ -131,3 +135,11 @@ def combine_modbus_registers(register_table, register_id, length):
         else:
             return None
     return value
+
+def modbus_main():
+    filename = datetime.datetime.now().strftime("%Y-%m-%d") + "_Helios_generatrice_modbus.json"
+    register_table = read_and_save_all_modbus_registers(c, base_address, num_registers, filename)
+    generatrice_modbus_registers = print_modbus_register_table(register_table, registers_info)
+    logger.info("Modbus registers from génératrice: %s", generatrice_modbus_registers)
+
+    return filename, generatrice_modbus_registers
