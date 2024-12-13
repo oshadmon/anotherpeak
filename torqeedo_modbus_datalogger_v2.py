@@ -7,12 +7,12 @@ Major Changes:
 import argparse
 import datetime
 import socket
-import logging
 
+from source.logger_config import logger, setup_logger
 from source.data_parse import parse_vessel_json,parse_ACH65_json,parse_BCL25_json,parse_BMWix_json,parse_ElPtx350_json
 from source.rest_api import fetch_raw_json
 from source.modbus import modbus_main
-from source.params import Helios_default,Helios_DL_devices,logger, Helios_DL_IP
+from source.params import Helios_default,Helios_DL_devices,Helios_DL_IP
 from source.anylog_api import blockchain_policy, anylog_publish_data
 
 ANYLOG_CONN = {"T": '178.79.168.109:32149', "B": '178.79.168.113:32149'}
@@ -27,18 +27,6 @@ def check_ping(ip, port):
         logger.error(f"Connection failed to {ip} on port {port}")
         exit(1)
 
-def __clean_loggeer():
-    # Clear default handlers to stop logging to the screen
-    logger.handlers.clear()
-
-    # (Optional) Add a file handler if needed
-    file_handler = logging.FileHandler("app.log")
-    file_handler.setLevel(logging.CRITICAL)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-
-
 
 def main():
     parse = argparse.ArgumentParser()
@@ -46,7 +34,6 @@ def main():
     parse.add_argument('--use-dummy', type=bool, const=True,  default=False, nargs='?',  help='Use dummy servers / files rather than production device')
     args = parse.parse_args()
 
-    __clean_loggeer()
     current_time = datetime.datetime.now()
     json_body = {}
     for i in ["B", "T"]:  # On parcourt Babord et Tribord et comme les componnents  ont le même nom, on rajoute "B" ou "T" pour les différencier
@@ -115,5 +102,6 @@ def main():
 
 
 if __name__ == '__main__':
+    setup_logger()
     check_ping('127.0.0.1', 8481)
     main()

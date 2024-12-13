@@ -1,6 +1,6 @@
 import json
 
-from servers.modbus_server import logger
+from source.logger_config import logger
 from source.rest_api import anylog_blockchain_get, anylog_blockchain_post, anylog_data_put
 
 
@@ -82,7 +82,6 @@ def anylog_publish_data(conn:str, data, db_name:str):
         except json.JSONDecodeError as error:
             logger.critical(f'Échec de la sérialisation de JSON (Erreur: {error})')
         else:
-            print(f'{db_name}.{table_name} - {len(data[table_name])}')
             anylog_data_put(conn=conn, data=payload, db_name=db_name, table_name=table_name)
 
 

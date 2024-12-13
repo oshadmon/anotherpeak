@@ -1,5 +1,5 @@
 import requests
-from source.params import logger
+from source.logger_config import logger
 
 # this method is instead of fetch_raw_json
 def fetch_raw_json(url):

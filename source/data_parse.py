@@ -1,5 +1,5 @@
 import datetime
-from source.params import logger
+from source.logger_config import logger
 
 
 def make_it_always_a_float(string):

@@ -1,5 +1,3 @@
-import logging
-
 Helios_default = ["vessel", "errors", "info", "devices"]
 Helios_DL_IP = {'B': "10.85.9.111:8481", 'T': "10.85.9.110:8481"}
 Helios_DL_devices = {
@@ -146,7 +144,5 @@ registers_info = [
 ]
 
 
-logger = logging.getLogger("main_logger")
-logger.setLevel(logging.DEBUG)  # Set the logger to the lowest level you want to capture (DEBUG > INFO > WARNING > ERROR > CRITICAL)
 
 

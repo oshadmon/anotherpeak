@@ -2,9 +2,9 @@ import datetime
 import time
 import socket
 
-import pyModbusTCP
+from source.logger_config import logger
 from pyModbusTCP.client import ModbusClient
-from source.params import logger, registers_info
+from source.params import registers_info
 
 # Define the Modbus client start address and the number of registers to read
 base_address = 40001
