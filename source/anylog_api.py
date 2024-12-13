@@ -1,7 +1,7 @@
 import json
 
 from servers.modbus_server import logger
-from source.rest_api import anylog_get, anylog_post, anylog_put
+from source.rest_api import anylog_blockchain_get, anylog_blockchain_post
 
 
 def is_policy(conn:str, table_name, category, boat_id=None, component=None, ip=None):
@@ -26,7 +26,7 @@ def is_policy(conn:str, table_name, category, boat_id=None, component=None, ip=N
     cmd += f" and component={component}" if component else ""
     cmd += f" and ip={ip}" if ip else ""
 
-    output = anylog_get(conn=conn, cmd=cmd)
+    output = anylog_blockchain_get(conn=conn, cmd=cmd)
     if output:
         status = True
 
@@ -49,7 +49,7 @@ def declare_policy(conn:str, table_name, category, boat_id=None, component=None,
         new_policy['component']["ip"] = ip
 
     str_new_policy = f"<new_policy={json.dumps(new_policy)}>"
-    anylog_post(conn=conn, data=str_new_policy)
+    anylog_blockchain_post(conn=conn, payload=str_new_policy)
 
 
 def blockchain_policy(category, filename):
@@ -68,6 +68,7 @@ def blockchain_policy(category, filename):
         declare_policy(conn='178.79.168.109:32149', table_name=table_name, category=category, boat_id=boat_id, component=component, ip=ip)
 
     return table_name
+
 
 def anylog_publish_data(conn:str, data:dict, db_name:str):
     for table_name in data:
