@@ -44,15 +44,15 @@ def declare_policy(conn:str, table_name, category, boat_id=None, component=None,
     if boat_id:
         new_policy['boat']["boat_id"] = boat_id
     if component:
-        new_policy['component']["component"] = component
+        new_policy['boat']["component"] = component
     if ip:
-        new_policy['component']["ip"] = ip
+        new_policy['boat']["ip"] = ip
 
     str_new_policy = f"<new_policy={json.dumps(new_policy)}>"
     anylog_blockchain_post(conn=conn, payload=str_new_policy)
 
 
-def blockchain_policy(conn:str, category:str, filename:str):
+def blockchain_policy(conn:str, category:str, filename:str, is_dummy:bool=False):
     table_name = filename.split("_Helios_", 1)[-1].rsplit("_DEVICE", 1)[0].split('.json')[0]
     if f'DL_{category}_' in table_name:
         table_name = table_name.split(f"DL_{category}_")[-1]
@@ -64,6 +64,11 @@ def blockchain_policy(conn:str, category:str, filename:str):
         boat_id = int(table_name.split("_ID_")[-1])
         component = table_name.split("_IP")[0]
         ip = int(table_name.split("_IP_")[-1].split("_")[0])
+
+    table_name = f"{category}_{table_name}"
+    if is_dummy is True:
+        table_name = f"{table_name}_dummy"
+
     if is_policy(conn=conn, table_name=table_name, category=category, boat_id=boat_id, component=component, ip=ip) is False:
         declare_policy(conn=conn, table_name=table_name, category=category, boat_id=boat_id, component=component, ip=ip)
 

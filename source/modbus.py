@@ -2,6 +2,7 @@ import datetime
 import time
 import socket
 
+import pyModbusTCP
 from pyModbusTCP.client import ModbusClient
 from source.params import logger, registers_info
 
@@ -15,7 +16,7 @@ num_registers = 10  # max 125 registers per poll for modbus
 modbus_timeout = 5  # maximum time in second to wait for an answer from modbus device - it's not a ping, modbbus device is accessible but the device behind it may not, ie generatrice is switched off
 max_modbus_retries = 3  # /!\ every retry will delay the writing into influxDB by the number of retries multiplied by modbus timeout
 # c = ModbusClient(host='10.85.9.120', port=502, auto_open=True, timeout=modbus_timeout)
-c = ModbusClient(host='127.0.0.1', port=502, auto_open=True, timeout=modbus_timeout)
+# c = ModbusClient(host='127.0.0.1', port=502, auto_open=True, timeout=modbus_timeout)
 
 
 # Fonction pour imprimer le tableau des registres Modbus
@@ -136,8 +137,15 @@ def combine_modbus_registers(register_table, register_id, length):
             return None
     return value
 
-def modbus_main():
+def modbus_main(conn:str):
     filename = datetime.datetime.now().strftime("%Y-%m-%d") + "_Helios_generatrice_modbus.json"
+    ip, port = conn.split(":")
+
+    try:
+        c = ModbusClient(host='127.0.0.1', port=int(port), auto_open=True, timeout=modbus_timeout)
+    except Exception as error:
+        logger.critical(f'Échec de la connexion à Modbus contre {conn} (Erreur: {error})')
+
     register_table = read_and_save_all_modbus_registers(c, base_address, num_registers, filename)
     generatrice_modbus_registers = print_modbus_register_table(register_table, registers_info)
     logger.info("Modbus registers from génératrice: %s", generatrice_modbus_registers)

@@ -4,6 +4,7 @@ Major Changes:
 2. the if /else for device is inside the parse processes
 3. Instead of writing to list and then to file, we're writing directly into AnyLog -- if you want we can thread / parallelize the code for efficency
 """
+import argparse
 import datetime
 import socket
 import logging
@@ -11,10 +12,12 @@ import logging
 from source.data_parse import parse_vessel_json,parse_ACH65_json,parse_BCL25_json,parse_BMWix_json,parse_ElPtx350_json
 from source.rest_api import fetch_raw_json
 from source.modbus import modbus_main
-from source.params import Helios_default,Helios_DL_devices,logger
+from source.params import Helios_default,Helios_DL_devices,logger, Helios_DL_IP
 from source.anylog_api import blockchain_policy, anylog_publish_data
 
-CONN = '178.79.168.109:32149'
+ANYLOG_CONN = {"T": '178.79.168.109:32149', "B": '178.79.168.113:32149'}
+MODBUS_CONN = '127.0.0.1:502'
+
 
 def check_ping(ip, port):
     try:
@@ -30,7 +33,7 @@ def __clean_loggeer():
 
     # (Optional) Add a file handler if needed
     file_handler = logging.FileHandler("app.log")
-    file_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(logging.CRITICAL)
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -38,6 +41,11 @@ def __clean_loggeer():
 
 
 def main():
+    parse = argparse.ArgumentParser()
+    parse.add_argument('db_name', type=str, default='another_peak', help='logical database to store data in')
+    parse.add_argument('--use-dummy', type=bool, const=True,  default=False, nargs='?',  help='Use dummy servers / files rather than production device')
+    args = parse.parse_args()
+
     __clean_loggeer()
     current_time = datetime.datetime.now()
     json_body = {}
@@ -45,12 +53,12 @@ def main():
         for f in Helios_default:
             if f != "vessel":
                 break
-            url = f"http://127.0.0.1:8481/{f}"
-            # url = f"http://{Helios_DL_IP[i]}/{f}"
+            url = f"http://127.0.0.1:8481/{f}" if args.use_dummy is True else f"http://{Helios_DL_IP[i]}/{f}"
+
             # On sauvegarde la donnée brute dans un fichier, un fichier par composant par jour
             filename = f"{current_time.strftime('%Y-%m-%d')}_Helios_DL_{i}_{f}.json"
 
-            table_name = blockchain_policy(conn=CONN, category=i, filename=filename)
+            table_name = blockchain_policy(conn=ANYLOG_CONN[i], category=i, filename=filename, is_dummy=args.use_dummy)
             if table_name not in json_body:
                 json_body[table_name] = []
             json_data = fetch_raw_json(url)
@@ -65,11 +73,10 @@ def main():
             json_body[table_name].append(data)
         # on parcourt ici les composants hardware: batteries, chargeurs, convertisseurs, moteurs
         for f in Helios_DL_devices[i]:
-            url = f"http://127.0.0.1:8481/{i}/{f}"
-            # url = f"http://{Helios_DL_IP[i]}/device/{f}"
+            url = f"http://127.0.0.1:8481/{i}/{f}" if args.use_dummy is True else f"http://{Helios_DL_IP[i]}/device/{f}"
             filename = f"{current_time.strftime('%Y-%m-%d')}_Helios_DL_{i}_{f}.json"
 
-            table_name = blockchain_policy(conn=CONN, category=i, filename=filename)
+            table_name = blockchain_policy(conn=ANYLOG_CONN[i], category=i, filename=filename, is_dummy=args.use_dummy)
             if table_name not in json_body:
                 json_body[table_name] = []
 
@@ -94,9 +101,9 @@ def main():
             json_body[table_name].append(data)
 
         # modbus section
-        filename, generatrice_modbus_registers = modbus_main()
+        filename, generatrice_modbus_registers = modbus_main(conn=MODBUS_CONN)
 
-        table_name = blockchain_policy(conn=CONN, category=i, filename=filename)
+        table_name = blockchain_policy(conn=ANYLOG_CONN[i], category=i, filename=filename, is_dummy=args.use_dummy)
         if table_name not in json_body:
             json_body[table_name] = []
 
@@ -104,7 +111,7 @@ def main():
             data['category'] = i
         json_body[table_name].append(data)
 
-    anylog_publish_data(conn=CONN, data=json_body, db_name='test')
+    anylog_publish_data(conn=ANYLOG_CONN[i], data=json_body, db_name=args.db_name)
 
 
 if __name__ == '__main__':
