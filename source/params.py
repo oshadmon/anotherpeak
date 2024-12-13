@@ -149,3 +149,4 @@ registers_info = [
 logger = logging.getLogger("main_logger")
 logger.setLevel(logging.DEBUG)  # Set the logger to the lowest level you want to capture (DEBUG > INFO > WARNING > ERROR > CRITICAL)
 
+

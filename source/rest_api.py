@@ -1,5 +1,3 @@
-from wsgiref.validate import header_re
-
 import requests
 from source.params import logger
 
@@ -101,7 +99,7 @@ def anylog_blockchain_post(conn:str, payload:str):
             logger.critical(f'Impossible de récupérer les données de {conn} (Réseau Erreur: {response.status_code})')
 
 
-def anylog_data_put(conn:str, db_name:str, table_name:str, data:list):
+def anylog_data_put(conn:str, db_name:str, table_name:str, data:str):
     """
     Publish data into AnyLog via PUT
     :args:

@@ -1,7 +1,7 @@
 from pyModbusTCP.server import ModbusServer, DataBank
 import logging
 import time
-from torqeedo_modbus_datalogger_v2 import registers_info
+from source.params import registers_info
 
 # Initialize logging
 logger = logging.getLogger("modbus_server")

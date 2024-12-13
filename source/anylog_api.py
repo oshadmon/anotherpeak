@@ -1,7 +1,7 @@
 import json
 
 from servers.modbus_server import logger
-from source.rest_api import anylog_blockchain_get, anylog_blockchain_post
+from source.rest_api import anylog_blockchain_get, anylog_blockchain_post, anylog_data_put
 
 
 def is_policy(conn:str, table_name, category, boat_id=None, component=None, ip=None):
@@ -52,7 +52,7 @@ def declare_policy(conn:str, table_name, category, boat_id=None, component=None,
     anylog_blockchain_post(conn=conn, payload=str_new_policy)
 
 
-def blockchain_policy(category, filename):
+def blockchain_policy(conn:str, category:str, filename:str):
     table_name = filename.split("_Helios_", 1)[-1].rsplit("_DEVICE", 1)[0].split('.json')[0]
     if f'DL_{category}_' in table_name:
         table_name = table_name.split(f"DL_{category}_")[-1]
@@ -64,22 +64,21 @@ def blockchain_policy(category, filename):
         boat_id = int(table_name.split("_ID_")[-1])
         component = table_name.split("_IP")[0]
         ip = int(table_name.split("_IP_")[-1].split("_")[0])
-    if is_policy(conn='178.79.168.109:32149', table_name=table_name, category=category, boat_id=boat_id, component=component, ip=ip) is False:
-        declare_policy(conn='178.79.168.109:32149', table_name=table_name, category=category, boat_id=boat_id, component=component, ip=ip)
+    if is_policy(conn=conn, table_name=table_name, category=category, boat_id=boat_id, component=component, ip=ip) is False:
+        declare_policy(conn=conn, table_name=table_name, category=category, boat_id=boat_id, component=component, ip=ip)
 
     return table_name
 
 
-def anylog_publish_data(conn:str, data:dict, db_name:str):
+def anylog_publish_data(conn:str, data, db_name:str):
     for table_name in data:
         try:
-            str_data = [json.dumps(row) for row in data[table_name]]
+            payload = json.dumps(data[table_name])
         except json.JSONDecodeError as error:
             logger.critical(f'Échec de la sérialisation de JSON (Erreur: {error})')
         else:
-            print(str_data)
-            exit(1)
-            # anylog_put(conn=conn, data=str_data, db_name=db_name, table_name=table_name)
+            print(f'{db_name}.{table_name} - {len(data[table_name])}')
+            anylog_data_put(conn=conn, data=payload, db_name=db_name, table_name=table_name)
 
 
 
