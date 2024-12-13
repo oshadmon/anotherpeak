@@ -94,32 +94,19 @@ def read_and_save_all_modbus_registers(connection, base_address, block_size, fil
         for i in range(num_blocks):
             current_address = start_address + i * block_size
             count = min(block_size, total_registers - i * block_size)
+            status, raw_data = read_modbus_memory_block(connection, current_address, count)
+            if status == 'success':
+                for j, value in enumerate(raw_data):
+                    register_id = current_address + j
+                    register_table[register_id] = value
+            elif status == 'read_timeout' or status == 'socket_timeout':
+                retries+=1
+                logger.error("Error %s Modbus ||  number of retries left: %s", status, max_modbus_retries - retries)
+                if retries >= max_modbus_retries:
+                    break
+            else:
+                logger.error("No data returned for address range %s to %s: %s", current_address, current_address + count - 1, status)
 
-            try:
-                status, raw_data = read_modbus_memory_block(connection, current_address, count)
-                if status == 'success':
-                    try:
-                        # save all registers in a raw format
-                        with open(filename, 'a') as f:
-                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            f.write(f'{timestamp}: register {current_address} raw_data: {raw_data}\n')
-                    except IOError as e:
-                        logger.critical("fetch_and_save_raw_json - Error writing to file %s: %s", filename, e)
-                        return None
-                    #logger.info("register %s raw_data: %s", current_address, raw_data)
-                    for j, value in enumerate(raw_data):
-                        register_id = current_address + j
-                        register_table[register_id] = value
-                elif status == 'read_timeout' or status == 'socket_timeout':
-                    retries+=1
-                    logger.error("Error %s Modbus ||  number of retries left: %s", status, max_modbus_retries - retries)
-                    if retries >= max_modbus_retries:
-                        break
-                else:
-                    logger.error("No data returned for address range %s to %s: %s", current_address, current_address + count - 1, status)
-            except ValueError as e:
-                logger.error(f"Error reading data at address %s: %s", current_address, e)
-                break
         if retries >= max_modbus_retries:
             logger.error("%s Modbus max retries reached: %s", status, retries)
             break
