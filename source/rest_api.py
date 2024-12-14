@@ -4,7 +4,7 @@ from source.logger_config import logger
 # this method is instead of fetch_raw_json
 def fetch_raw_json(url):
     """
-    Given a URL pull data and add timestamp
+    Given a URL pull data
     :args:
         url:str - URL to execute request against
     :params:

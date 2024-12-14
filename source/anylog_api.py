@@ -1,3 +1,7 @@
+"""
+Disclaimer: blockchain related methods ccould may need to be updated based on production env as it is based on
+the generated file names
+"""
 import json
 
 from source.logger_config import logger
@@ -34,6 +38,29 @@ def is_policy(conn:str, table_name, category, boat_id=None, component=None, ip=N
 
 
 def declare_policy(conn:str, table_name, category, boat_id=None, component=None, ip=None):
+    """
+    Declare policy on the blockchain
+    :sample policy:
+     {'boat' : {
+        'name' : 'T_BMWix_IP_4_ID_49_dummy',
+        'category' : 'T',
+        'boat_id' : 49,
+        'component' : 'BMWix',
+        'ip' : 4,
+        'id' : 'f0f4fa22a974b46715eb9d239ca14000',
+        'date' : '2024-12-13T23:16:19.237579Z',
+        'ledger' : 'global'
+    }}
+    :args:
+        cconn:str - connection to AnyLog node
+        table_name:str - generated table name
+        boat_id:int
+        component:str
+        IP:str
+    :params:
+        new_policy:dict - generated policy
+        str_new_policy:str - policy as as striing to be published into AnyLog/EdgeLake
+    """
     new_policy = {
         "boat": {
             "name": table_name,
@@ -53,6 +80,26 @@ def declare_policy(conn:str, table_name, category, boat_id=None, component=None,
 
 
 def blockchain_policy(conn:str, category:str, filename:str, is_dummy:bool=False):
+    """
+    Generate a new boat policy if one does not exist based on a set of params
+    :extract from file name:
+        file name: 2024-08-15_Helios_DLB_BMWix_IP_4_ID_49.json
+        |--> table name:  t_bmwix_ip_4_id_49_dummy
+        |--> category: T
+        |--> component: BMWix
+        |--> boat_id: 49
+        |--> IP: 4
+    :args:
+        conn:str - Connection to node
+        category:str - T or B
+        filemane:str - file to generate table name / policy from
+        is_dummy:bool - if dummy, then add _dummy aat the end of the table name
+    :params:
+        table_name:str - generated table name
+        boat_id:int
+        component:str
+        IP:str
+    """
     table_name = filename.split("_Helios_", 1)[-1].rsplit("_DEVICE", 1)[0].split('.json')[0]
     if f'DL_{category}_' in table_name:
         table_name = table_name.split(f"DL_{category}_")[-1]
@@ -63,7 +110,7 @@ def blockchain_policy(conn:str, category:str, filename:str, is_dummy:bool=False)
     if table_name != 'generatrice_modbus' and 'vessel' not in table_name:
         boat_id = int(table_name.split("_ID_")[-1])
         component = table_name.split("_IP")[0]
-        ip = int(table_name.split("_IP_")[-1].split("_")[0])
+        ip = table_name.split("_IP_")[-1].split("_")[0]
 
     table_name = f"{category}_{table_name}"
     if is_dummy is True:
@@ -76,6 +123,15 @@ def blockchain_policy(conn:str, category:str, filename:str, is_dummy:bool=False)
 
 
 def anylog_publish_data(conn:str, data, db_name:str):
+    """
+    Publish data into AnyLog/EdgeLake
+    :args:
+        conn:str - REST connection information for AnyLog
+        data:dict - data generated in the first part of torqeedo_modbus_datalogger_v2.py
+        db_name:str - logical database to store data in
+    :params:
+        payload - serialized list of data to publish onto a node
+    """
     for table_name in data:
         try:
             payload = json.dumps(data[table_name])

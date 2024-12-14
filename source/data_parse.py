@@ -1,3 +1,6 @@
+"""
+Methods for parsing data provided from REST service
+"""
 import datetime
 from source.logger_config import logger
 

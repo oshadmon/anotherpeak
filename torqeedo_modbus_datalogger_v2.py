@@ -1,8 +1,10 @@
 """
 Major Changes:
-1. when executing a GET REST request, there's no need to convert from dict (request.json()) to serialized JSON and back to dict
+1. when executing a GET REST request, there's no need to convert from dict (request.json()) to serialized JSON and back
+to dict
 2. the if /else for device is inside the parse processes
-3. Instead of writing to list and then to file, we're writing directly into AnyLog -- if you want we can thread / parallelize the code for efficency
+3. The code skips sending data to file / influxdb and instead sends directly into AnyLog/EdgeLake
+4. The code publishes metadata into AnyLog/EdgeLake's blockchain with information regarding the boat
 """
 import argparse
 import datetime
@@ -12,27 +14,64 @@ from source.logger_config import logger, setup_logger
 from source.data_parse import parse_vessel_json,parse_ACH65_json,parse_BCL25_json,parse_BMWix_json,parse_ElPtx350_json
 from source.rest_api import fetch_raw_json
 from source.modbus import modbus_main
-from source.params import Helios_default,Helios_DL_devices,Helios_DL_IP
+from source.params import Helios_default, Helios_DL_devices, Helios_DL_IP, ANYLOG_CONN, MODBUS_CONN
 from source.anylog_api import blockchain_policy, anylog_publish_data
 
-ANYLOG_CONN = {"T": '178.79.168.109:32149', "B": '178.79.168.113:32149'}
-MODBUS_CONN = '127.0.0.1:502'
-
-
-def check_ping(ip, port):
-    try:
-        with socket.create_connection((ip, port), timeout=5):
-            pass
-    except (socket.timeout, socket.error):
-        logger.error(f"Connection failed to {ip} on port {port}")
-        exit(1)
+def check_ping(is_dummy:bool=False):
+    """
+    Check whether REST server is active
+    :args:
+        is_dummy:bool
+    :status:
+        if accessible - True
+        not accessible - exit program
+    """
+    if is_dummy is True:
+        ip = '127.0.0.1'
+        port = 8481
+        try:
+            with socket.create_connection((ip, port), timeout=5):
+                pass
+        except (socket.timeout, socket.error):
+            logger.error(f"Connection failed to {ip} on port {port}")
+            exit(1)
+    else:
+        for i in ["B", "T"]:
+            ip, port = Helios_DL_IP[i].split(":")
+            try:
+                with socket.create_connection((ip, port), timeout=5):
+                    pass
+            except (socket.timeout, socket.error):
+                logger.error(f"Connection failed to {ip} on port {port}")
+                exit(1)
 
 
 def main():
+    """
+    The following code is able to pull data from REST server (fetch_raw_json)  and Modbus (modbus.py) and store the
+    data into AnyLog/EdgeLake.
+    :process:
+        1. get data and store into dict, where keys are table name(s) - data from both REST and Modbus
+        2. when table name is generated, create a policy onm the metadata if DNE
+        3. publish data to corresponding operator(s)
+    :positional arguments:
+        db_name               logical database to store data in
+    :optional arguments:
+        -h, --help                      show this help message and exit
+        --use-dummy     [USE_DUMMY]     Use dummy servers / files rather than production device
+    :global:
+        ANYLOG_CONN - Connection to AnyLog node(s)
+        MODBUS_CONN:str - connection to Modbus
+    """
     parse = argparse.ArgumentParser()
-    parse.add_argument('db_name', type=str, default='another_peak', help='logical database to store data in')
-    parse.add_argument('--use-dummy', type=bool, const=True,  default=False, nargs='?',  help='Use dummy servers / files rather than production device')
+    parse.add_argument('db_name', type=str, default='another_peak',
+                       help='logical database to store data in')
+    parse.add_argument('--use-dummy', type=bool, const=True,  default=False, nargs='?',
+                       help='Use dummy servers / files rather than production device')
     args = parse.parse_args()
+
+    setup_logger()
+    check_ping(is_dummy=args.use_dummy)
 
     current_time = datetime.datetime.now()
     json_body = {}
@@ -102,6 +141,4 @@ def main():
 
 
 if __name__ == '__main__':
-    setup_logger()
-    check_ping('127.0.0.1', 8481)
     main()

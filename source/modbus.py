@@ -4,20 +4,7 @@ import socket
 
 from source.logger_config import logger
 from pyModbusTCP.client import ModbusClient
-from source.params import registers_info
-
-# Define the Modbus client start address and the number of registers to read
-base_address = 40001
-address_ranges = [(base_address, 40801), (43000, 43477)]
-#address_ranges = [(base_address, 40201)]
-num_registers = 10  # max 125 registers per poll for modbus
-
-# Modbus client (la generatrice)
-modbus_timeout = 5  # maximum time in second to wait for an answer from modbus device - it's not a ping, modbbus device is accessible but the device behind it may not, ie generatrice is switched off
-max_modbus_retries = 3  # /!\ every retry will delay the writing into influxDB by the number of retries multiplied by modbus timeout
-# c = ModbusClient(host='10.85.9.120', port=502, auto_open=True, timeout=modbus_timeout)
-# c = ModbusClient(host='127.0.0.1', port=502, auto_open=True, timeout=modbus_timeout)
-
+from source.params import base_address, address_ranges, num_registers, modbus_timeout, max_modbus_retries, registers_info
 
 # Fonction pour imprimer le tableau des registres Modbus
 def print_modbus_register_table(register_table, registers_info):

@@ -1,5 +1,25 @@
-Helios_default = ["vessel", "errors", "info", "devices"]
-Helios_DL_IP = {'B': "10.85.9.111:8481", 'T': "10.85.9.110:8481"}
+"""
+File consisting of static params
+"""
+
+Helios_default = [
+    "vessel",
+    "errors",
+    "info",
+    "devices"
+]
+
+Helios_DL_IP = {
+    'B': "10.85.9.111:8481",
+    'T': "10.85.9.110:8481"
+}
+
+ANYLOG_CONN = {
+    "T": '178.79.168.109:32149',
+    "B": '178.79.168.113:32149'
+}
+
+
 Helios_DL_devices = {
     'B': [
          "ACH65_IP_3_ID_66",
@@ -50,6 +70,18 @@ Helios_DL_devices = {
          "BMWixIsoMon_IP_3_ID_34_DEVICE"
          ]
 }
+
+# Define the Modbus client start address and the number of registers to read
+base_address = 40001
+address_ranges = [(base_address, 40801), (43000, 43477)]
+#address_ranges = [(base_address, 40201)]
+num_registers = 10  # max 125 registers per poll for modbus
+
+# Modbus client (la generatrice)
+modbus_timeout = 5  # maximum time in second to wait for an answer from modbus device - it's not a ping, modbbus device is accessible but the device behind it may not, ie generatrice is switched off
+max_modbus_retries = 3  # /!\ every retry will delay the writing into influxDB by the number of retries multiplied by modbus timeout
+MODBUS_CONN = '127.0.0.1:502'
+
 registers_info = [
     (40011, "GD_BatteryVolt", "V", "Binary", 2, 1),
     (40012, "GD_CPUTemp", "°C", "Binary", 2, 1),
