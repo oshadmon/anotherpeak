@@ -18,32 +18,35 @@ def make_it_always_a_float(string):
 
 # Function to parse Torqeedo JSON data for vessel page
 def parse_vessel_json(input_data, boat_side):
+    """
+    note: removed boat side from column name(s) in order to allow for query across tables in AnyLog/EdgeLake
+    """
     fields_str = {}
     try:
         # Extraire les champs pertinents des données JSON
         fields_str = {
             "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')),
-            f"hmiYear{boat_side}": input_data.get("hmiYear", None),
-            f"hmiMonth{boat_side}": input_data.get("hmiMonth", None),
-            f"hmiDay{boat_side}": input_data.get("hmiDay", None),
-            f"hmiHour{boat_side}": input_data.get("hmiHour", None),
-            f"hmiMinute{boat_side}": input_data.get("hmiMinute", None),
-            f"hmiSecond{boat_side}": input_data.get("hmiSecond", None),
-            f"batteryStateOfChargePercent{boat_side}": input_data.get('batteryStateOfChargePercent'),
-            f"currentBatteryPower{boat_side}": make_it_always_a_float(input_data.get("currentBatteryPower", None)),
-            f"currentPositionLatitude{boat_side}": make_it_always_a_float(input_data.get("currentPositionLatitude", None)),
-            f"currentPositionLongitude{boat_side}": make_it_always_a_float(input_data.get("currentPositionLongitude", None)),
-            f"distanceDestination{boat_side}": make_it_always_a_float(input_data.get("distanceDestination", None)),
-            f"drivePowerConfirmed{boat_side}": input_data.get("drivePowerConfirmed", None),
-            f"headingDestination{boat_side}": make_it_always_a_float(input_data.get("headingDestination", None)),
-            f"headingHome{boat_side}": make_it_always_a_float(input_data.get("headingHome", None)),
-            f"hmiSmuIp{boat_side}": input_data.get("hmiSmuIp", None),
-            f"hvBatteryCapacity{boat_side}": make_it_always_a_float(input_data.get("hvBatteryCapacity", None)),
-            f"lvBatteryMaxCapacity{boat_side}": input_data.get("lvBatteryMaxCapacity", None),
-            f"powerBalance{boat_side}":  make_it_always_a_float(input_data.get("powerBalance", None)),
-            f"serverCpuLoad{boat_side}": make_it_always_a_float(input_data.get("serverCpuLoad", None)),  ## always be careful when the field must be a floa>
-            f"starterBatteryVoltage{boat_side}": make_it_always_a_float(input_data.get("starterBatteryVoltage", None)),
-            f"timeBattery{boat_side}": input_data.get("timeBattery", None)
+            f"hmiYear": input_data.get("hmiYear", None),
+            f"hmiMonth": input_data.get("hmiMonth", None),
+            f"hmiDay": input_data.get("hmiDay", None),
+            f"hmiHour": input_data.get("hmiHour", None),
+            f"hmiMinute": input_data.get("hmiMinute", None),
+            f"hmiSecond": input_data.get("hmiSecond", None),
+            f"batteryStateOfChargePercent": input_data.get('batteryStateOfChargePercent'),
+            f"currentBatteryPower": make_it_always_a_float(input_data.get("currentBatteryPower", None)),
+            f"currentPositionLatitude": make_it_always_a_float(input_data.get("currentPositionLatitude", None)),
+            f"currentPositionLongitude": make_it_always_a_float(input_data.get("currentPositionLongitude", None)),
+            f"distanceDestination": make_it_always_a_float(input_data.get("distanceDestination", None)),
+            f"drivePowerConfirmed": input_data.get("drivePowerConfirmed", None),
+            f"headingDestination": make_it_always_a_float(input_data.get("headingDestination", None)),
+            f"headingHome": make_it_always_a_float(input_data.get("headingHome", None)),
+            f"hmiSmuIp": input_data.get("hmiSmuIp", None),
+            f"hvBatteryCapacity": make_it_always_a_float(input_data.get("hvBatteryCapacity", None)),
+            f"lvBatteryMaxCapacity": input_data.get("lvBatteryMaxCapacity", None),
+            f"powerBalance":  make_it_always_a_float(input_data.get("powerBalance", None)),
+            f"serverCpuLoad": make_it_always_a_float(input_data.get("serverCpuLoad", None)),  ## always be careful when the field must be a floa>
+            f"starterBatteryVoltage": make_it_always_a_float(input_data.get("starterBatteryVoltage", None)),
+            f"timeBattery": input_data.get("timeBattery", None)
         }
     except Exception as e:
         # Enregistrer un message d'erreur si l'extraction des données échoue
