@@ -1,2 +1,3 @@
-pymodbus>=0.0
+requests>=0.0
+pyModbus>=0.0
 flask>=0

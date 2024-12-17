@@ -74,7 +74,10 @@ def main():
     check_ping(is_dummy=args.use_dummy)
 
     current_time = datetime.datetime.now()
-    json_body = {}
+    json_body = {
+        'B': {},
+        'T': {}
+    }
     for i in ["B", "T"]:  # On parcourt Babord et Tribord et comme les componnents  ont le même nom, on rajoute "B" ou "T" pour les différencier
         for f in Helios_default:
             if f != "vessel":
@@ -85,8 +88,8 @@ def main():
             filename = f"{current_time.strftime('%Y-%m-%d')}_Helios_DL_{i}_{f}.json"
 
             table_name = blockchain_policy(conn=ANYLOG_CONN[i], category=i, filename=filename, is_dummy=args.use_dummy)
-            if table_name not in json_body:
-                json_body[table_name] = []
+            if table_name not in json_body[i]:
+                json_body[i][table_name] = []
             json_data = fetch_raw_json(url)
             if json_data and f == "vessel":
                 data = parse_vessel_json(json_data, i)
@@ -96,15 +99,15 @@ def main():
                 data['timestamp'] = current_time.strftime('%Y-%m-%d %H:%M:%S.%f')
             if 'category' not in data or not data['category']:
                 data['category'] = i
-            json_body[table_name].append(data)
+            json_body[i][table_name].append(data)
         # on parcourt ici les composants hardware: batteries, chargeurs, convertisseurs, moteurs
         for f in Helios_DL_devices[i]:
             url = f"http://127.0.0.1:8481/{i}/{f}" if args.use_dummy is True else f"http://{Helios_DL_IP[i]}/device/{f}"
             filename = f"{current_time.strftime('%Y-%m-%d')}_Helios_DL_{i}_{f}.json"
 
             table_name = blockchain_policy(conn=ANYLOG_CONN[i], category=i, filename=filename, is_dummy=args.use_dummy)
-            if table_name not in json_body:
-                json_body[table_name] = []
+            if table_name not in json_body[i]:
+                json_body[i][table_name] = []
 
             json_data = fetch_raw_json(url)
             is_device = True if 'DEVICE' in f else False
@@ -124,20 +127,23 @@ def main():
                 data['timestamp'] = current_time.strftime('%Y-%m-%d %H:%M:%S.%f')
             if 'category' not in data or not data['category']:
                 data['category'] = i
-            json_body[table_name].append(data)
+            json_body[i][table_name].append(data)
 
         # modbus section
         filename, generatrice_modbus_registers = modbus_main(conn=MODBUS_CONN)
 
         table_name = blockchain_policy(conn=ANYLOG_CONN[i], category=i, filename=filename, is_dummy=args.use_dummy)
-        if table_name not in json_body:
-            json_body[table_name] = []
+        if table_name not in json_body[i]:
+            json_body[i][table_name] = []
 
         if 'category' not in data or not data['category']:
             data['category'] = i
-        json_body[table_name].append(data)
+        json_body[i][table_name].append(data)
 
-    anylog_publish_data(conn=ANYLOG_CONN[i], data=json_body, db_name=args.db_name)
+    for i in json_body:
+        anylog_publish_data(conn=ANYLOG_CONN[i], data=json_body[i]  , db_name=args.db_name)
+
+
 
 
 if __name__ == '__main__':
