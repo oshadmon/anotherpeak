@@ -63,7 +63,7 @@ def declare_policy(conn:str, table_name, category, boat_id=None, component=None,
     """
     new_policy = {
         "boat": {
-            "name": table_name,
+            "name": table_name.lower(),
             "category": category
         }
     }
@@ -111,6 +111,10 @@ def blockchain_policy(conn:str, category:str, filename:str, is_dummy:bool=False)
         boat_id = int(table_name.split("_ID_")[-1])
         component = table_name.split("_IP")[0]
         ip = table_name.split("_IP_")[-1].split("_")[0]
+    elif 'vessel' in table_name:
+        component = 'vessel'
+    elif 'generatrice_modbus' in table_name:
+        component = 'generatrice_modbus'
 
     table_name = f"{category}_{table_name}"
     if is_dummy is True:
