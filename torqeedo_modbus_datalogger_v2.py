@@ -5,6 +5,7 @@ to dict
 2. the if /else for device is inside the parse processes
 3. The code skips sending data to file / influxdb and instead sends directly into AnyLog/EdgeLake
 4. The code publishes metadata into AnyLog/EdgeLake's blockchain with information regarding the boat
+5. for vessel, I've updated the parse process such that T + B have the same column name(s).
 """
 import argparse
 import datetime
