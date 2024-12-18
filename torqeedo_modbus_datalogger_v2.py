@@ -10,6 +10,7 @@ to dict
 import argparse
 import datetime
 import socket
+import time
 
 from source.logger_config import logger, setup_logger
 from source.data_parse import parse_vessel_json,parse_ACH65_json,parse_BCL25_json,parse_BMWix_json,parse_ElPtx350_json
@@ -148,6 +149,6 @@ def main():
 
 
 if __name__ == '__main__':
-    for i in range(100):
-        print(i+1)
+    while True:
         main()
+        time.sleep(300) # get data every 5 minutes
