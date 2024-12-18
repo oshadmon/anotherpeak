@@ -150,5 +150,6 @@ def main():
 
 if __name__ == '__main__':
     while True:
+        start_time = time.time()
         main()
-        time.sleep(300) # get data every 5 minutes
+        time.sleep(300 - (time.time() - start_time)) # get data every 5 minutes
