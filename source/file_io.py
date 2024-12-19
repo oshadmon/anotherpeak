@@ -9,6 +9,9 @@ JSON_DIRECTORY = os.path.join(os.path.dirname(__file__).split('source')[0], 'lcd
 DATA_DIR = os.path.join(os.path.dirname(__file__).split("source")[0], 'data')
 
 def get_device(target_dt:str, i, f):
+    """
+    Given a timestamp, locate correlating data for the device - this is used for demo purposes
+    """
     filename = f'2024-08-15_Helios_DL{i}_{f}_DEVICE.json'
     timestamp_pattern = r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}): '
     full_path = os.path.join(JSON_DIRECTORY, filename)

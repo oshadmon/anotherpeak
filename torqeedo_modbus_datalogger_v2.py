@@ -3,9 +3,13 @@ Major Changes:
 1. when executing a GET REST request, there's no need to convert from dict (request.json()) to serialized JSON and back
 to dict
 2. the if /else for device is inside the parse processes
-3. The code skips sending data to file / influxdb and instead sends directly into AnyLog/EdgeLake
+3. The code skips sending data into influxdb and instead sends directly into AnyLog/EdgeLake
 4. The code publishes metadata into AnyLog/EdgeLake's blockchain with information regarding the boat
 5. for vessel, I've updated the parse process such that T + B have the same column name(s).
+6. a unique table for device and no device
+
+DISCLAIMER - this code (recognized as "main")  may need to change based on the needs / processes in production.
+However, the logic should be correct.
 """
 import argparse
 import datetime
@@ -110,7 +114,6 @@ def main():
         for f in Helios_DL_devices[i]:
             url = f"http://127.0.0.1:8481/{i}/{f}" if args.use_dummy is True else f"http://{Helios_DL_IP[i]}/device/{f}"
             json_data = fetch_raw_json(url)
-            print(f)
             is_device = True if 'DEVICE' in f else False
             if not json_data:
                 logger.error("device Failed to fetch data from %s", url)
@@ -158,4 +161,4 @@ if __name__ == '__main__':
     while True:
         start_time = time.time()
         main()
-        # time.sleep(30 - (time.time() - start_time)) # get data every 5 minutes
+        time.sleep(300 - (time.time() - start_time)) # get data every 5 minutes

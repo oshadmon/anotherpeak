@@ -163,6 +163,9 @@ def parse_ElPtx350_json(input_data, boat_side, is_device:bool=False):
 
 
 def parse_main(json_data, i, f, is_device):
+    """
+    Based on f value, decide how to parse the data
+    """
     if 'ACH65' in f:
         data = parse_ACH65_json(json_data, i, is_device)
     elif 'BCL25' in f:
