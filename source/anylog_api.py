@@ -7,6 +7,7 @@ import json
 from source.logger_config import logger
 from source.rest_api import anylog_blockchain_get, anylog_blockchain_post, anylog_data_put
 
+from file_io import write_file
 
 def is_policy(conn:str, table_name, category, boat_id=None, component=None, ip=None):
     """
@@ -137,12 +138,14 @@ def anylog_publish_data(conn:str, data, db_name:str):
         payload - serialized list of data to publish onto a node
     """
     for table_name in data:
+        write_file(table_name=table_name, data=data[table_name]) # write data to file
         try:
             payload = json.dumps(data[table_name])
         except json.JSONDecodeError as error:
             logger.critical(f'Échec de la sérialisation de JSON (Erreur: {error})')
         else:
             anylog_data_put(conn=conn, data=payload, db_name=db_name, table_name=table_name)
+
 
 
 

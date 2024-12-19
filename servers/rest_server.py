@@ -4,6 +4,7 @@ import re
 import random
 
 from flask import Flask, jsonify
+from source.file_io import read_file
 from torqeedo_modbus_datalogger_v2 import Helios_DL_devices, Helios_default  # Assuming this imports the devices dictionary
 
 app = Flask(__name__)
@@ -75,9 +76,8 @@ def get_json_data(side, component=None):
 
     if os.path.exists(file_path):
         # Read and return the contents of the file
-        with open(file_path, 'r') as file:
-            data = file.read()
-            return __clean_json(data), 200  # Return the file content with HTTP 200 OK
+        data = read_file(file_path=file_path)
+        return __clean_json(data), 200  # Return the file content with HTTP 200 OK
     else:
         return jsonify({'error': 'File not found'}), 404  # Return 404 if the file does not exist
 
