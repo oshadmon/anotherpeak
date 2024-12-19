@@ -13,11 +13,13 @@ import socket
 import time
 
 from source.logger_config import logger, setup_logger
-from source.data_parse import parse_vessel_json,parse_ACH65_json,parse_BCL25_json,parse_BMWix_json,parse_ElPtx350_json
+from source.data_parse import parse_vessel_json, parse_main
 from source.rest_api import fetch_raw_json
 from source.modbus import modbus_main
 from source.params import Helios_default, Helios_DL_devices, Helios_DL_IP, ANYLOG_CONN, MODBUS_CONN
 from source.anylog_api import blockchain_policy, anylog_publish_data
+from source.file_io import get_device
+
 
 def check_ping(is_dummy:bool=False):
     """
@@ -48,6 +50,7 @@ def check_ping(is_dummy:bool=False):
                 exit(1)
 
 
+
 def main():
     """
     The following code is able to pull data from REST server (fetch_raw_json)  and Modbus (modbus.py) and store the
@@ -65,6 +68,7 @@ def main():
         ANYLOG_CONN - Connection to AnyLog node(s)
         MODBUS_CONN:str - connection to Modbus
     """
+    device_data = None
     parse = argparse.ArgumentParser()
     parse.add_argument('db_name', type=str, default='another_peak',
                        help='logical database to store data in')
@@ -98,42 +102,44 @@ def main():
             else:
                 logger.error("%s Failed to fetch data from %s", f, url)
             if 'timestamp' not in data or not data['timestamp']:
-                data['timestamp'] = current_time.strftime('%Y-%m-%d %H:%M:%S.%f')
+                data['timestamp'] = current_time.strftime('%Y-%m-%d %H:%M:%S')
             if 'category' not in data or not data['category']:
                 data['category'] = i
             json_body[i][table_name].append(data)
         # on parcourt ici les composants hardware: batteries, chargeurs, convertisseurs, moteurs
         for f in Helios_DL_devices[i]:
             url = f"http://127.0.0.1:8481/{i}/{f}" if args.use_dummy is True else f"http://{Helios_DL_IP[i]}/device/{f}"
-            filename = f"{current_time.strftime('%Y-%m-%d')}_Helios_DL_{i}_{f}.json"
-
-            table_name = blockchain_policy(conn=ANYLOG_CONN[i], category=i, filename=filename, is_dummy=args.use_dummy)
-            if table_name not in json_body[i]:
-                json_body[i][table_name] = []
-
             json_data = fetch_raw_json(url)
+            print(f)
             is_device = True if 'DEVICE' in f else False
             if not json_data:
                 logger.error("device Failed to fetch data from %s", url)
-            elif 'ACH65' in f:
-                data = parse_ACH65_json(json_data, i, is_device)
-            elif 'BCL25' in f:
-                data = parse_BCL25_json(json_data, i, is_device)
-            elif 'ElPtx350' in f:
-                data = parse_ElPtx350_json(json_data, i, is_device)
-            elif 'BMWix_' in f:
-                id1 = f.split('BMWix_IP_')[1].split('_')[0]
-                id2 = f.split('ID_')[1].split('_')[0]
-                data = parse_BMWix_json(json_data, id1 + id2, i, is_device)
+            else:
+                data = parse_main(json_data, i, f, is_device)
             if 'timestamp' not in data or not data['timestamp']:
-                data['timestamp'] = current_time.strftime('%Y-%m-%d %H:%M:%S.%f')
+                data['timestamp'] = current_time.strftime('%Y-%m-%d %H:%M:%S')
             if 'category' not in data or not data['category']:
                 data['category'] = i
+
+            if args.use_dummy is True:
+                device_data = get_device(target_dt=data['timestamp'].rsplit(":",1)[0], i=i, f=f)
+                if 'timestamp' not in device_data or not device_data['timestamp']:
+                    device_data['timestamp'] = current_time.strftime('%Y-%m-%d %H:%M:%S')
+                if 'category' not in device_data or not device_data['category']:
+                    device_data['category'] = i
+
+            filename = f"{current_time.strftime('%Y-%m-%d')}_Helios_DL_{i}_{f}.json"
+            table_name = blockchain_policy(conn=ANYLOG_CONN[i], category=i, filename=filename, is_dummy=args.use_dummy)
+            device_table_name = table_name + "_device"
+            if table_name not in json_body[i]:
+                json_body[i][table_name] = []
+            if device_table_name not in json_body[i]:
+                json_body[i][device_table_name] = []
             json_body[i][table_name].append(data)
+            json_body[i][device_table_name].append(device_data)
 
         # modbus section
         filename, generatrice_modbus_registers = modbus_main(conn=MODBUS_CONN)
-
         table_name = blockchain_policy(conn=ANYLOG_CONN[i], category=i, filename=filename, is_dummy=args.use_dummy)
         if table_name not in json_body[i]:
             json_body[i][table_name] = []
@@ -152,4 +158,4 @@ if __name__ == '__main__':
     while True:
         start_time = time.time()
         main()
-        time.sleep(30 - (time.time() - start_time)) # get data every 5 minutes
+        # time.sleep(30 - (time.time() - start_time)) # get data every 5 minutes

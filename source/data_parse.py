@@ -160,3 +160,20 @@ def parse_ElPtx350_json(input_data, boat_side, is_device:bool=False):
     except Exception as e:
         logger.info("ElPtx350 error: %s\n%s", e, fields_str)
     return fields_str
+
+
+def parse_main(json_data, i, f, is_device):
+    if 'ACH65' in f:
+        data = parse_ACH65_json(json_data, i, is_device)
+    elif 'BCL25' in f:
+        data = parse_BCL25_json(json_data, i, is_device)
+    elif 'ElPtx350' in f:
+        data = parse_ElPtx350_json(json_data, i, is_device)
+    elif 'BMWix' in f:
+        if 'BMWixIsoMon' in f:
+            id1 = f.split('BMWixIsoMon_IP_')[1].split('_')[0]
+        else:
+            id1 = f.split('BMWix_IP_')[1].split('_')[0]
+        id2 = f.split('ID_')[1].split('_')[0]
+        data = parse_BMWix_json(json_data, id1 + id2, i, is_device)
+    return data
