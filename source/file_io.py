@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+from os import times
 
 DATA_DIR = os.path.join(os.path.dirname(__file__).split("source")[0], 'data')
 
@@ -32,7 +33,7 @@ def read_file(file_path:str):
     return content
 
 
-def write_file(table_name:str, data:list):
+def write_file(table_name:str, db_name:str, data:list):
     """
     write content to (JSON) file
     :args:
@@ -49,14 +50,26 @@ def write_file(table_name:str, data:list):
         except Exception as error:
             raise Exception(f'Failed to create data dir {DATA_DIR} (Error: {error})')
 
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H_%M_%S_%f') # will be use timestamp from data
-    file_name = os.path.join(DATA_DIR, f"{timestamp}.{table_name}.0.json")
+
+    timestamp = datetime.datetime.now().strftime('%Y_%m_%d')
+    if data and isinstance(data, list) and len(data) > 0:
+        if '.' in data[0]['timestamp']:
+            timestamp = datetime.datetime.strptime(data[0]['timestamp'], "%Y-%m-%d %H:%M:%S.%f").strftime('%Y_%m_%d')
+        else:
+            timestamp = datetime.datetime.strptime(data[0]['timestamp'], "%Y-%m-%d %H:%M:%S").strftime('%Y_%m_%d')
+    file_name = os.path.join(DATA_DIR, f"{db_name}.{table_name}.0.{timestamp}.json")
+
+    if not os.path.isfile(file_name):
+        try:
+            open(file_name, 'w').close()
+        except Exception as error:
+            raise Exception(f"Failed to create file {file_name} (Error: {error})")
 
     try:
-        with open(file_name, 'w') as f:
+        with open(file_name, 'a') as f:
             for line in data:
                 try:
-                    f.write(json.dumps(line) + '\n')
+                    f.write(f"{json.dumps(line)}\n")
                 except Exception as error:
                     raise Exception(f'Failed to write content into file (file name: {file_name} | line number: {data.index(line)} | Error: {error})')
     except Exception as error:
