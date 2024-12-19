@@ -25,7 +25,7 @@ def parse_vessel_json(input_data, boat_side):
     try:
         # Extraire les champs pertinents des données JSON
         fields_str = {
-            "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')),
+            "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
             f"hmiYear": input_data.get("hmiYear", None),
             f"hmiMonth": input_data.get("hmiMonth", None),
             f"hmiDay": input_data.get("hmiDay", None),
@@ -61,6 +61,7 @@ def parse_ACH65_json(input_data, boat_side, is_device:bool=False):
     try:
         if is_device is False:
             fields_str = {
+                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                 f"ACH65{boat_side}_gMotorVoltage": make_it_always_a_float(input_data.get("gMotorVoltage", None)),
                 f"ACH65{boat_side}_ggMotorPower": make_it_always_a_float(input_data.get("gMotorPower", None)),
                 f"ACH65{boat_side}_ggMotorTemperature":input_data.get("gMotorTemperature", None),
@@ -69,6 +70,7 @@ def parse_ACH65_json(input_data, boat_side, is_device:bool=False):
             }
         else:
             fields_str = {
+                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                 f"ACH65{boat_side}_deviceState": input_data.get("deviceState", None),
                 f"ACH65{boat_side}_error": input_data.get("error", None),
                 f"ACH65{boat_side}_totalTimeEnabledHours": input_data.get("totalTimeEnabledHours", None)
@@ -82,7 +84,7 @@ def parse_BCL25_json(input_data, boat_side, is_device:bool=False):
     try:
         if is_device is False:
             fields_str = {
-                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')),
+                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                 f"BCL25{boat_side}_gState": input_data.get("gState", None),
                 f"BCL25{boat_side}_gActAcVoltage": make_it_always_a_float(input_data.get("gActAcVoltage", None)),
                 f"BCL25{boat_side}_gActAcCurrent": make_it_always_a_float(input_data.get("gActAcCurrent", None)),
@@ -93,7 +95,7 @@ def parse_BCL25_json(input_data, boat_side, is_device:bool=False):
             }
         else:
             fields_str = {
-                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')),
+                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                 f"BCL25{boat_side}_currentL1": make_it_always_a_float(input_data.get("currentL1", None)),
                 f"BCL25{boat_side}_currentL2": make_it_always_a_float(input_data.get("currentL2", None)),
                 f"BCL25{boat_side}_currentL3": make_it_always_a_float(input_data.get("currentL3", None)),
@@ -112,7 +114,7 @@ def parse_BMWix_json(input_data, id, boat_side, is_device:bool=False):
     try:
         if is_device is False:
             fields_str = {
-                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')),
+                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                 f"BMWix{id}{boat_side}_batteryErrorCode": input_data.get("batteryErrorCode", None),
                 f"BMWix{id}{boat_side}_gCurrent": make_it_always_a_float(input_data.get("gCurrent", None)),
                 f"BMWix{id}{boat_side}_gAverageTemperature": input_data.get("gAverageTemperature", None),
@@ -124,7 +126,7 @@ def parse_BMWix_json(input_data, id, boat_side, is_device:bool=False):
             }
         else:
             fields_str = {
-                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')),
+                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                 f"BMWix{id}{boat_side}_actualCurrent": make_it_always_a_float(input_data.get("actualCurrent", None)),
                 f"BMWix{id}{boat_side}_actualSoc": make_it_always_a_float(input_data.get("actualSoc", None)),
                 f"BMWix{id}{boat_side}_actualTempBattery": input_data.get("actualTempBattery", None),
@@ -141,7 +143,7 @@ def parse_ElPtx350_json(input_data, boat_side, is_device:bool=False):
     try:
         if is_device is False:
             fields_str = {
-                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')),
+                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                 f"ElPtx350{boat_side}_gState": input_data.get("gState", None),
                 f"ElPtx350{boat_side}_gPowerRequested": input_data.get("gPowerRequested", None),
                 f"ElPtx350{boat_side}_gPowerActual": make_it_always_a_float(input_data.get("gPowerActual", None)),
@@ -149,7 +151,7 @@ def parse_ElPtx350_json(input_data, boat_side, is_device:bool=False):
             }
         else:
             fields_str = {
-                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')),
+                "timestamp": input_data.get("timestamp", datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                 f"ElPtx350{boat_side}_dcVoltage": make_it_always_a_float(input_data.get("dcVoltage", None)),
                 f"ElPtx350{boat_side}_externalError": input_data.get("externalError", None),
                 f"ElPtx350{boat_side}_powerActual": make_it_always_a_float(input_data.get("powerActual", None)),
