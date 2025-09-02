@@ -13,6 +13,7 @@ However, the logic should be correct.
 """
 import argparse
 import datetime
+import random
 import socket
 import time
 
@@ -23,6 +24,8 @@ from source.modbus import modbus_main
 from source.params import Helios_default, Helios_DL_devices, Helios_DL_IP, ANYLOG_CONN, MODBUS_CONN
 from source.anylog_api import blockchain_policy, anylog_publish_data
 from source.file_io import get_device
+
+ip_list = list(ANYLOG_CONN.values())
 
 
 def check_ping(is_dummy:bool=False):
@@ -72,8 +75,13 @@ def main():
         ANYLOG_CONN - Connection to AnyLog node(s)
         MODBUS_CONN:str - connection to Modbus
     """
+    last_ip = None
+    my_ip = None
+    global ip_list
+
     device_data = None
     parse = argparse.ArgumentParser()
+    parse.add_argument('conn', type=str, default=None)
     parse.add_argument('db_name', type=str, default='another_peak',
                        help='logical database to store data in')
     parse.add_argument('--use-dummy', type=bool, const=True,  default=False, nargs='?',
@@ -88,6 +96,7 @@ def main():
         'B': {},
         'T': {}
     }
+
     for i in ["B", "T"]:  # On parcourt Babord et Tribord et comme les componnents  ont le même nom, on rajoute "B" ou "T" pour les différencier
         for f in Helios_default:
             if f != "vessel":
@@ -152,13 +161,11 @@ def main():
         json_body[i][table_name].append(data)
 
     for i in json_body:
-        anylog_publish_data(conn=ANYLOG_CONN[i], data=json_body[i]  , db_name=args.db_name)
-
-
-
+        anylog_publish_data(conn=args.conn, data=json_body[i]  , db_name=args.db_name)
 
 if __name__ == '__main__':
     while True:
         start_time = time.time()
         main()
-        time.sleep(300 - (time.time() - start_time)) # get data every 5 minutes
+        # sleep_time = 300 - (time.time() - start_time)  if 300 - (time.time() - start_time) > 0 else 300
+        time.sleep(random.choice([30, 35, 40, 45, 50, 55, 60])) # get data every 5 minutes

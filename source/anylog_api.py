@@ -2,6 +2,7 @@
 Disclaimer: blockchain related methods ccould may need to be updated based on production env as it is based on
 the generated file names
 """
+import datetime
 import json
 
 from source.logger_config import logger
@@ -139,7 +140,15 @@ def anylog_publish_data(conn:str, data, db_name:str):
     """
     for table_name in data:
         write_file(table_name=table_name, db_name=db_name, data=data[table_name]) # write data to file
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
         try:
+            data[table_name][0]['timestamp'] = now.strftime('%Y-%m-%d %H:%M:%S.%f')
+            data[table_name][0]['hmiYear'] = now.year
+            data[table_name][0]['hmiMonth'] = now.month
+            data[table_name][0]['hmiDay'] = now.day
+            data[table_name][0]['hmiHour'] = now.hour
+            data[table_name][0]['hmiMinute'] = now.minute
+            data[table_name][0]['hmiSecond'] = now.second
             payload = json.dumps(data[table_name])
         except json.JSONDecodeError as error:
             logger.critical(f'Échec de la sérialisation de JSON (Erreur: {error})')
