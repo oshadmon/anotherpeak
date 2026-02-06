@@ -3,6 +3,7 @@ import json
 import os
 import re
 
+from rest_call import execute_command
 """
 AnyLog Policy: https://github.com/AnyLog-co/deployment-scripts/blob/os-dev/sample-scripts/edgex.al
 """
@@ -216,7 +217,14 @@ def main():
                             "bring": f"[{data_type}]"
                         }
 
-    print(json.dumps(MAPPING_POLICY, indent=2))
+    headers = {
+        "command": "blockchain insert where policy=!new_policy and local=true and master=!ledger_conn",
+        "User-Agent": "AnyLog/1.23"    
+    }
+    
+    new_policy = f"<new_policy={json.dumps(MAPPING_POLICY)}>"
+    response = execute_command(method="POST", conn="50.116.20.125:32149", headers=headers, payload=new_policy)
+    print(response)
 
 if __name__ == "__main__":
     main()
