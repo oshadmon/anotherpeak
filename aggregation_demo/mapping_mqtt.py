@@ -1,6 +1,6 @@
 import ast
+import copy
 import json
-import os
 import re
 
 from rest_call import execute_command
@@ -196,35 +196,57 @@ def get_types_per_key(rows):
     return data_types
 
 
+def generate_policy(table:str, data_types:list):
+    new_policy_headers = {
+        "command": "blockchain insert where policy=!new_policy and local=true and master=!ledger_conn",
+        "User-Agent": "AnyLog/1.23"
+    }
 
-def main():
-    data_types = get_types_per_key(RAW_DATA)
-    for table in TABLES:
-        print(table)
+    check_policy_headers = {
+        "command": f"blockchain get * where id = {table.replace('_', '-')}",
+        "User-Agent": "AnyLog/1.23"
+    }
+
+    response = execute_command(method="GET", conn="50.116.20.125:32149", headers=check_policy_headers)
+    if not response.json():
+        mapping_policy = copy.deepcopy(MAPPING_POLICY)
+        mapping_policy["mapping"]["table"] = table
+        mapping_policy["mapping"]["id"] = table.replace('_', '-')
         for column in TABLES[table]:
             if data_types.get(column):
-                MAPPING_POLICY["mapping"]["schema"][_camel_to_snake(column)] = {
-                    "table": table,
+                mapping_policy["mapping"]["schema"][_camel_to_snake(column)] = {
                     "type": data_types.get(column),
                     "bring": f"[{column}]"
                 }
+
             else:
                 for data_type in data_types:
                     if data_type.startswith(column.split("*")[0]):
-                        MAPPING_POLICY["mapping"]["schema"][_camel_to_snake(data_type)] = {
+                        mapping_policy["mapping"]["schema"][_camel_to_snake(data_type)] = {
                             "table": table,
                             "type": data_types.get(data_type),
                             "bring": f"[{data_type}]"
                         }
+        new_policy = f"<new_policy={json.dumps(mapping_policy)}>"
+        response = execute_command(method="POST", conn="50.116.20.125:32149", headers=new_policy_headers, payload=new_policy)
+        print(response)
 
+
+def main():
+    data_types = get_types_per_key(RAW_DATA)
     headers = {
-        "command": "blockchain insert where policy=!new_policy and local=true and master=!ledger_conn",
-        "User-Agent": "AnyLog/1.23"    
+        "command": "run msg client where broker=rest and user-agent=anylog and log=false and topic=(name=anotherpeak-demo and ",
+        "User-Agent": "AnyLog/1.23"
     }
-    
-    new_policy = f"<new_policy={json.dumps(MAPPING_POLICY)}>"
-    response = execute_command(method="POST", conn="50.116.20.125:32149", headers=headers, payload=new_policy)
+    for table in TABLES:
+        print(table)
+        generate_policy(table, data_types)
+        headers["command"] += f" policy={table.replace('_', '-')} and "
+
+    headers["command"] = headers["command"].rsplit(" and ", 1)[0] + ")"
+    response = execute_command(method="POST", conn="50.116.20.125:32159", headers=headers, payload=None)
     print(response)
+
 
 if __name__ == "__main__":
     main()
