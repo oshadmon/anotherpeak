@@ -2,18 +2,28 @@ import datetime
 import os
 import json
 import time
+from pydoc_data.topics import topics
+
 import support
 
 DATA_DIR = os.path.join(__file__.split("aggregation-demo")[0], "lcdb")
 if not os.path.isdir(DATA_DIR):
     raise NotADirectoryError(f"Failed to locate {DATA_DIR}")
 
-FILES = [
-    "2024-08-15_Helios_DLB_vessel.json",
-    "2024-08-15_Helios_DLB_BCL25_700_8_CH_IP_3_ID_65.json"
-]
+FILES = {
+    "anotherpeak-tier1": "2024-08-15_Helios_DLB_vessel.json",
+    "anotherpeak-tier2": "2024-08-15_Helios_DLB_BCL25_700_8_CH_IP_3_ID_65.json"
+}
 
-def publish_data(conn:str, row:dict):
+def publish_data(conn:str, row:dict, topic:str="anotherpeak"):
+    headers = {
+        "command": "data",
+        "topic": topic,
+        "User-Agent": "AnyLog/1.23",
+        "Content-Type": "text/plain"
+    }
+
+    support.execute_command(method="POST", conn=conn, headers=headers, payload=json.dumps(row))
 
 
 def data_generator():
@@ -26,7 +36,8 @@ def data_generator():
     while True:   # infinite streaming loop
         rows = {}
 
-        for i, fname in enumerate(FILES):
+        for i, topic in enumerate(FILES):
+            fname = FILES[topic]
             file_path = os.path.join(DATA_DIR, fname)
             if not os.path.isfile(file_path):
                 raise FileNotFoundError(f"Failed to locate {file_path}")
@@ -50,11 +61,12 @@ def data_generator():
             )
 
             line["timestamp"] = virtual_time.strftime("%Y-%m-%d %H:%M:%S")
-            line["vessel"] = "Helios"
-            line["side"] = "DLB"
+            line["vessel"] = "Helios_DLB"
+            # line["side"] = "DLB"
 
             rows[fname] = line
             print(line)
+            publish_data(conn="50.116.20.125:32149", row=line, topic=topic)
             if i == len(FILES) - 1:
                 index = new_index
                 time.sleep(30)

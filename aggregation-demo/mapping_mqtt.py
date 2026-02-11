@@ -8,42 +8,44 @@ DATA_DIR = os.path.join(__file__.split("aggregation-demo")[0], "lcdb")
 if not os.path.isdir(DATA_DIR):
     raise NotADirectoryError(f"Failed to locate {DATA_DIR}")
 
-TIER_1_MAPPING = {
-    "file": "2024-08-15_Helios_DLB_vessel.json",
-    "tables": {
-        "battery_telemetry": [
-            "batteryStateOfChargePercent",
-            "hvBatteryCapacity",
-            "hvBatteryType",
-            "lvBattery*",
-            "currentBatteryPower",
-            "maxBatteryPower",
-            "timeBattery",
-            "timeToFullMinute",
-            "starterBatteryVoltage"
-            "starterBatteryVoltagePercent"
-        ],
-        "navigation_telemetry": [
-            "currentPositionLatitude",
-            "currentPositionLongitude",
-            "speedOverGround",
-            "speedOverGroundFixed",
-            "speedThroughWater",
-            "heading*",
-            "distance*",
-            "trip",
-            "sogValid"
-        ],
-        "charger_telemetry": [
-            "acChargerPowerPercent",
-            "portAcCharger*",
-            "stbdAcCharger*",
-            "elPtx*",
-            "dcac*",
-            "dcdc*",
-            "regeneration*"
-        ],
-        "engine_telemetry": [
+
+MAPPING_INFO = {
+    "anotherpeak-tier1": {
+        "file": "2024-08-15_Helios_DLB_vessel.json",
+        "tables": {
+            "battery_telemetry": [
+                "batteryStateOfChargePercent",
+                "hvBatteryCapacity",
+                "hvBatteryType",
+                "lvBattery*",
+                "currentBatteryPower",
+                "maxBatteryPower",
+                "timeBattery",
+                "timeToFullMinute",
+                "starterBatteryVoltage"
+                "starterBatteryVoltagePercent"
+            ],
+            "navigation_telemetry": [
+                "currentPositionLatitude",
+                "currentPositionLongitude",
+                "speedOverGround",
+                "speedOverGroundFixed",
+                "speedThroughWater",
+                "heading*",
+                "distance*",
+                "trip",
+                "sogValid"
+            ],
+            "charger_telemetry": [
+                "acChargerPowerPercent",
+                "portAcCharger*",
+                "stbdAcCharger*",
+                "elPtx*",
+                "dcac*",
+                "dcdc*",
+                "regeneration*"
+            ],
+            "engine_telemetry": [
             "motor*",
             "rpm*",
             "throttle*",
@@ -55,31 +57,30 @@ TIER_1_MAPPING = {
             "vesselState",
             "systemState"
         ],
-    }
-}
-
-TIER_2_MAPPING = {
-    "file": "2024-08-15_Helios_DLB_BCL25_700_8_CH_IP_3_ID_65.json",
-    "tables": {
-        "ac_power_telemetry": [
-            "gActAcCurrent",
-            "gActAcVoltage",
-            "gActAcFrequency",
-            "gCommandAcCurrentLimitPP",
-            "gMaxDcPower",
-            "gParamMaxAcCurrentPP"
-        ],
-        "dc_power_telemetry": [
-            "gActDcPower",
-            "gActDcVoltage",
-            "gCommandDcPowerLimit",
-            "gCommandMaxDcVoltage"
-        ],
-        "thermal_telemetry": [
-            "gActElectronicTemperature",
-            "gCoolingPolicy"
-        ],
-        "control_state": [
+        },
+    },
+    "anotherpeak-tier2": {
+        "file": "2024-08-15_Helios_DLB_BCL25_700_8_CH_IP_3_ID_65.json",
+        "tables": {
+            "ac_power_telemetry": [
+                "gActAcCurrent",
+                "gActAcVoltage",
+                "gActAcFrequency",
+                "gCommandAcCurrentLimitPP",
+                "gMaxDcPower",
+                "gParamMaxAcCurrentPP"
+            ],
+            "dc_power_telemetry": [
+                "gActDcPower",
+                "gActDcVoltage",
+                "gCommandDcPowerLimit",
+                "gCommandMaxDcVoltage"
+            ],
+            "thermal_telemetry": [
+                "gActElectronicTemperature",
+                "gCoolingPolicy"
+            ],
+            "control_state": [
             "gCommand",
             "gState",
             "gWake",
@@ -88,8 +89,10 @@ TIER_2_MAPPING = {
             "gDisableReason",
             "gSimConnectedPhaseCount"
         ]
+        }
     }
 }
+
 
 MAPPING_POLICY = {
     "mapping": {
@@ -128,28 +131,27 @@ def publish_policy(conn:str, mapping_policy:dict):
         new_policy = f"<new_policy={json.dumps(mapping_policy)}>"
         support.execute_command(method="POST", conn=conn, headers=publish_policy_headers, payload=new_policy)
 
-def create_msg_client(conn:str, mapping_ids:list):
-    check_msg_client = {
-        "command": "get msg client where topic=anotherpeak",
+def create_msg_client(conn:str, command:str):
+    # check_msg_client = {
+    #     "command": "get msg client where topic=anotherpeak",
+    #     "User-Agent": "AnyLog/1.23"
+    # }
+    # response = support.execute_command(method="GET", conn=conn, headers=check_msg_client, payload=None)
+    # if response.text.strip() in  ["No such client subscription", "No message client subscriptions"]:
+    msg_headers = {
+        "command": command,
         "User-Agent": "AnyLog/1.23"
     }
-    response = support.execute_command(method="GET", conn=conn, headers=check_msg_client, payload=None)
-    if response.text.strip() == "No such client subscription":
-        msg_headers = {
-            "command": "run msg client where broker=rest and user-agent=anylog and log=false and topic=(name=anotherpeak",
-            "User-Agent": "AnyLog/1.23"
-        }
 
-        for mapping_id in mapping_ids:
-            msg_headers["command"] += f" and policy={mapping_id}"
-        msg_headers["command"] += ")"
-        support.execute_command(method="POST", conn=conn, headers=msg_headers, payload=None)
+    support.execute_command(method="POST", conn=conn, headers=msg_headers, payload=None)
 
 def mqtt_mapping(conn:str):
     mapping_ids = []
-    for tier in [TIER_1_MAPPING, TIER_2_MAPPING]:
+    msg_client = "run msg client where broker=rest and user-agent=anylog and log=false"
+    for topic in MAPPING_INFO:
+        msg_client += f" and topic=(name={topic}"
         file_path = None
-        file_name = tier.get('file')
+        file_name = MAPPING_INFO[topic].get('file')
         if file_name:
             file_path = os.path.join(DATA_DIR, file_name)
         if not os.path.isfile(file_path) or not file_path:
@@ -162,21 +164,25 @@ def mqtt_mapping(conn:str):
             timestamp, line = row.split(": ", 1)
             content[timestamp] = json.loads(line)
 
-        for table in tier["tables"]:
+        for table in MAPPING_INFO[topic]["tables"]:
             mapping_policy = copy.deepcopy(MAPPING_POLICY)
             mapping_policy["mapping"]["id"] = table.replace("_", "-")
             mapping_policy["mapping"]["table"] = table
 
-            columns_info = support.calculate_data_types(table_columns=tier["tables"][table], data=list(content.values()))
+            columns_info = support.calculate_data_types(table_columns=MAPPING_INFO[topic]["tables"][table], data=list(content.values()))
             for column in columns_info:
                 mapping_policy["mapping"]["schema"][support.camel_to_snake(column)] = {
                     "type": columns_info.get(column),
-                    "bring": f"[{column}]"
+                    "bring": f"[{column}]",
+                    **({"default": "UNKNOWN"} if columns_info.get(column) == "string" else {})
                 }
-            publish_policy(conn=conn, mapping_policy=mapping_policy)
-            mapping_ids.append(mapping_policy["mapping"]["id"])
 
-    create_msg_client(conn=conn, mapping_ids=mapping_ids)
+
+            publish_policy(conn=conn, mapping_policy=mapping_policy)
+            msg_client += f" and policy={mapping_policy['mapping']['id']}"
+        msg_client += ')'
+    # print(msg_client)
+    create_msg_client(conn=conn, command=msg_client)
 
 if __name__ == "__main__":
     mqtt_mapping(conn="50.116.20.125:32149")
