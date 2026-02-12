@@ -132,12 +132,6 @@ def publish_policy(conn:str, mapping_policy:dict):
         support.execute_command(method="POST", conn=conn, headers=publish_policy_headers, payload=new_policy)
 
 def create_msg_client(conn:str, command:str):
-    # check_msg_client = {
-    #     "command": "get msg client where topic=anotherpeak",
-    #     "User-Agent": "AnyLog/1.23"
-    # }
-    # response = support.execute_command(method="GET", conn=conn, headers=check_msg_client, payload=None)
-    # if response.text.strip() in  ["No such client subscription", "No message client subscriptions"]:
     msg_headers = {
         "command": command,
         "User-Agent": "AnyLog/1.23"
@@ -145,8 +139,28 @@ def create_msg_client(conn:str, command:str):
 
     support.execute_command(method="POST", conn=conn, headers=msg_headers, payload=None)
 
+def check_mqtt_client(conn:str):
+    topics = list(MAPPING_INFO.keys())
+    status = False
+
+
+    for topic in topics:
+        if not status:
+            headers = {
+                "command": f"get msg client where topic={topics}",
+                "User-Agent": "AnyLog/1.23"
+            }
+
+            response = support.execute_command(method="GET", conn=conn, headers=headers)
+            if response.text.strip() not in ["No such client subscription", "No message client subscriptions"]:
+                status = True
+
+    return status
+
+
 def mqtt_mapping(conn:str):
     mapping_ids = []
+
     msg_client = "run msg client where broker=rest and user-agent=anylog and log=false"
     for topic in MAPPING_INFO:
         msg_client += f" and topic=(name={topic}"
@@ -181,8 +195,9 @@ def mqtt_mapping(conn:str):
             publish_policy(conn=conn, mapping_policy=mapping_policy)
             msg_client += f" and policy={mapping_policy['mapping']['id']}"
         msg_client += ')'
-    # print(msg_client)
-    create_msg_client(conn=conn, command=msg_client)
+
+    if not check_mqtt_client(conn=conn):
+        create_msg_client(conn=conn, command=msg_client)
 
 if __name__ == "__main__":
     mqtt_mapping(conn="50.116.20.125:32149")

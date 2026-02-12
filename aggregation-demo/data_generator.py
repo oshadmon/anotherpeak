@@ -11,8 +11,8 @@ if not os.path.isdir(DATA_DIR):
     raise NotADirectoryError(f"Failed to locate {DATA_DIR}")
 
 FILES = {
-    "anotherpeak-tier1": "2024-08-15_Helios_DLB_vessel.json",
-    "anotherpeak-tier2": "2024-08-15_Helios_DLB_BCL25_700_8_CH_IP_3_ID_65.json"
+    "anotherpeak-tier1": "2024-08-15_Helios_XXX_vessel.json",
+    "anotherpeak-tier2": "2024-08-15_Helios_XXX_BCL25_700_8_CH_IP_3_ID_65.json"
 }
 
 def publish_data(conn:str, row:dict, topic:str="anotherpeak"):
@@ -26,7 +26,7 @@ def publish_data(conn:str, row:dict, topic:str="anotherpeak"):
     support.execute_command(method="POST", conn=conn, headers=headers, payload=json.dumps(row))
 
 
-def data_generator():
+def data_generator(conn:str, boat_side:str):
     row_count = 280
     index = 0
 
@@ -37,7 +37,7 @@ def data_generator():
         rows = {}
 
         for i, topic in enumerate(FILES):
-            fname = FILES[topic]
+            fname = FILES[topic].replace("XXX", boat_side)
             file_path = os.path.join(DATA_DIR, fname)
             if not os.path.isfile(file_path):
                 raise FileNotFoundError(f"Failed to locate {file_path}")
@@ -61,12 +61,12 @@ def data_generator():
             )
 
             line["timestamp"] = virtual_time.strftime("%Y-%m-%d %H:%M:%S")
-            line["vessel"] = "Helios_DLB"
+            line["vessel"] = f"Helios_{boat_side}"
             # line["side"] = "DLB"
 
             rows[fname] = line
             print(line)
-            publish_data(conn="50.116.20.125:32149", row=line, topic=topic)
+            publish_data(conn=conn, row=line, topic=topic)
             if i == len(FILES) - 1:
                 index = new_index
                 time.sleep(30)
