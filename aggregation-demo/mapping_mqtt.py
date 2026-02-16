@@ -143,11 +143,10 @@ def check_mqtt_client(conn:str):
     topics = list(MAPPING_INFO.keys())
     status = False
 
-
     for topic in topics:
         if not status:
             headers = {
-                "command": f"get msg client where topic={topics}",
+                "command": f"get msg client where topic={topic}",
                 "User-Agent": "AnyLog/1.23"
             }
 

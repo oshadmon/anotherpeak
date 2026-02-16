@@ -1,5 +1,7 @@
 # AnotherPeak Aggregation Demo 
 
+Data can be seen via [Remote-GUI](http://50.116.20.125:3001/dashboard/) - **Destination**: `50.116.20.125:32149`
+
 The data provided in [lcdb](../lcdb) can be broken down into 4 tiers of information:
 * **Tier 1** - Core Operational State (Critical). <br/>These directly represent system-level state and are what operators, analytics, and dashboards mostly care about:
 

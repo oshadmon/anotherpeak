@@ -10,10 +10,7 @@ def create_uns(name:str, uns_level:str, base_namespace:str=None, parent:str=None
         "uns": {
             "name": name,
             "uns_level": uns_level,
-            "namespace": (
-                posixpath.join(base_namespace, name)
-                if base_namespace else name
-            ),
+            "namespace": None,
             **({"parent": parent} if parent else {}),
             **({"dbms": dbms} if dbms else {}),
             **({"table": table} if table else {}),
@@ -21,6 +18,15 @@ def create_uns(name:str, uns_level:str, base_namespace:str=None, parent:str=None
             **({"where": where} if where else {})
         }
     }
+
+    if not base_namespace:
+        uns["uns"]["namespace"] = name
+    elif uns_level == "device":
+        uns["uns"]["namespace"] = posixpath.join(base_namespace, name.split('-')[-1].strip())
+    elif uns_level == "sensor":
+        uns["uns"]["namespace"] = posixpath.join(base_namespace, name.split(':')[-1].strip())
+    else:
+        uns["uns"]["namespace"] = posixpath.join(base_namespace, name)
 
     return uns
 
@@ -83,7 +89,7 @@ def main():
 
     policy = create_uns(name="AnotherPeak", uns_level="root", base_namespace=None)
     root_id, root_namespace = publish_policy(conn=args.conn, policy=policy)
-    policy = create_uns(name="Helix", uns_level="vessel", base_namespace=root_namespace, parent=root_id)
+    policy = create_uns(name="Helios", uns_level="vessel", base_namespace=root_namespace, parent=root_id)
     vessel_id, vessel_namespace = publish_policy(args.conn, policy=policy)
     for side in ["DLB", "DLT"]:
         policy  = create_uns(name=side, uns_level="side", base_namespace=vessel_namespace, parent=vessel_id)
@@ -91,14 +97,14 @@ def main():
 
         tables = get_tables(conn=args.conn)
         for table in tables:
-            policy = create_uns(name=f"Helix_{side} - {table}", uns_level="device", base_namespace=side_namespace,
-                                parent=side_id, dbms="anotherpeak", table=table, where=f"vessel='Helix_{side}'")
+            policy = create_uns(name=f"Helios_{side} - {table}", uns_level="device", base_namespace=side_namespace,
+                                parent=side_id, dbms="anotherpeak", table=table, where=f"vessel='Helios_{side}'")
             table_id, table_namespace = publish_policy(args.conn, policy=policy)
             columns = get_columns(conn=args.conn, table=table)
             for column in columns:
-                policy = create_uns(name=f"Helix_{side} - {table}: {column}", uns_level="sensor",
+                policy = create_uns(name=f"Helios_{side} - {table}: {column}", uns_level="sensor",
                                     base_namespace=table_namespace, parent=table_id, dbms="anotherpeak", table=table,
-                                    column=column, where=f"vessel='Helix_{side}'")
+                                    column=column, where=f"vessel='Helios_{side}'")
                 publish_policy(args.conn, policy=policy)
 
 
