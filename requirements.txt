@@ -1,4 +1,0 @@
-requests>=0.0
-pyModbus>=0.0
-flask>=0
-influxdb>=0.0
