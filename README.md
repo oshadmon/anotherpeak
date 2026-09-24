@@ -14,6 +14,10 @@ the same queries.
 - [Helios](http://45.33.11.32/Sample-Data/vessel-data2/helios/)
 - [HydraAix](http://45.33.11.32/Sample-Data/vessel-data2/hydraaix/)
 
+**Live Dashboards**: 
+- [Captain View](http://45.33.11.32/Sample-Data/vessel-data2/captain-dashboard.html)
+- [Fleet View](http://45.33.11.32/Sample-Data/vessel-data2/fleet-dashboard.html)
+
 ## Network
 
 - **AnyLog version:** 2.1.2609-9cf217
