@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Helm — captain's view</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script>
+try {
+  var t = (JSON.parse(localStorage.getItem("helm-captain-settings") || "{}").theme) || "system";
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+  if (t === "dark" || (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches))
+    document.documentElement.classList.add("is-dark");
+} catch (e) {}
+</script>
+<style>
+:root{
+  --bg:#E6EDF0; --surface:#F6F9FA; --ink:#14324A; --muted:#5B7285; --line:#C7D5DC; --grid:#DCE5EA;
+  --port:#C23B3B; --stbd:#1E8757; --amber:#C07F00; --danger:#A8322D; --focus:#2B6CB0; --ok:#1E8757;
+  --sans:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --cond:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0D1C28; --surface:#142838; --ink:#E1ECF2; --muted:#8EA5B4; --line:#24405A; --grid:#1E3548;
+  --port:#E35D5E; --stbd:#3BB27D; --amber:#F0B13A; --danger:#F07A72; --focus:#7FB3E8; --ok:#3BB27D; color-scheme:dark;}
+}
+:root[data-theme="dark"]{--bg:#0D1C28; --surface:#142838; --ink:#E1ECF2; --muted:#8EA5B4; --line:#24405A; --grid:#1E3548;
+  --port:#E35D5E; --stbd:#3BB27D; --amber:#F0B13A; --danger:#F07A72; --focus:#7FB3E8; --ok:#3BB27D; color-scheme:dark;}
+html.is-dark .leaflet-tile-pane .basemap{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.9) saturate(.6)}
+html.is-dark .leaflet-container{background:#0D1C28}
+html.is-dark .leaflet-popup-content-wrapper, html.is-dark .leaflet-popup-tip,
+html.is-dark .leaflet-tooltip, html.is-dark .leaflet-control-layers, html.is-dark .leaflet-bar a{
+  background:var(--surface);color:var(--ink);border-color:var(--line)}
+html.is-dark .leaflet-control-attribution{background:rgba(20,40,56,.8);color:var(--muted)}
+html.is-dark .leaflet-control-attribution a{color:var(--ink)}
+
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--sans);font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+h2{margin:0;font:600 19px/1.2 var(--cond)}
+.sub{font-size:13px;color:var(--muted)}
+
+/* Top bar */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--surface)}
+.boat{display:flex;align-items:baseline;gap:8px}
+.boat label{color:var(--muted);font-size:13px}
+.boat select{font:700 32px/1 var(--cond);background:transparent;border:0;padding:0 24px 0 0;cursor:pointer;
+  appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);
+  background-position:right 8px center,right 2px center;background-size:6px 6px;background-repeat:no-repeat}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:5px 11px;cursor:pointer;color:var(--muted)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.group{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 12px;cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:default}
+.status{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.ok{background:var(--ok)} .dot.err{background:var(--danger)} .dot.busy{background:var(--amber)}
+select.plain{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:4px 6px}
+
+.banner{margin:16px 20px 0;padding:10px 14px;border-left:4px solid var(--danger);background:var(--surface);display:none;gap:12px;align-items:center;flex-wrap:wrap}
+.banner.show{display:flex}
+.banner.warn{border-left-color:var(--amber)}
+
+/* Layout */
+main{padding:16px 20px 32px;display:grid;gap:16px;grid-template-columns:minmax(0,1.6fr) minmax(320px,1fr)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.full{grid-column:1/-1}
+
+/* Map */
+.mapwrap{position:relative;min-height:500px;overflow:hidden}
+#map{position:absolute;inset:0;border-radius:8px}
+.mapnote{position:absolute;z-index:500;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--surface);border:1px solid var(--line);
+  padding:12px 16px;border-radius:6px;max-width:320px;text-align:center;display:none}
+.mapnote.show{display:block}
+.legend{position:absolute;z-index:500;left:12px;bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12px}
+.legend div{display:flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px}
+.legend i.pin{width:10px;height:10px;border-radius:50%;border:2px solid var(--amber)}
+.legend i.pin.on{background:var(--amber)}
+.legend strong{display:block;font-weight:600;margin-bottom:2px}
+
+/* Helm column */
+.helm{padding:18px;display:flex;flex-direction:column;gap:16px}
+.speed{display:flex;align-items:flex-end;gap:10px}
+.speed .num{font:700 72px/0.9 var(--cond);letter-spacing:-1px}
+.speed .unit{font:600 22px/1 var(--cond);color:var(--muted);padding-bottom:6px}
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.side{border-top:4px solid var(--c);padding-top:8px}
+.side h3{margin:0 0 4px;font:600 16px/1.2 var(--cond);color:var(--c)}
+.soc{font:700 38px/1 var(--cond)}
+.soc small{font-size:18px;color:var(--muted);font-weight:600}
+.gauge{height:6px;background:var(--grid);border-radius:3px;margin:6px 0 8px;overflow:hidden}
+.gauge span{display:block;height:100%;background:var(--c);width:0}
+dl.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0;font-size:14px}
+dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;text-align:right;font-weight:600}
+.gen{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:6px}
+.gen .lamp{width:14px;height:14px;border-radius:50%;background:var(--grid);border:2px solid var(--muted);flex:none}
+.gen.on .lamp{background:var(--amber);border-color:var(--amber);box-shadow:0 0 0 4px color-mix(in srgb,var(--amber) 25%,transparent)}
+.gen b{font:600 18px/1.1 var(--cond)}
+.arrive{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:10px}
+.arrive .inputs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+.arrive input{border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:4px 8px;width:86px}
+.arrive .verdict{font:600 20px/1.2 var(--cond)}
+.arrive .verdict.ok{color:var(--ok)} .arrive .verdict.warn{color:var(--amber)} .arrive .verdict.bad{color:var(--danger)}
+.arrive ul{margin:0;padding-left:18px;font-size:14px}
+.arrive li{margin:2px 0}
+.fresh{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+.fresh.stale strong{color:var(--amber)}
+
+/* Health: hull plan + alerts */
+.health{padding:18px;display:grid;grid-template-columns:minmax(240px,340px) minmax(0,1fr);gap:24px;align-items:start}
+.health header{grid-column:1/-1;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.health header .overall{font:700 26px/1.1 var(--cond)}
+.overall.ok{color:var(--ok)} .overall.watch{color:var(--amber)} .overall.alert{color:var(--danger)}
+svg.hull{width:100%;height:auto;display:block}
+.hull .shell{fill:color-mix(in srgb,var(--bg) 70%,var(--surface));stroke:var(--ink);stroke-width:2}
+.hull .keel{stroke:var(--line);stroke-width:1;stroke-dasharray:4 4}
+.hull .u{cursor:pointer}
+.hull .u rect{fill:var(--surface);stroke:var(--line);stroke-width:1.5;rx:5}
+.hull .u.ok rect{stroke:var(--sidec,var(--ok));stroke-width:2}
+.hull .u.watch rect{fill:color-mix(in srgb,var(--amber) 22%,var(--surface));stroke:var(--amber);stroke-width:2.5}
+.hull .u.alert rect{fill:color-mix(in srgb,var(--danger) 22%,var(--surface));stroke:var(--danger);stroke-width:3}
+.hull .u.stale rect{stroke-dasharray:4 3;stroke:var(--muted)}
+.hull .u.stale text{fill:var(--muted)}
+.hull .u:focus-visible rect,.hull .u:hover rect{stroke:var(--focus);stroke-width:3}
+.hull .u:focus{outline:none}
+.hull text{fill:var(--ink);font-family:var(--sans);font-size:11px}
+.hull text.t{font-family:var(--cond);font-weight:600;font-size:13px}
+.hull text.lbl{fill:var(--muted);font-size:11px}
+.hull text.pt{fill:var(--port);font-weight:600} .hull text.sb{fill:var(--stbd);font-weight:600}
+.hullkey{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);margin-top:8px}
+.hullkey i{display:inline-block;width:14px;height:10px;border-radius:2px;border:2px solid var(--line);vertical-align:-1px;margin-right:4px}
+.hullkey i.w{border-color:var(--amber);background:color-mix(in srgb,var(--amber) 22%,var(--surface))}
+.hullkey i.a{border-color:var(--danger);background:color-mix(in srgb,var(--danger) 22%,var(--surface))}
+.hullkey i.s{border-style:dashed;border-color:var(--muted)}
+.lists{display:grid;gap:20px}
+.lists h3{margin:0 0 8px;font:600 17px/1.2 var(--cond)}
+.recs{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.recs li{border-left:4px solid var(--amber);padding:8px 12px;background:var(--bg);border-radius:0 6px 6px 0}
+.recs li b{display:block;font-weight:600}
+.recs li .eur{float:right;font:700 18px/1.2 var(--cond);color:var(--amber);margin-left:10px}
+.recs li p{margin:4px 0 0;font-size:14px;color:var(--muted)}
+.alerts{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.alerts li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline;font-size:14px}
+.alerts .tag{font-size:12px;font-weight:600;padding:1px 8px;border-radius:10px;border:1px solid}
+.alerts .alert .tag{color:var(--danger);border-color:var(--danger)}
+.alerts .watch .tag{color:var(--amber);border-color:var(--amber)}
+.alerts .stale .tag{color:var(--muted);border-color:var(--muted)}
+.alerts button{all:unset;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.alerts button:focus-visible{outline:2px solid var(--focus)}
+.empty{color:var(--muted);font-size:14px}
+
+/* Details */
+.details{padding:0}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--line);padding:0 12px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:12px 14px;cursor:pointer;color:var(--muted);font:600 16px/1 var(--cond);border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.tabs .flag{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:2px}
+.tabs .flag.watch{background:var(--amber)} .tabs .flag.alert{background:var(--danger)}
+.tabpanel{padding:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:12px}
+.stats > div{padding:8px 16px 8px 0}
+.stats .v{font:700 28px/1.1 var(--cond)}
+.stats .v small{font-size:15px;color:var(--muted);font-weight:600;margin-left:3px}
+.stats .k{font-size:13px;color:var(--muted)}
+.tablewrap{overflow-x:auto;margin-bottom:16px}
+table.units{width:100%;border-collapse:collapse;font-size:14px}
+table.units th,table.units td{text-align:right;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.units th:first-child,table.units td:first-child{text-align:left}
+table.units th{font-weight:600;color:var(--muted);font-size:13px}
+table.units tr.hl td{background:color-mix(in srgb,var(--focus) 12%,transparent)}
+td.watch{color:var(--amber);font-weight:600} td.alert{color:var(--danger);font-weight:700} td.stale{color:var(--muted)}
+.swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:0}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.chart h4{margin:0;font:600 15px/1.2 var(--sans)}
+.chart .box{position:relative;height:220px;margin-top:8px}
+.events{margin:0;padding:0;list-style:none;font-size:14px;display:grid;gap:4px}
+.events li{display:flex;gap:10px;flex-wrap:wrap}
+.events li.flag{color:var(--amber);font-weight:600}
+
+/* Log */
+details.log{padding:12px 16px}
+details.log summary{cursor:pointer;font-weight:600}
+.logtable{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.logtable th,.logtable td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.logtable td.cmd{font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+.logscroll{overflow-x:auto;max-height:340px;overflow-y:auto}
+.ok-t{color:var(--ok)} .err-t{color:var(--danger)}
+
+/* Drawer */
+.scrim{position:fixed;inset:0;background:rgba(10,25,38,.35);z-index:1000;display:none}
+.scrim.show{display:block}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(480px,100%);background:var(--surface);z-index:1001;border-left:1px solid var(--line);
+  transform:translateX(100%);transition:transform .2s ease;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.show{transform:none}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+.drawer header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.drawer header h2{font-size:22px}
+.drawer form{padding:4px 20px 16px;overflow-y:auto;flex:1;display:grid;gap:14px}
+.drawer fieldset{border:0;border-top:1px solid var(--line);padding:14px 0 0;margin:8px 0 0;display:grid;gap:12px}
+.drawer legend{font:600 17px/1 var(--cond);padding:0 8px 0 0}
+.field{display:grid;gap:4px}
+.field label{font-weight:600;font-size:14px}
+.field .hint{font-size:12px;color:var(--muted)}
+.field input,.field select{border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:7px 9px;width:100%}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+pre.preview{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;font-size:12px;overflow-x:auto;white-space:pre}
+.drawer footer{display:flex;gap:8px;flex-wrap:wrap;padding:14px 20px;border-top:1px solid var(--line)}
+#testResult{font-size:13px;min-height:1.2em}
+
+@media (max-width:980px){
+  main{grid-template-columns:1fr;padding:12px}
+  .mapwrap{min-height:380px}
+  .health{grid-template-columns:1fr}
+  svg.hull{max-width:340px;margin:0 auto}
+  .charts{grid-template-columns:1fr}
+  .bar{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="boat">
+    <label for="boatSel">Boat</label>
+    <select id="boatSel" aria-label="Boat"><option>Loading…</option></select>
+  </div>
+  <div class="group" role="group" aria-label="Time window">
+    <span>Window</span>
+    <div class="seg" id="winSeg"></div>
+  </div>
+  <div class="group" role="group" aria-label="Window ends at">
+    <span>Ending at</span>
+    <div class="seg" id="anchorSeg">
+      <button type="button" data-a="latest" aria-pressed="true">Latest data</button>
+      <button type="button" data-a="now" aria-pressed="false">Now</button>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="group">
+    <label for="autoSel">Auto-refresh</label>
+    <select id="autoSel" class="plain">
+      <option value="0">Off</option><option value="60">1 min</option><option value="300">5 min</option>
+    </select>
+  </div>
+  <button type="button" class="btn primary" id="refreshBtn">Refresh</button>
+  <button type="button" class="btn" id="connBtn">Settings</button>
+  <div class="status" aria-live="polite"><span class="dot" id="dot"></span><span id="statusTxt">Not connected</span></div>
+</div>
+
+<div class="banner" id="banner" role="alert">
+  <span id="bannerTxt"></span>
+  <button type="button" class="btn" id="bannerBtn">Open settings</button>
+</div>
+
+<main>
+  <section class="panel mapwrap" aria-label="Track map">
+    <div id="map"></div>
+    <div class="mapnote" id="mapNote"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="panel helm" aria-label="Helm">
+    <div>
+      <div class="sub">Speed over ground, last 15 min</div>
+      <div class="speed"><span class="num" id="kSpeed">—</span><span class="unit" id="kSpeedUnit">kn</span></div>
+      <div class="sub" id="kProp">Propulsion —</div>
+    </div>
+    <div class="sides">
+      <div class="side" style="--c:var(--port)">
+        <h3>Port battery</h3>
+        <div class="soc"><span id="kSocB">—</span><small>%</small></div>
+        <div class="gauge"><span id="gB"></span></div>
+        <dl class="kv">
+          <dt>Stored</dt><dd id="kEB">—</dd>
+          <dt>Flow</dt><dd id="kPowB">—</dd>
+          <dt>Range</dt><dd id="kRangeB">—</dd>
+        </dl>
+      </div>
+      <div class="side" style="--c:var(--stbd)">
+        <h3>Starboard battery</h3>
+        <div class="soc"><span id="kSocT">—</span><small>%</small></div>
+        <div class="gauge"><span id="gT"></span></div>
+        <dl class="kv">
+          <dt>Stored</dt><dd id="kET">—</dd>
+          <dt>Flow</dt><dd id="kPowT">—</dd>
+          <dt>Range</dt><dd id="kRangeT">—</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="gen" id="genBox"><span class="lamp"></span><div><b id="genTitle">Generator —</b><div class="sub" id="genSub"></div></div></div>
+
+    <div class="arrive" aria-label="Arrival on electric power">
+      <h2>Arrive on electric</h2>
+      <div class="inputs">
+        <label for="cruiseEnd">Cruise ends</label>
+        <input id="cruiseEnd" type="time" aria-describedby="cruiseEndHint"><span id="cruiseEndHint">UTC</span>
+        <label for="reserveMin">last</label>
+        <input id="reserveMin" type="number" min="0" max="120" step="5" style="width:64px">
+        <span>min on battery</span>
+      </div>
+      <div class="verdict" id="arrVerdict">Set the cruise end time</div>
+      <ul id="arrList"></ul>
+    </div>
+    <div class="fresh" id="fresh">Waiting for data.</div>
+  </section>
+
+  <section class="panel health full" aria-label="Boat health">
+    <header>
+      <span class="overall" id="overall">Checking systems…</span>
+      <span class="sub" id="overallSub"></span>
+    </header>
+    <div>
+      <svg class="hull" id="hull" viewBox="0 0 360 540" role="group" aria-label="Plan view of the boat, each unit colored by its status"></svg>
+      <div class="hullkey"><span><i></i>Normal</span><span><i class="w"></i>Watch</span><span><i class="a"></i>Act now</span><span><i class="s"></i>Not reporting</span></div>
+    </div>
+    <div class="lists">
+      <div>
+        <h3>Advice</h3>
+        <ul class="recs" id="recs"></ul>
+      </div>
+      <div>
+        <h3>Watch list</h3>
+        <ul class="alerts" id="alerts"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel details full" aria-label="System details">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="tabpanel" id="tab-battery" role="tabpanel"></div>
+    <div class="tabpanel" id="tab-propulsion" role="tabpanel" hidden></div>
+    <div class="tabpanel" id="tab-generator" role="tabpanel" hidden></div>
+    <div class="tabpanel" id="tab-charging" role="tabpanel" hidden></div>
+    <div class="tabpanel" id="tab-converter" role="tabpanel" hidden></div>
+  </section>
+
+  <details class="panel log full">
+    <summary>Requests sent (<span id="logCount">0</span>)</summary>
+    <div class="logscroll">
+      <table class="logtable">
+        <thead><tr><th>Time</th><th>Result</th><th>ms</th><th>Command</th><th></th></tr></thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </div>
+  </details>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Settings" aria-hidden="true">
+  <header><h2>Settings</h2><button type="button" class="btn" id="closeDrawer">Close</button></header>
+  <form id="setForm" autocomplete="off"></form>
+  <footer>
+    <button type="button" class="btn" id="testBtn">Test connection</button>
+    <button type="button" class="btn" id="resetBtn">Reset to defaults</button>
+    <span class="spacer"></span>
+    <button type="button" class="btn primary" id="saveBtn">Save and reload</button>
+  </footer>
+</aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+"use strict";
+/* =================== Settings =================== */
+const SCHEMA = [
+  { section:"Connection" },
+  { key:"protocol", label:"Protocol", type:"select", options:["http","https"], def:"http", pair:"host" },
+  { key:"host", label:"Host", def:"172.233.253.95" },
+  { key:"port", label:"Port", def:"32349", pair:"dbms" },
+  { key:"dbms", label:"Database", def:"anotherpeak" },
+  { key:"destination", label:"Destination", def:"network", hint:"network queries every operator node; or list nodes as IP:port, comma-separated." },
+  { key:"agent", label:"AnyLog-Agent", def:"AnyLog/1.23" },
+  { key:"contentType", label:"Content-Type", type:"select", options:["application/json","text/plain"], def:"application/json", hint:"text/plain skips the browser's CORS preflight." },
+  { key:"auth", label:"Authorization header", def:"", hint:"Optional, e.g. Basic dXNlcjpwYXNz" },
+  { key:"timeout", label:"Timeout (s)", type:"number", def:30, pair:"stateSource" },
+  { key:"stateSource", label:"Text states stored in", type:"select", options:["str_value column","<table>_state table"], def:"str_value column" },
+  { key:"knownBoats", label:"Known boats", def:"Helios, HydraAix", hint:"Always listed, even if discovery misses a boat." },
+
+  { section:"Diesel and cruise" },
+  { key:"dieselPrice", label:"Diesel price (€/L)", type:"number", def:2.5, pair:"litresPerKwh" },
+  { key:"litresPerKwh", label:"Diesel per kWh (L/kWh)", type:"number", def:0.3, hint:"Assumed until the generator's rating is known. Used to turn kWh savings into litres and euros." },
+  { key:"stopGenSoc", label:"Flag generator above (% charge)", type:"number", def:60, pair:"floorSoc" },
+  { key:"floorSoc", label:"Never plan below (% charge)", type:"number", def:15 },
+  { key:"houseLoad", label:"House load (kW)", type:"number", def:2, pair:"capacitySide", hint:"Lights, pumps, HVAC — added to propulsion power in the arrival forecast." },
+  { key:"capacitySide", label:"Battery per side (kWh)", type:"number", def:166, hint:"Fallback when stored energy isn't reported." },
+  { key:"cruiseEnd", label:"Cruise end (UTC, HH:MM)", def:"", pair:"reserveMin" },
+  { key:"reserveMin", label:"Last minutes on battery", type:"number", def:20 },
+  { key:"shorePower", label:"Shore power at the dock", type:"select", options:["unknown","yes","no"], def:"unknown" },
+
+  { section:"Alert thresholds" },
+  { key:"thrCurrent", label:"Pack current above (A)", type:"number", def:45, pair:"thrCellTemp" },
+  { key:"thrCellTemp", label:"Cell temperature above (°C)", type:"number", def:40 },
+  { key:"thrSocDiff", label:"Port/stbd charge gap (points)", type:"number", def:10, pair:"thrPackDelta" },
+  { key:"thrPackDelta", label:"Pack warmer than siblings (°C)", type:"number", def:3 },
+  { key:"thrMotorTemp", label:"Motor above (°C)", type:"number", def:85, pair:"thrElecTemp" },
+  { key:"thrElecTemp", label:"Electronics above (°C)", type:"number", def:80 },
+  { key:"thrCoolant", label:"Generator coolant above (°C)", type:"number", def:95, pair:"staleMin" },
+  { key:"staleMin", label:"Not reporting after (min)", type:"number", def:30 },
+
+  { section:"Display" },
+  { key:"theme", label:"Theme", type:"select", options:["system","light","dark"], def:"system", pair:"speedUnit" },
+  { key:"speedUnit", label:"Speed unit label", type:"select", options:["kn","km/h","m/s"], def:"kn" }
+];
+const DEFAULTS = Object.fromEntries(SCHEMA.filter(f => f.key).map(f => [f.key, f.def]));
+const STORE_KEY = "helm-captain-settings";
+function loadSettings(){
+  try { return Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(STORE_KEY) || "{}")); }
+  catch { return Object.assign({}, DEFAULTS); }
+}
+function saveSettings(s){ try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch {} }
+let S = loadSettings();
+const endpoint = () => `${S.protocol}://${S.host}:${S.port}`;
+const N = k => { const v = parseFloat(S[k]); return isFinite(v) ? v : parseFloat(DEFAULTS[k]); };
+
+/* Windows: period() for window stats, increments() for charts, gen = bucket for generator/charging timelines */
+const WINDOWS = {
+  "1h":  {label:"1 h",  ms:3600e3,     period:["hour",1],  inc:["minute",5],  gen:["minute",5]},
+  "6h":  {label:"6 h",  ms:6*3600e3,   period:["hour",6],  inc:["minute",10], gen:["minute",5]},
+  "24h": {label:"24 h", ms:24*3600e3,  period:["day",1],   inc:["minute",30], gen:["minute",5]},
+  "7d":  {label:"7 d",  ms:7*86400e3,  period:["day",7],   inc:["hour",3],    gen:["minute",15]},
+  "30d": {label:"30 d", ms:30*86400e3, period:["day",30],  inc:["hour",12],   gen:["hour",1]}
+};
+const UNIT_MS = {minute:60e3, hour:3600e3, day:86400e3};
+const state = { boat:null, boats:{}, win:"24h", anchor:"latest", timer:null, busy:false, tab:"battery", hl:null, curves:{}, last:null };
+
+/* =================== Helpers =================== */
+const $ = id => document.getElementById(id);
+const num = x => (x === null || x === undefined || x === "" || isNaN(+x)) ? null : +x;
+const fmt = (v, d=1) => v === null || v === undefined || !isFinite(v) ? "—" : Number(v).toFixed(d);
+const q = s => String(s).replace(/'/g, "''");
+const trim = s => String(s ?? "").trim();
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function parseTs(s){
+  if (!s) return null;
+  const m = String(s).trim().replace(" ", "T");
+  const d = new Date(m.slice(0, 23) + (/[zZ]|[+-]\d\d:?\d\d$/.test(m) ? "" : "Z"));
+  return isNaN(d) ? null : d;
+}
+const sqlTime = d => d.toISOString().slice(0, 19).replace("T", " ");
+function fmtTime(d, withDate){
+  if (!d) return "—";
+  const iso = d.toISOString();
+  if (!withDate) return iso.slice(11, 16);
+  const mon = d.toLocaleString("en", {month:"short", timeZone:"UTC"});
+  return `${mon} ${d.getUTCDate()} ${iso.slice(11, 16)}`;
+}
+function fmtDur(ms){
+  if (ms === null || !isFinite(ms)) return "—";
+  const m = Math.round(ms / 60000);
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60), r = m % 60;
+  if (h < 48) return r ? `${h} h ${r} min` : `${h} h`;
+  return `${Math.round(h / 24)} days`;
+}
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m-1] + s[m]) / 2; };
+const sum = a => a.reduce((x, y) => x + y, 0);
+const eur = v => v === null || !isFinite(v) ? "—" : "€" + (v >= 100 ? Math.round(v) : v.toFixed(v >= 10 ? 0 : 1));
+const SIDE_NAME = { B:"Port", T:"Starboard", "":"" };
+const sideColor = s => s === "B" ? css("--port") : s === "T" ? css("--stbd") : css("--ink");
+
+/* =================== AnyLog REST =================== */
+const log = [];
+function curlFor(body, headers){
+  const h = Object.entries(headers).map(([k, v]) => `  -H '${k}: ${v}' \\`).join("\n");
+  const json = JSON.stringify(body, null, 2).replace(/'/g, "'\\''");
+  return `curl -X POST '${endpoint()}' \\\n${h}\n  -d '${json}'`;
+}
+function buildRequest(command, withDest){
+  const body = { command, "AnyLog-Agent": S.agent };
+  if (withDest && S.destination) body.destination = S.destination;
+  const headers = { "Content-Type": S.contentType };
+  if (S.auth) headers["Authorization"] = S.auth;
+  return { body, headers };
+}
+async function anylog(command, withDest = true){
+  const { body, headers } = buildRequest(command, withDest);
+  const entry = { at:new Date(), command, curl:curlFor(body, headers) };
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), (N("timeout") || 30) * 1000);
+  const t0 = performance.now();
+  try {
+    const res = await fetch(endpoint(), { method:"POST", headers, body:JSON.stringify(body), signal:ctrl.signal });
+    const text = await res.text();
+    entry.ms = Math.round(performance.now() - t0);
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${text.slice(0, 160)}`);
+    let data; try { data = JSON.parse(text); } catch { data = text; }
+    if (data && typeof data === "object" && !Array.isArray(data) && (data.err_code || data.err_text || data.error))
+      throw new Error(String(data.err_text || data.error || data.err_code));
+    entry.ok = true;
+    return data;
+  } catch (e) {
+    entry.ms = entry.ms ?? Math.round(performance.now() - t0);
+    entry.ok = false;
+    entry.error = e.name === "AbortError" ? `Timed out after ${N("timeout")} s`
+      : (e instanceof TypeError ? `Network or CORS error reaching ${endpoint()} — the node must allow browser requests from this page` : e.message);
+    throw new Error(entry.error);
+  } finally {
+    clearTimeout(timer);
+    log.unshift(entry); if (log.length > 200) log.pop();
+    scheduleLog();
+  }
+}
+async function sql(query){
+  const d = await anylog(`sql ${S.dbms} format=json "${query}"`, true);
+  if (Array.isArray(d)) return d;
+  if (d && Array.isArray(d.Query)) return d.Query;
+  if (typeof d === "string") { if (/error|fail/i.test(d)) throw new Error(d.slice(0, 200)); return []; }
+  return [];
+}
+const settle = p => p.then(v => ({ ok:true, v }), e => ({ ok:false, e }));
+
+/* Text-state query: str_value column, or a separate <table>_state table */
+function stateSql(table, where, groupCols){
+  const g = groupCols ? groupCols + ", " : "";
+  return S.stateSource.startsWith("<table>")
+    ? `select ${g}value, max(timestamp) as t from ${table}_state where ${where} group by ${g}value`
+    : `select ${g}str_value as value, max(timestamp) as t from ${table} where ${where} group by ${g}str_value`;
+}
+
+/* =================== Log UI =================== */
+let logPending = false;
+function scheduleLog(){ if (!logPending) { logPending = true; requestAnimationFrame(() => { logPending = false; renderLog(); }); } }
+function renderLog(){
+  $("logCount").textContent = log.length;
+  const body = $("logBody"); body.textContent = "";
+  log.forEach(e => {
+    const tr = document.createElement("tr");
+    const td = (t, c) => { const x = document.createElement("td"); x.textContent = t; if (c) x.className = c; tr.appendChild(x); return x; };
+    td(e.at.toISOString().slice(11, 19) + " UTC");
+    td(e.ok ? "OK" : (e.error || "Failed"), e.ok ? "ok-t" : "err-t");
+    td(e.ms ?? "");
+    td(e.command, "cmd");
+    const b = document.createElement("button"); b.className = "btn"; b.type = "button"; b.textContent = "Copy as curl";
+    b.onclick = () => copy(e.curl, b);
+    td("").appendChild(b);
+    body.appendChild(tr);
+  });
+}
+function copy(text, btn){
+  const done = () => { const t = btn.textContent; btn.textContent = "Copied"; setTimeout(() => btn.textContent = t, 1200); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done));
+  else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); done(); } catch {} ta.remove();
+}
+
+/* =================== Status / banner =================== */
+function setStatus(kind, text){ $("dot").className = "dot " + kind; $("statusTxt").textContent = text; }
+function showBanner(text, warn){
+  $("bannerTxt").textContent = text;
+  $("banner").className = "banner show" + (warn ? " warn" : "");
+  $("bannerBtn").style.display = warn ? "none" : "";
+}
+const hideBanner = () => $("banner").className = "banner";
+
+/* =================== Map =================== */
+const map = L.map("map", { zoomControl:true }).setView([45.705, 5.885], 12);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom:19, attribution:"&copy; OpenStreetMap contributors", className:"basemap" }).addTo(map);
+const seamarks = L.tileLayer("https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png", { maxZoom:18, attribution:"Seamarks &copy; OpenSeaMap" });
+L.control.layers(null, { "Sea marks (OpenSeaMap)": seamarks }, { position:"topright" }).addTo(map);
+const trackLayer = L.layerGroup().addTo(map);
+const SPEED_BINS = [
+  { max:0.5,      label:"Drifting, under 0.5", color:"#8EA2AF" },
+  { max:3,        label:"0.5 – 3",             color:"#4C8DB6" },
+  { max:7,        label:"3 – 7",               color:"#1F7A8C" },
+  { max:11,       label:"7 – 11",              color:"#D08A06" },
+  { max:Infinity, label:"Over 11",             color:"#B8561B" }
+];
+const binOf = s => s === null || s === undefined ? 0 : SPEED_BINS.findIndex(b => s < b.max);
+function renderLegend(){
+  $("legend").innerHTML = `<strong>Track speed (${esc(S.speedUnit)})</strong>` +
+    SPEED_BINS.map(b => `<div><i style="background:${b.color}"></i>${b.label}</div>`).join("") +
+    `<div style="margin-top:4px"><i class="pin on"></i>Generator started</div><div><i class="pin"></i>Generator stopped</div>`;
+}
+function haversineNm(a, b){
+  const R = 3440.065, r = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * r, dLon = (b.lon - a.lon) * r;
+  const h = Math.sin(dLat/2)**2 + Math.cos(a.lat*r) * Math.cos(b.lat*r) * Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function trackPoints(locRows, speedRows){
+  const speed = new Map(speedRows.map(r => [String(r.timestamp), num(r.value)]));
+  const pts = locRows.map(r => {
+    const p = String(r.value || "").split(",").map(x => parseFloat(x));
+    return { lat:p[0], lon:p[1], t:parseTs(r.timestamp), s:speed.get(String(r.timestamp)) ?? null };
+  }).filter(p => isFinite(p.lat) && isFinite(p.lon) && !(p.lat === 0 && p.lon === 0) && Math.abs(p.lat) <= 90 && p.t);
+  pts.sort((a, b) => a.t - b.t);
+  return pts;
+}
+function nearestPoint(pts, t){
+  if (!pts.length || !t) return null;
+  let lo = 0, hi = pts.length - 1;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (pts[m].t < t) lo = m + 1; else hi = m; }
+  const c = [pts[lo], pts[lo-1]].filter(Boolean).sort((a, b) => Math.abs(a.t - t) - Math.abs(b.t - t))[0];
+  return Math.abs(c.t - t) < 30 * 60e3 ? c : null;
+}
+function drawTrack(pts, genEvents, fit = true){
+  trackLayer.clearLayers();
+  let dist = 0;
+  for (let i = 1; i < pts.length; i++) { const d = haversineNm(pts[i-1], pts[i]); if (d < 3) dist += d; }
+  let draw = pts;
+  if (draw.length > 5000) { const step = Math.ceil(draw.length / 5000); draw = draw.filter((_, i) => i % step === 0 || i === draw.length - 1); }
+  if (!draw.length) return { dist:null, count:0 };
+  let run = [draw[0]], runBin = binOf(draw[1]?.s ?? draw[0].s);
+  const flush = () => {
+    if (run.length > 1) L.polyline(run.map(p => [p.lat, p.lon]), { color:SPEED_BINS[runBin].color, weight:4, opacity:.9 })
+      .bindTooltip(`${SPEED_BINS[runBin].label} ${esc(S.speedUnit)}`, { sticky:true }).addTo(trackLayer);
+  };
+  for (let i = 1; i < draw.length; i++) {
+    const b = binOf(draw[i].s);
+    if (b !== runBin) { run.push(draw[i]); flush(); run = [draw[i]]; runBin = b; } else run.push(draw[i]);
+  }
+  flush();
+  const amber = css("--amber"), surface = css("--surface"), ink = css("--ink"), danger = css("--danger");
+  genEvents.forEach(ev => {
+    const p = nearestPoint(pts, ev.t); if (!p) return;
+    const flag = ev.type === "start" && ev.flag;
+    L.circleMarker([p.lat, p.lon], { radius:7, color:flag ? danger : amber, weight:3,
+      fillColor:ev.type === "start" ? (flag ? danger : amber) : surface, fillOpacity:1 })
+      .bindTooltip(`Generator ${ev.type === "start" ? "started" : "stopped"} ${fmtTime(ev.t, true)} UTC` +
+        (ev.soc !== null ? `<br>Battery ${fmt(ev.soc, 0)}%` : "") + (flag ? "<br><b>Started with plenty of charge</b>" : "")).addTo(trackLayer);
+  });
+  const first = draw[0], last = draw[draw.length - 1];
+  L.circleMarker([first.lat, first.lon], { radius:6, color:ink, weight:2, fillColor:surface, fillOpacity:1 })
+    .bindTooltip(`Window start ${fmtTime(first.t, true)} UTC`).addTo(trackLayer);
+  L.circleMarker([last.lat, last.lon], { radius:9, color:surface, weight:3, fillColor:ink, fillOpacity:1 })
+    .bindPopup(`<b>${esc(state.boat)}</b><br>${fmtTime(last.t, true)} UTC<br>${fmt(last.s)} ${esc(S.speedUnit)}<br>${last.lat.toFixed(5)}, ${last.lon.toFixed(5)}`)
+    .addTo(trackLayer);
+  const bounds = L.latLngBounds(draw.map(p => [p.lat, p.lon]));
+  if (fit && bounds.isValid()) map.fitBounds(bounds.pad(0.15), { maxZoom:16 });
+  return { dist, count:pts.length };
+}
+function mapNote(text){ const n = $("mapNote"); n.textContent = text || ""; n.className = "mapnote" + (text ? " show" : ""); }
+
+/* =================== Charts =================== */
+const charts = {};
+function chartBase(){
+  const ink = css("--muted"), grid = css("--grid");
+  const font = { family:"Barlow, system-ui, sans-serif", size:12 };
+  return { ink, grid, font };
+}
+function lineChart(id, labels, datasets, yTitle, extra = {}){
+  const el = $(id); if (!el) return;
+  if (charts[id]) charts[id].destroy();
+  const { ink, grid, font } = chartBase();
+  charts[id] = new Chart(el, {
+    type:"line",
+    data:{ labels, datasets:datasets.map(d => Object.assign({ borderWidth:2, pointRadius:0, pointHitRadius:8, tension:.2, spanGaps:true }, d)) },
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:false,
+      interaction:{ mode:"index", intersect:false },
+      plugins:{ legend:{ display:datasets.length > 1, labels:{ color:ink, boxWidth:12, boxHeight:3, font } } },
+      scales:{
+        x:{ ticks:{ color:ink, maxTicksLimit:7, maxRotation:0, font }, grid:{ display:false } },
+        y:Object.assign({ ticks:{ color:ink, font }, grid:{ color:grid }, title:{ display:!!yTitle, text:yTitle, color:ink, font } }, extra.y || {})
+      }
+    }
+  });
+}
+function curveChart(id, curve, current){
+  const el = $(id); if (!el) return;
+  if (charts[id]) charts[id].destroy();
+  const { ink, grid, font } = chartBase();
+  const pts = curve.map(c => ({ x:c.v, y:c.p }));
+  const ds = [{ type:"line", label:"Typical propulsion power", data:pts, borderColor:css("--ink"), borderWidth:2, pointRadius:3, tension:.25 }];
+  if (current) ds.push({ type:"scatter", label:"Now", data:[{ x:current.v, y:current.p }], backgroundColor:css("--amber"), pointRadius:7 });
+  charts[id] = new Chart(el, {
+    type:"scatter", data:{ datasets:ds },
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:false,
+      plugins:{ legend:{ labels:{ color:ink, boxWidth:12, font } } },
+      scales:{
+        x:{ type:"linear", title:{ display:true, text:`Speed (${S.speedUnit})`, color:ink, font }, ticks:{ color:ink, font }, grid:{ display:false } },
+        y:{ title:{ display:true, text:"kW", color:ink, font }, ticks:{ color:ink, font }, grid:{ color:grid }, beginAtZero:true }
+      }
+    }
+  });
+}
+/* Group increments() rows into aligned series keyed by keyFn */
+function series(rows, incMs, keyFn, valFn){
+  const buckets = new Set(), per = new Map();
+  rows.forEach(r => {
+    const t = parseTs(r.t); if (!t) return;
+    const b = Math.floor(t.getTime() / incMs) * incMs; buckets.add(b);
+    const k = keyFn(r); if (!per.has(k)) per.set(k, new Map());
+    per.get(k).set(b, valFn(r));
+  });
+  const ks = [...buckets].sort((a, b) => a - b);
+  return { ks, keys:[...per.keys()], get:k => ks.map(b => per.get(k)?.has(b) ? per.get(k).get(b) : null), map:per };
+}
+
+/* =================== Units & status =================== */
+const LV = { ok:0, stale:1, watch:2, alert:3 };
+const worst = (a, b) => LV[a] >= LV[b] ? a : b;
+function unitKey(r){ return [trim(r.side), trim(r.ip), trim(r.id)].join("|"); }
+/* {key -> {side, ip, id, comp:{name:{...row}}}} */
+function byUnit(rows){
+  const m = new Map();
+  rows.forEach(r => {
+    const k = unitKey(r);
+    if (!m.has(k)) m.set(k, { key:k, side:trim(r.side), ip:trim(r.ip), id:trim(r.id), comp:{} });
+    if (r.component !== undefined) m.get(k).comp[trim(r.component)] = r;
+  });
+  return m;
+}
+function nameUnits(units, kind){
+  const bySide = {};
+  [...units.values()].sort((a, b) => (a.ip + "." + a.id).localeCompare(b.ip + "." + b.id, undefined, { numeric:true }))
+    .forEach(u => { (bySide[u.side] = bySide[u.side] || []).push(u); });
+  Object.entries(bySide).forEach(([side, list]) => list.forEach((u, i) => {
+    const pre = side === "B" ? "P" : side === "T" ? "S" : "";
+    u.short = kind === "pack" ? `${pre || "#"}${i + 1}` : kind === "charger" ? `${pre ? pre : "C"}${i + 1}` : (pre || "#") + (i + 1);
+    u.name = (SIDE_NAME[side] ? SIDE_NAME[side] + " " : "") + ({ pack:"pack", charger:"charger", motor:"motor", conv:"converter" }[kind]) + (list.length > 1 || kind === "pack" ? " " + (i + 1) : "");
+    u.name = u.name.charAt(0).toUpperCase() + u.name.slice(1);
+    u.code = [u.ip, u.id].filter(Boolean).join("/") || "—";
+  }));
+  return units;
+}
+
+/* =================== Boats =================== */
+async function loadBoats(){
+  const tables = ["location", "speedoverground", "batterystateofchargepercent"];
+  const res = await Promise.all(tables.map(t => settle(sql(`select boat, max(timestamp) as last_ts from ${t} group by boat`))));
+  if (res.every(r => !r.ok)) throw res[0].e;
+  const fromLoc = {}, fromOther = {};
+  res.forEach((r, i) => r.ok && r.v.forEach(row => {
+    const b = trim(row.boat); if (!b) return;
+    const t = parseTs(row.last_ts), bucket = i === 0 ? fromLoc : fromOther;
+    if (!bucket[b] || (t && t > bucket[b])) bucket[b] = t;
+  }));
+  state.boats = {};
+  new Set([...Object.keys(fromLoc), ...Object.keys(fromOther)]).forEach(b => state.boats[b] = fromLoc[b] || fromOther[b] || null);
+  String(S.knownBoats || "").split(",").map(trim).filter(Boolean).forEach(b => { if (!(b in state.boats)) state.boats[b] = null; });
+  const names = Object.keys(state.boats).sort(), sel = $("boatSel"), prev = state.boat;
+  sel.textContent = "";
+  names.forEach(n => { const o = document.createElement("option"); o.value = o.textContent = n; sel.appendChild(o); });
+  if (!names.length) { const o = document.createElement("option"); o.textContent = "No boats found"; sel.appendChild(o); state.boat = null; return; }
+  state.boat = names.includes(prev) ? prev : names[0];
+  sel.value = state.boat;
+}
+
+/* =================== Refresh =================== */
+async function refresh(){
+  if (state.busy) return;
+  state.busy = true; $("refreshBtn").disabled = true;
+  setStatus("busy", "Querying…");
+  try {
+    await loadBoats();
+    hideBanner();
+    if (!state.boat) { setStatus("ok", "Connected"); mapNote("No boats found in the location table."); return; }
+    const W = WINDOWS[state.win], latest = state.boats[state.boat];
+    if (!latest) showBanner(`No data came back for ${state.boat}. The node that stores it may be offline — check "Requests sent" below.`, true);
+    const anchorDate = state.anchor === "latest" && latest ? new Date(latest.getTime() + 1000) : new Date();
+    const anchor = sqlTime(anchorDate), startDate = new Date(anchorDate.getTime() - W.ms), start = sqlTime(startDate);
+    const boat = q(state.boat);
+    const [pu, pn] = W.period, [iu, inN] = W.inc, [gu, gn] = W.gen;
+    const per = (u, n) => `period(${u}, ${n}, '${anchor}', timestamp)`;
+    const snap = per("minute", 15), win = per(pu, pn);
+    const range = `timestamp >= '${start}' and timestamp < '${anchor}'`;
+    const B = `boat = '${boat}'`;
+    const inc = `increments(${iu}, ${inN}, timestamp)`, ginc = `increments(${gu}, ${gn}, timestamp)`;
+    const PU = "side, ip, id";
+    const gdA = "(component = 'EngineRPM' or component = 'Load' or component = 'FuelRate' or component = 'T-Coolant' or component = 'ExhaustTemp' or component = 'T-IntManifold') and value < 3276";
+
+    const jobs = {
+      // Single-value tables, snapshot
+      sSpeed:  sql(`select side, max(timestamp) as t, avg(value) as v from speedoverground where ${snap} and ${B} group by side`),
+      sSoc:    sql(`select side, max(timestamp) as t, avg(value) as v from batterystateofchargepercent where ${snap} and ${B} group by side`),
+      sPow:    sql(`select side, max(timestamp) as t, avg(value) as v from powerbalance where ${snap} and ${B} group by side`),
+      sEnergy: sql(`select side, max(timestamp) as t, avg(value) as v from hvbatterycapacity where ${snap} and ${B} group by side`),
+      sRange:  sql(`select side, max(timestamp) as t, avg(value) as v from rangebattery where ${snap} and ${B} group by side`),
+      sRpm:    sql(`select side, max(timestamp) as t, avg(value) as v from stbdrpmshaft where ${snap} and ${B} group by side`),
+      sVessel: sql(`select side, value, max(timestamp) as t from vesselstate where ${snap} and ${B} group by side, value`),
+      // Device snapshots (last 15 min) and window stats
+      sBms:    sql(`select ${PU}, component, max(timestamp) as t, avg(value) as v from bmwix where ${snap} and ${B} group by ${PU}, component`),
+      wBms:    sql(`select ${PU}, component, max(timestamp) as t, min(value) as mn, max(value) as mx from bmwix where ${win} and ${B} group by ${PU}, component`),
+      wSoh:    sql(`select ${PU}, min(value) as mn from bmwix where ${win} and ${B} and component = 'gStateOfHealth' and value > 0 group by ${PU}`),
+      sMot:    sql(`select ${PU}, component, max(timestamp) as t, avg(value) as v from ach65 where ${snap} and ${B} group by ${PU}, component`),
+      wMot:    sql(`select ${PU}, component, max(timestamp) as t, max(value) as mx, avg(value) as av from ach65 where ${win} and ${B} group by ${PU}, component`),
+      sChg:    sql(`select ${PU}, component, max(timestamp) as t, avg(value) as v from bcl25 where ${snap} and ${B} and component <> 'gState' group by ${PU}, component`),
+      wChg:    sql(`select ${PU}, component, max(timestamp) as t, max(value) as mx from bcl25 where ${win} and ${B} and component <> 'gState' group by ${PU}, component`),
+      sChgSt:  sql(stateSql("bcl25", `${snap} and ${B} and component = 'gState'`, PU)),
+      sCnv:    sql(`select ${PU}, component, max(timestamp) as t, avg(value) as v from elptx where ${snap} and ${B} and component <> 'gState' group by ${PU}, component`),
+      wCnv:    sql(`select ${PU}, component, max(timestamp) as t, min(value) as mn, max(value) as mx, avg(value) as av from elptx where ${win} and ${B} and component <> 'gState' group by ${PU}, component`),
+      sCnvSt:  sql(stateSql("elptx", `${snap} and ${B} and component = 'gState'`, PU)),
+      // Generator: sentinel-filtered groups
+      sGenA:   sql(`select component, max(timestamp) as t, avg(value) as v, max(value) as mx from gd where ${snap} and ${B} and ${gdA} group by component`),
+      sGenB:   sql(`select component, max(timestamp) as t, avg(value) as v from gd where ${snap} and ${B} and component = 'OilPress' and value < 327 group by component`),
+      sGenC:   sql(`select component, max(timestamp) as t, max(value) as v from gd where ${snap} and ${B} and (component = 'RunHours' or component = 'NumSuccStarts' or component = 'NumUnscStarts' or component = 'BatteryVolt' or component = 'ServiceTime') group by component`),
+      wGenCum: sql(`select component, min(value) as mn, max(value) as mx from gd where ${win} and ${B} and (component = 'TotalFuelUsed' or component = 'RunHours' or component = 'NumSuccStarts' or component = 'NumUnscStarts') and value < 214748364 group by component`),
+      wGenRun: sql(`select component, avg(value) as av, max(value) as mx from gd where ${win} and ${B} and (component = 'Load' or component = 'FuelRate' or component = 'T-Coolant' or component = 'ExhaustTemp') and value > 0 and value < 3276 group by component`),
+      // Timelines (charts)
+      iSoc:    sql(`select ${inc}, side, max(timestamp) as t, avg(value) as v from batterystateofchargepercent where ${B} and ${range} group by side`),
+      iSpeed:  sql(`select ${inc}, max(timestamp) as t, avg(value) as v, max(value) as mx from speedoverground where ${B} and side = 'B' and ${range}`),
+      iPow:    sql(`select ${inc}, side, max(timestamp) as t, avg(value) as v from powerbalance where ${B} and ${range} group by side`),
+      iCur:    sql(`select ${inc}, ${PU}, max(timestamp) as t, min(value) as mn, max(value) as mx from bmwix where ${B} and component = 'gCurrent' and ${range} group by ${PU}`),
+      iTemp:   sql(`select ${inc}, ${PU}, max(timestamp) as t, max(value) as mx from bmwix where ${B} and component = 'gMaxCellTemperature' and value > 0 and ${range} group by ${PU}`),
+      iMotP:   sql(`select ${inc}, side, max(timestamp) as t, avg(value) as v from ach65 where ${B} and component = 'ggMotorPower' and ${range} group by side`),
+      iMotT:   sql(`select ${inc}, side, component, max(timestamp) as t, max(value) as mx from ach65 where ${B} and (component = 'ggMotorTemperature' or component = 'ggElectronicTemperature') and value > 0 and ${range} group by side, component`),
+      iRpm:    sql(`select ${inc}, side, max(timestamp) as t, avg(value) as v from stbdrpmshaft where ${B} and ${range} group by side`),
+      iCnv:    sql(`select ${inc}, component, max(timestamp) as t, avg(value) as v from elptx where ${B} and (component = 'gPowerActual' or component = 'dcVoltage') and ${range} group by component`),
+      gRpm:    sql(`select ${ginc}, max(timestamp) as t, max(value) as mx from gd where ${B} and component = 'EngineRPM' and value < 3276 and ${range}`),
+      gFuel:   sql(`select ${ginc}, max(timestamp) as t, avg(value) as v from gd where ${B} and component = 'FuelRate' and value < 3276 and ${range}`),
+      gSoc:    sql(`select ${ginc}, max(timestamp) as t, avg(value) as v from batterystateofchargepercent where ${B} and ${range}`),
+      gChg:    sql(`select ${ginc}, ${PU}, max(timestamp) as t, avg(value) as v from bcl25 where ${B} and component = 'gActDcPower' and ${range} group by ${PU}`),
+      // Map
+      track:   sql(`select timestamp, value from location where ${B} and ${range} order by timestamp`),
+      trackSp: sql(`select timestamp, value from speedoverground where ${B} and side = 'B' and ${range} order by timestamp`)
+    };
+    const keys = Object.keys(jobs);
+    const curveP = loadCurve(state.boat, anchorDate);
+    const results = await Promise.all(keys.map(k => settle(jobs[k])));
+    const R = {}; let failed = 0;
+    keys.forEach((k, i) => { R[k] = results[i].ok ? results[i].v : []; if (!results[i].ok) failed++; });
+    const curve = await curveP;
+
+    const ctx = { R, W, anchorDate, startDate, latest, incMs:UNIT_MS[iu] * inN, genMs:UNIT_MS[gu] * gn, curve };
+    const M = buildModel(ctx);
+    state.last = { ctx, M };
+    renderAll(ctx, M, true);
+
+    if (failed) { showBanner(`${failed} of ${keys.length} queries failed. Open "Requests sent" at the bottom for details.`, true); setStatus("err", "Partial data"); }
+    else setStatus("ok", `Updated ${new Date().toISOString().slice(11, 16)} UTC`);
+  } catch (e) {
+    setStatus("err", "Connection failed");
+    showBanner(`Couldn't query ${endpoint()}: ${e.message}. Check the settings, and that the node accepts browser requests (CORS).`);
+  } finally {
+    state.busy = false; $("refreshBtn").disabled = false;
+  }
+}
+
+/* Speed → propulsion power curve, per boat, from 14 days of 15-min averages (cached 1 h) */
+async function loadCurve(boat, anchorDate){
+  const c = state.curves[boat];
+  if (c && Math.abs(c.anchor - anchorDate) < 3600e3 && Date.now() - c.at < 3600e3) return c.curve;
+  const end = sqlTime(anchorDate), start = sqlTime(new Date(anchorDate.getTime() - 14 * 86400e3)), B = `boat = '${q(boat)}'`;
+  const range = `timestamp >= '${start}' and timestamp < '${end}'`;
+  const [sp, pw] = await Promise.all([
+    settle(sql(`select increments(minute, 15, timestamp), max(timestamp) as t, avg(value) as v from speedoverground where ${B} and side = 'B' and ${range}`)),
+    settle(sql(`select increments(minute, 15, timestamp), side, max(timestamp) as t, avg(value) as v from ach65 where ${B} and component = 'ggMotorPower' and ${range} group by side`))
+  ]);
+  if (!sp.ok || !pw.ok) return [];
+  const inc = 15 * 60e3, bk = t => Math.floor(parseTs(t).getTime() / inc);
+  const motors = new Set(pw.v.map(r => trim(r.side))).size || 2;
+  const pb = new Map();
+  pw.v.forEach(r => { const k = bk(r.t), v = num(r.v); if (v === null) return; (pb.get(k) || pb.set(k, []).get(k)).push(v); });
+  const bins = new Map();
+  sp.v.forEach(r => {
+    const v = num(r.v), p = pb.get(bk(r.t)); if (v === null || v < 1 || !p) return;
+    const kw = sum(p) / p.length * motors; if (kw <= 0) return;
+    const b = Math.round(v * 2) / 2; (bins.get(b) || bins.set(b, []).get(b)).push(kw);
+  });
+  const curve = [...bins.entries()].filter(([, a]) => a.length >= 3).map(([v, a]) => ({ v, p:median(a), n:a.length })).sort((a, b) => a.v - b.v);
+  // Enforce non-decreasing power with speed (smooths noisy bins)
+  for (let i = 1; i < curve.length; i++) if (curve[i].p < curve[i-1].p) curve[i].p = curve[i-1].p;
+  state.curves[boat] = { at:Date.now(), anchor:anchorDate, curve };
+  return curve;
+}
+function powerAt(curve, v){
+  if (!curve.length || v === null) return null;
+  if (v <= curve[0].v) return curve[0].p * Math.max(0, v) / curve[0].v;
+  for (let i = 1; i < curve.length; i++) if (v <= curve[i].v) {
+    const a = curve[i-1], b = curve[i]; return a.p + (b.p - a.p) * (v - a.v) / (b.v - a.v);
+  }
+  return curve[curve.length - 1].p;
+}
+
+/* =================== Model =================== */
+function buildModel({ R, W, anchorDate, latest, incMs, genMs, curve }){
+  const staleMs = N("staleMin") * 60e3;
+  const ref = latest && state.anchor === "latest" ? latest : anchorDate;
+  const isStale = t => !t || (ref - t) > staleMs;
+  const sideRows = rows => { const m = {}; rows.forEach(r => m[trim(r.side)] = r); return m; };
+  const alerts = [];
+  const add = (level, sys, unit, text) => alerts.push({ level, sys, unit, text });
+
+  /* Battery packs */
+  const packs = nameUnits(byUnit(R.wBms), "pack");
+  const sB = byUnit(R.sBms), soh = new Map(R.wSoh.map(r => [unitKey(r), num(r.mn)]));
+  packs.forEach(p => {
+    const s = sB.get(p.key)?.comp || {}, w = p.comp;
+    const g = (c, f = "v") => num(s[c]?.[f]);
+    p.last = [...Object.values(w)].map(r => parseTs(r.t)).filter(Boolean).sort((a, b) => b - a)[0] || null;
+    p.soc = g("gStateOfCharge"); p.cur = g("gCurrent"); p.cell = g("gMaxCellTemperature"); p.avgT = g("gAverageTemperature");
+    p.volt = g("gPackVoltage"); p.soh = g("gStateOfHealth");
+    if (p.soh === 0) p.soh = null; if (p.cell === 0) p.cell = null;
+    p.sohMin = soh.get(p.key) ?? null;
+    p.curPeak = Math.max(Math.abs(num(w.gCurrent?.mn) ?? 0), Math.abs(num(w.gCurrent?.mx) ?? 0));
+    p.cellMax = num(w.gMaxCellTemperature?.mx);
+    p.level = "ok"; p.why = [];
+  });
+  const sidesOf = list => { const m = {}; list.forEach(u => (m[u.side] = m[u.side] || []).push(u)); return m; };
+  const packSides = sidesOf([...packs.values()]);
+  Object.values(packSides).forEach(list => {
+    const med = median(list.map(p => p.cell).filter(v => v !== null));
+    list.forEach(p => { p.delta = p.cell !== null && med !== null ? p.cell - med : null; });
+  });
+  packs.forEach(p => {
+    const set = (lv, text) => { p.level = worst(p.level, lv); p.why.push(text); add(lv, "battery", p.key, `${p.name}: ${text}`); };
+    if (isStale(p.last)) { set("stale", p.last ? `no data since ${fmtTime(p.last, true)} UTC` : "no data in this window"); return; }
+    if (p.cur !== null && Math.abs(p.cur) > N("thrCurrent")) set("alert", `current ${fmt(p.cur, 0)} A, above ${N("thrCurrent")} A`);
+    else if (p.curPeak > N("thrCurrent")) set("watch", `current peaked at ${fmt(p.curPeak, 0)} A in this window`);
+    if (p.cell !== null && p.cell > N("thrCellTemp")) set("alert", `hottest cell ${fmt(p.cell, 0)} °C, above ${N("thrCellTemp")} °C`);
+    else if (p.cellMax !== null && p.cellMax > N("thrCellTemp")) set("watch", `hottest cell reached ${fmt(p.cellMax, 0)} °C in this window`);
+    if (p.delta !== null && p.delta > N("thrPackDelta")) set("watch", `${fmt(p.delta, 1)} °C warmer than the other ${SIDE_NAME[p.side].toLowerCase()} packs`);
+  });
+
+  /* Side-level battery */
+  const soc = sideRows(R.sSoc), pow = sideRows(R.sPow), en = sideRows(R.sEnergy), rng = sideRows(R.sRange);
+  const side = {};
+  ["B", "T"].forEach(s => {
+    const pk = (packSides[s] || []).filter(p => p.soc !== null);
+    side[s] = {
+      soc: num(soc[s]?.v) ?? (pk.length ? sum(pk.map(p => p.soc)) / pk.length : null),
+      pow: num(pow[s]?.v), energy: num(en[s]?.v), range: num(rng[s]?.v)
+    };
+    if (side[s].energy === 0) side[s].energy = null;
+  });
+  const socGap = side.B.soc !== null && side.T.soc !== null ? Math.abs(side.B.soc - side.T.soc) : null;
+  if (socGap !== null && socGap > N("thrSocDiff")) add("watch", "battery", null, `Port and starboard charge differ by ${fmt(socGap, 0)} points (${fmt(side.B.soc, 0)}% vs ${fmt(side.T.soc, 0)}%)`);
+  const hi = { B:0, T:0 }, lo = { B:0, T:0 };
+  const socSeries = series(R.iSoc, incMs, r => trim(r.side), r => num(r.v));
+  ["B", "T"].forEach(s => socSeries.get(s).forEach(v => { if (v === null) return; if (v > 95) hi[s]++; if (v < 15) lo[s]++; }));
+
+  /* Motors */
+  const motors = nameUnits(byUnit(R.wMot), "motor"), sM = byUnit(R.sMot);
+  motors.forEach(m => {
+    const s = sM.get(m.key)?.comp || {}, w = m.comp, g = c => num(s[c]?.v);
+    m.last = Object.values(w).map(r => parseTs(r.t)).filter(Boolean).sort((a, b) => b - a)[0] || null;
+    m.power = g("ggMotorPower"); m.volt = g("gMotorVoltage"); m.temp = g("ggMotorTemperature"); m.etemp = g("ggElectronicTemperature");
+    m.hours = g("totalTimeEnabledHours") ?? num(w.totalTimeEnabledHours?.mx);
+    m.tempMax = num(w.ggMotorTemperature?.mx); m.etempMax = num(w.ggElectronicTemperature?.mx); m.powMax = num(w.ggMotorPower?.mx);
+    m.level = "ok"; m.why = [];
+    const set = (lv, text) => { m.level = worst(m.level, lv); m.why.push(text); add(lv, "propulsion", m.key, `${m.name}: ${text}`); };
+    if (isStale(m.last)) { set("stale", m.last ? `no data since ${fmtTime(m.last, true)} UTC` : "no data in this window"); return; }
+    if (m.temp > N("thrMotorTemp")) set("alert", `motor ${fmt(m.temp, 0)} °C, above ${N("thrMotorTemp")} °C`);
+    else if (m.tempMax > N("thrMotorTemp")) set("watch", `motor reached ${fmt(m.tempMax, 0)} °C in this window`);
+    if (m.etemp > N("thrElecTemp")) set("alert", `electronics ${fmt(m.etemp, 0)} °C, above ${N("thrElecTemp")} °C`);
+    else if (m.etempMax > N("thrElecTemp")) set("watch", `electronics reached ${fmt(m.etempMax, 0)} °C in this window`);
+  });
+  // Motors that reported before the window but not in it
+  const sp = sideRows(R.sSpeed), speedNow = (() => { const v = ["B", "T"].map(s => num(sp[s]?.v)).filter(v => v !== null); return v.length ? Math.max(...v) : null; })();
+  const liveMotors = [...motors.values()].filter(m => m.level !== "stale" && m.power !== null);
+  const propNow = liveMotors.length ? sum(liveMotors.map(m => m.power)) * ([...motors.values()].length / liveMotors.length) : null;
+
+  /* Chargers */
+  const chargers = nameUnits(byUnit(R.wChg), "charger"), sC = byUnit(R.sChg);
+  const chgState = new Map();
+  R.sChgSt.forEach(r => { const k = unitKey(r), t = parseTs(r.t); if (!chgState.has(k) || t > chgState.get(k).t) chgState.set(k, { t, v:trim(r.value) }); });
+  chgState.forEach((st, k) => { if (!chargers.has(k)) chargers.set(k, { key:k, side:k.split("|")[0], ip:k.split("|")[1], id:k.split("|")[2], comp:{} }); });
+  nameUnits(chargers, "charger");
+  chargers.forEach(c => {
+    const s = sC.get(c.key)?.comp || {}, g = x => num(s[x]?.v);
+    c.last = [...Object.values(c.comp).map(r => parseTs(r.t)), chgState.get(c.key)?.t].filter(Boolean).sort((a, b) => b - a)[0] || null;
+    c.state = chgState.get(c.key)?.v ?? null; c.dc = g("gActDcPower"); c.acV = g("gActAcVoltage"); c.acA = g("gActAcCurrent");
+    c.etemp = g("gActElectronicTemperature"); c.etempMax = num(c.comp.gActElectronicTemperature?.mx);
+    c.l = [1, 2, 3].map(i => ({ a:g("currentL" + i), v:g("voltageL" + i) }));
+    c.level = "ok"; c.why = [];
+    const set = (lv, text) => { c.level = worst(c.level, lv); c.why.push(text); add(lv, "charging", c.key, `${c.name}: ${text}`); };
+    if (isStale(c.last)) { set("stale", c.last ? `no data since ${fmtTime(c.last, true)} UTC` : "no data in this window"); return; }
+    if (c.etemp > N("thrElecTemp")) set("alert", `electronics ${fmt(c.etemp, 0)} °C, above ${N("thrElecTemp")} °C`);
+    else if (c.etempMax > N("thrElecTemp")) set("watch", `electronics reached ${fmt(c.etempMax, 0)} °C in this window`);
+  });
+
+  /* Converter */
+  const convs = nameUnits(byUnit(R.wCnv), "conv"), sV = byUnit(R.sCnv);
+  const cnvState = new Map();
+  R.sCnvSt.forEach(r => { const k = unitKey(r), t = parseTs(r.t); if (!cnvState.has(k) || t > cnvState.get(k).t) cnvState.set(k, { t, v:trim(r.value) }); });
+  convs.forEach(c => {
+    const s = sV.get(c.key)?.comp || {}, g = x => num(s[x]?.v);
+    c.last = Object.values(c.comp).map(r => parseTs(r.t)).filter(Boolean).sort((a, b) => b - a)[0] || null;
+    c.state = cnvState.get(c.key)?.v ?? null; c.pAct = g("gPowerActual") ?? g("powerActual"); c.pReq = g("gPowerRequested") ?? g("powerRequest"); c.dcV = g("dcVoltage");
+    c.level = isStale(c.last) ? "stale" : "ok"; c.why = [];
+    if (c.level === "stale") { c.why.push("not reporting"); add("stale", "converter", c.key, `${c.name}: ${c.last ? "no data since " + fmtTime(c.last, true) + " UTC" : "no data in this window"}`); }
+  });
+
+  /* Generator */
+  const gs = {}; [...R.sGenA, ...R.sGenB, ...R.sGenC].forEach(r => gs[trim(r.component)] = r);
+  const gc = {}; R.wGenCum.forEach(r => gc[trim(r.component)] = r);
+  const gr = {}; R.wGenRun.forEach(r => gr[trim(r.component)] = r);
+  const diff = c => { const a = num(gc[c]?.mn), b = num(gc[c]?.mx); return a !== null && b !== null ? b - a : null; };
+  const gen = {
+    rpm: num(gs.EngineRPM?.mx), load: num(gs.Load?.v), fuelRate: num(gs.FuelRate?.v), coolant: num(gs["T-Coolant"]?.v),
+    exhaust: num(gs.ExhaustTemp?.v), oil: num(gs.OilPress?.v), batt: num(gs.BatteryVolt?.v), runHours: num(gs.RunHours?.v),
+    service: num(gs.ServiceTime?.v), last: Object.values(gs).map(r => parseTs(r.t)).filter(Boolean).sort((a, b) => b - a)[0] || null,
+    litres: diff("TotalFuelUsed"), hours: diff("RunHours"), starts: diff("NumSuccStarts"), failed: diff("NumUnscStarts"),
+    avgLoad: num(gr.Load?.av), avgFuel: num(gr.FuelRate?.av), maxCoolant: num(gr["T-Coolant"]?.mx), maxExhaust: num(gr.ExhaustTemp?.mx),
+    level: "ok", why: []
+  };
+  gen.running = gen.rpm !== null ? gen.rpm > 0 : null;
+  const gset = (lv, text) => { gen.level = worst(gen.level, lv); gen.why.push(text); add(lv, "generator", "gen", `Generator: ${text}`); };
+  if (isStale(gen.last) && R.gRpm.length === 0) gen.level = "stale";
+  else if (isStale(gen.last)) gset("stale", `no data since ${fmtTime(gen.last, true)} UTC`);
+  if (gen.running && gen.coolant > N("thrCoolant")) gset("alert", `coolant ${fmt(gen.coolant, 0)} °C, above ${N("thrCoolant")} °C`);
+  else if (gen.maxCoolant > N("thrCoolant")) gset("watch", `coolant reached ${fmt(gen.maxCoolant, 0)} °C in this window`);
+  if (gen.failed > 0) gset("watch", `${fmt(gen.failed, 0)} failed start${gen.failed > 1 ? "s" : ""} in this window`);
+
+  // Generator timeline + events (bucket = W.gen)
+  const genBk = new Map(); R.gRpm.forEach(r => { const t = parseTs(r.t); if (t) genBk.set(Math.floor(t / genMs) * genMs, num(r.mx) > 0); });
+  const socBk = new Map(); R.gSoc.forEach(r => { const t = parseTs(r.t); if (t) socBk.set(Math.floor(t / genMs) * genMs, num(r.v)); });
+  const fuelBk = new Map(); R.gFuel.forEach(r => { const t = parseTs(r.t); if (t) fuelBk.set(Math.floor(t / genMs) * genMs, num(r.v)); });
+  const bks = [...genBk.keys()].sort((a, b) => a - b), events = [];
+  let prev = null;
+  bks.forEach(b => {
+    const on = genBk.get(b);
+    if (prev !== null && on !== prev) {
+      const soc = socBk.get(b) ?? null;
+      events.push({ type:on ? "start" : "stop", t:new Date(b), soc, flag:on && soc !== null && soc > N("stopGenSoc") });
+    }
+    prev = on;
+  });
+  const flagged = events.filter(e => e.flag);
+  if (flagged.length) add("watch", "generator", "gen", `Generator started ${flagged.length}× with more than ${N("stopGenSoc")}% charge`);
+  if (gen.running && side.B.soc !== null && Math.min(side.B.soc, side.T.soc ?? side.B.soc) > N("stopGenSoc"))
+    gset("watch", `running with ${fmt(Math.min(side.B.soc, side.T.soc ?? side.B.soc), 0)}% charge`);
+
+  // Charging source: shore (generator off) vs diesel (generator on)
+  const chgBk = new Map();
+  R.gChg.forEach(r => { const t = parseTs(r.t), v = num(r.v); if (!t || v === null || v <= 0) return; const b = Math.floor(t / genMs) * genMs; chgBk.set(b, (chgBk.get(b) || 0) + v); });
+  const src = { shoreH:0, shoreKwh:0, dieselH:0, dieselKwh:0 }, bh = genMs / 3600e3;
+  chgBk.forEach((kw, b) => { if (kw < 0.5) return; const d = genBk.get(b); if (d) { src.dieselH += bh; src.dieselKwh += kw * bh; } else { src.shoreH += bh; src.shoreKwh += kw * bh; } });
+
+  /* Overall */
+  const counts = { alert:0, watch:0, stale:0 };
+  alerts.forEach(a => counts[a.level] !== undefined && counts[a.level]++);
+  alerts.sort((a, b) => LV[b.level] - LV[a.level]);
+
+  const M = { packs, packSides, side, socGap, hi, lo, motors, speedNow, propNow, chargers, convs, gen, events, fuelBk, genBk, socBk, src, alerts, counts, curve, ref };
+  M.arrival = arrival(M, anchorDate);
+  M.recs = recommendations(M);
+  return M;
+}
+
+/* =================== Arrival forecast =================== */
+function cruiseEndDate(anchorDate){
+  const m = /^(\d{1,2}):(\d{2})$/.exec(trim(S.cruiseEnd)); if (!m) return null;
+  const d = new Date(anchorDate); d.setUTCHours(+m[1], +m[2], 0, 0);
+  return d;
+}
+function arrival(M, anchorDate){
+  const A = { ok:false };
+  const end = cruiseEndDate(anchorDate);
+  const cap = s => {
+    const e = M.side[s].energy, soc = M.side[s].soc;
+    if (e !== null && soc !== null && soc > 20) return e / (soc / 100);
+    return N("capacitySide");
+  };
+  const sides = ["B", "T"].filter(s => M.side[s].soc !== null || M.side[s].energy !== null);
+  if (!sides.length) { A.msg = "No battery data in the last 15 minutes"; return A; }
+  const stored = sum(sides.map(s => M.side[s].energy ?? (M.side[s].soc / 100) * N("capacitySide")));
+  const full = sum(sides.map(cap));
+  const usable = stored - full * N("floorSoc") / 100;
+  const v = M.speedNow ?? 0;
+  const propCurve = powerAt(M.curve, v);
+  const prop = v >= 0.5 ? (M.propNow ?? propCurve ?? null) : 0;
+  const load = prop === null ? null : prop + N("houseLoad");
+  const net = sum(["B", "T"].map(s => M.side[s].pow ?? 0)); // positive = charging
+  Object.assign(A, { end, stored, full, usable, v, prop, load, net, socNow:full ? stored / full * 100 : null });
+  if (!end) { A.msg = "Set the cruise end time"; return A; }
+  const remH = (end - anchorDate) / 3600e3;
+  A.remH = remH;
+  if (remH <= 0) { A.msg = `Cruise end ${trim(S.cruiseEnd)} UTC has passed — set the next one`; return A; }
+  if (load === null) { A.msg = "No propulsion data to forecast with"; return A; }
+  const R = N("reserveMin") / 60;
+  const needAll = load * remH, needReserve = load * Math.min(R, remH);
+  A.needAll = needAll; A.needReserve = needReserve;
+  A.socEndOff = (stored - needAll) / full * 100;
+  A.canFinishNow = usable >= needAll;
+  A.latestStop = new Date(end.getTime() - Math.min(R, remH) * 3600e3);
+  if (M.gen.running && !A.canFinishNow && net > 0) {
+    const tH = (needAll - usable) / (net + load);
+    A.earliestStop = new Date(anchorDate.getTime() + Math.max(0, tH) * 3600e3);
+    A.earliestFeasible = tH <= remH - Math.min(R, remH);
+  }
+  // Fastest speed that finishes the cruise on battery from now
+  if (M.curve.length && usable > 0) {
+    let best = null;
+    for (let s = 0.5; s <= M.curve[M.curve.length - 1].v + 1e-9; s += 0.5) {
+      const p = powerAt(M.curve, s); if (p === null) continue;
+      if ((p + N("houseLoad")) * remH <= usable) best = s;
+    }
+    A.maxElectricSpeed = best;
+  }
+  A.ok = true;
+  return A;
+}
+
+/* =================== Recommendations (rule-based) =================== */
+function recommendations(M){
+  const A = M.arrival, out = [], price = N("dieselPrice"), lpk = N("litresPerKwh"), unit = S.speedUnit;
+  const fuelRate = M.gen.fuelRate ?? M.gen.avgFuel;
+  // 1. Stop the generator now
+  if (M.gen.running && A.ok && A.canFinishNow) {
+    const h = Math.max(0, (A.latestStop - (state.last?.ctx?.anchorDate || new Date())) / 3600e3);
+    const L = fuelRate ? fuelRate * h : null;
+    out.push({ eur:L ? L * price : 0, title:"Stop the generator now",
+      text:`Battery holds ${fmt(A.usable, 0)} kWh above the ${N("floorSoc")}% floor; the rest of the cruise needs about ${fmt(A.needAll, 0)} kWh at ${fmt(A.v, 1)} ${unit} (${fmt(A.load, 0)} kW). You'd dock at about ${fmt(A.socEndOff, 0)}%.` +
+        (L ? ` Running it until ${fmtTime(A.latestStop)} UTC instead would burn ~${fmt(L, 0)} L at ${fmt(fuelRate, 1)} L/h.` : "") });
+  } else if (M.gen.running && A.ok && A.earliestStop) {
+    out.push({ eur:0, title:`Stop the generator at ${fmtTime(A.earliestStop)} UTC`,
+      text:`At ${fmt(A.net, 1)} kW net charging, the battery will hold enough by then to finish on electric at ${fmt(A.v, 1)} ${unit}. ` +
+        (A.earliestFeasible ? `It must be off by ${fmtTime(A.latestStop)} UTC for the last ${N("reserveMin")} minutes.` : `That's later than the ${fmtTime(A.latestStop)} UTC deadline — slow down to arrive electric.`) });
+  }
+  // 2. Slow down: compare energy per distance at current speed vs 2 slower
+  if (M.curve.length && A.v >= 3) {
+    const v1 = A.v, v2 = Math.max(1, Math.round((v1 - 2) * 2) / 2);
+    // Use the live reading at the current speed; scale to the slower speed by the fitted curve's ratio
+    const c1 = powerAt(M.curve, v1), c2 = powerAt(M.curve, v2);
+    const p1 = A.prop || c1, p2 = c1 && c2 ? p1 * c2 / c1 : null;
+    if (p1 && p2 && p1 > p2) {
+      const dist = A.remH ? v1 * A.remH : v1; // distance at current speed over remaining time (or one hour)
+      const e1 = (p1 + N("houseLoad")) * dist / v1, e2 = (p2 + N("houseLoad")) * dist / v2, saved = e1 - e2;
+      const extra = (dist / v2 - dist / v1) * 60;
+      if (saved > 1) {
+        const L = saved * lpk;
+        out.push({ eur:L * price, title:`Slow from ${fmt(v1, 1)} to ${fmt(v2, 1)} ${unit}`,
+          text:`Propulsion drops from ~${fmt(p1, 0)} to ~${fmt(p2, 0)} kW. Over the next ${fmt(dist, 1)} ${unit === "kn" ? "NM" : "distance units"} that saves ~${fmt(saved, 0)} kWh (≈ ${fmt(L, 1)} L if the generator makes it up) and adds ${fmt(extra, 0)} min.` +
+            (A.ok && A.maxElectricSpeed ? ` Holding ${fmt(A.maxElectricSpeed, 1)} ${unit} or less finishes the cruise on battery.` : "") });
+      }
+    }
+  }
+  // 3. Arrival shortfall
+  if (A.ok && !A.canFinishNow && !M.gen.running) {
+    const short = A.needAll - A.usable;
+    out.push({ eur:0, title:"Not enough charge to finish on electric",
+      text:`The rest of the cruise needs ~${fmt(A.needAll, 0)} kWh at ${fmt(A.v, 1)} ${unit}; ${fmt(A.usable, 0)} kWh is usable — ${fmt(short, 0)} kWh short.` +
+        (A.maxElectricSpeed ? ` Slow to ${fmt(A.maxElectricSpeed, 1)} ${unit}, or charge before ${fmtTime(A.latestStop)} UTC.` : ` Charge before ${fmtTime(A.latestStop)} UTC.`) });
+  }
+  // 4. Generator at the dock with shore power
+  if (M.gen.running && (M.speedNow ?? 0) < 0.5 && S.shorePower === "yes" && fuelRate) {
+    out.push({ eur:fuelRate * price, title:"Switch to shore power",
+      text:`The generator is running at the dock, burning ${fmt(fuelRate, 1)} L/h (${eur(fuelRate * price)} per hour). Shore charging costs no diesel.` });
+  }
+  // 5. Battery care
+  const hot = [...M.packs.values()].filter(p => p.level === "alert" || (p.delta !== null && p.delta > N("thrPackDelta")));
+  if (hot.length) out.push({ eur:0, title:"Ease the load on the warm battery packs",
+    text:hot.map(p => `${p.name} ${fmt(p.cell, 0)} °C` + (p.delta !== null ? ` (+${fmt(p.delta, 1)} °C vs siblings)` : "")).join("; ") + `. Lower speed reduces current; ${N("thrCellTemp")} °C is the alert line.` });
+  return out.sort((a, b) => b.eur - a.eur).slice(0, 3);
+}
+
+/* =================== Rendering =================== */
+function renderAll(ctx, M, fit){
+  renderHelm(ctx, M);
+  renderHull(M);
+  renderLists(M);
+  renderTabs(M);
+  renderPanels(ctx, M);
+  const pts = trackPoints(ctx.R.track, ctx.R.trackSp);
+  const tr = drawTrack(pts, M.events, fit);
+  M.dist = tr.dist;
+  const latest = ctx.latest;
+  mapNote(tr.count ? "" : (state.anchor === "now" && latest && Date.now() - latest.getTime() > ctx.W.ms
+    ? `No positions in the last ${ctx.W.label}. The latest data is from ${fmtTime(latest, true)} UTC — switch to "Latest data".`
+    : "No positions in this window. Try a longer window."));
+}
+
+function renderHelm(ctx, M){
+  $("kSpeed").textContent = fmt(M.speedNow);
+  $("kSpeedUnit").textContent = S.speedUnit;
+  $("kProp").textContent = M.propNow !== null ? `Propulsion ${fmt(M.propNow, 0)} kW` + (M.motors.size && [...M.motors.values()].some(m => m.level === "stale") ? " (estimated — a motor isn't reporting)" : "") : "Propulsion —";
+  ["B", "T"].forEach(s => {
+    const d = M.side[s];
+    $("kSoc" + s).textContent = fmt(d.soc, 0);
+    $("g" + s).style.width = d.soc === null ? "0" : Math.max(0, Math.min(100, d.soc)) + "%";
+    $("kE" + s).textContent = d.energy === null ? "—" : `${fmt(d.energy, 0)} kWh`;
+    $("kPow" + s).textContent = d.pow === null ? "—" : `${d.pow < 0 ? "−" : "+"}${fmt(Math.abs(d.pow), 1)} kW ${d.pow < -0.2 ? "out" : d.pow > 0.2 ? "in" : ""}`;
+    $("kRange" + s).textContent = d.range === null ? "—" : fmt(d.range, 0);
+  });
+  const g = M.gen, box = $("genBox");
+  box.className = "gen" + (g.running ? " on" : "");
+  $("genTitle").textContent = g.running === null ? "Generator — no data" : g.running ? "Generator running" : "Generator off";
+  const lastEv = M.events[M.events.length - 1];
+  $("genSub").textContent = g.running
+    ? `${fmt(g.load, 0)}% load, ${fmt(g.fuelRate, 1)} L/h (${eur((g.fuelRate || 0) * N("dieselPrice"))}/h)` + (lastEv?.type === "start" ? `, since ${fmtTime(lastEv.t)} UTC` : "")
+    : lastEv?.type === "stop" ? `Stopped at ${fmtTime(lastEv.t, true)} UTC` : g.hours ? `Ran ${fmt(g.hours, 0)} h in this window` : "";
+
+  // Arrival
+  const A = M.arrival, v = $("arrVerdict"), ul = $("arrList");
+  ul.textContent = "";
+  const li = t => { const x = document.createElement("li"); x.innerHTML = t; ul.appendChild(x); };
+  if (!A.ok) { v.className = "verdict"; v.textContent = A.msg || "—"; }
+  else if (A.canFinishNow) { v.className = "verdict ok"; v.textContent = `On track: dock at ~${fmt(A.socEndOff, 0)}% on battery`; }
+  else if (g.running && A.earliestStop && A.earliestFeasible) { v.className = "verdict warn"; v.textContent = `Keep charging until ${fmtTime(A.earliestStop)} UTC`; }
+  else { v.className = "verdict bad"; v.textContent = `Short by ${fmt(A.needAll - A.usable, 0)} kWh at this speed`; }
+  if (A.stored !== undefined) {
+    li(`Usable now: <b>${fmt(A.usable, 0)} kWh</b> of ${fmt(A.stored, 0)} kWh stored (floor ${N("floorSoc")}%)`);
+    if (A.load !== null) li(`Draw at ${fmt(A.v, 1)} ${esc(S.speedUnit)}: <b>${fmt(A.load, 0)} kW</b> (propulsion ${fmt(A.prop, 0)} + house ${N("houseLoad")})`);
+  }
+  if (A.ok) {
+    li(`Rest of cruise (${fmtDur(A.remH * 3600e3)}): <b>${fmt(A.needAll, 0)} kWh</b>; last ${N("reserveMin")} min alone: ${fmt(A.needReserve, 0)} kWh`);
+    li(`Generator must be off by <b>${fmtTime(A.latestStop)} UTC</b>`);
+    if (A.maxElectricSpeed !== undefined) li(A.maxElectricSpeed ? `Fastest all-electric speed from now: <b>${fmt(A.maxElectricSpeed, 1)} ${esc(S.speedUnit)}</b>` : "No speed finishes the cruise on battery alone from here");
+  }
+
+  const f = $("fresh"), latest = ctx.latest;
+  if (latest) {
+    const age = Date.now() - latest.getTime(), stale = age > 15 * 60e3;
+    f.className = "fresh" + (stale ? " stale" : "");
+    f.innerHTML = `Latest data <strong>${fmtTime(latest, true)} UTC</strong>` +
+      (stale ? ` — <strong>${fmtDur(age)} ago</strong>. Everything above shows the last recorded state${state.anchor === "latest" ? ", and the forecast treats that moment as now" : ""}.` : ` (${fmtDur(age)} ago).`);
+  } else f.textContent = "No data for this boat yet.";
+}
+
+/* Plan view of the hull with every unit placed by side */
+function renderHull(M){
+  const svg = $("hull"), NS = "http://www.w3.org/2000/svg";
+  svg.textContent = "";
+  const el = (tag, attrs, parent = svg) => { const e = document.createElementNS(NS, tag); Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v)); parent.appendChild(e); return e; };
+  const text = (x, y, t, cls, anchor = "middle", parent = svg) => { const e = el("text", { x, y, "text-anchor":anchor, class:cls || "" }, parent); e.textContent = t; return e; };
+  el("path", { class:"shell", d:"M180,10 C252,32 320,112 324,210 L324,488 Q324,524 290,528 L70,528 Q36,524 36,488 L36,210 C40,112 108,32 180,10 Z" });
+  el("line", { class:"keel", x1:180, y1:40, x2:180, y2:520 });
+  text(180, 32, "Bow", "lbl"); text(18, 280, "Port", "pt", "middle").setAttribute("transform", "rotate(-90 18 280)");
+  text(342, 280, "Starboard", "sb", "middle").setAttribute("transform", "rotate(90 342 280)");
+
+  const unit = (x, y, w, h, u, lines, tab, sideC) => {
+    const g = el("g", { class:"u " + (u.level || "ok"), tabindex:0, role:"button", "aria-label":`${u.name}: ${u.level === "ok" ? "normal" : u.why?.join("; ") || u.level}` });
+    if (sideC) g.style.setProperty("--sidec", sideC);
+    el("rect", { x, y, width:w, height:h, rx:5 }, g);
+    lines.forEach((t, i) => text(x + w / 2, y + 16 + i * 14, t, i === 0 ? "t" : "", "middle", g));
+    const title = el("title", {}, g); title.textContent = u.name + (u.why?.length ? " — " + u.why.join("; ") : "");
+    const go = () => focusUnit(tab, u.key);
+    g.addEventListener("click", go);
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    return g;
+  };
+  const sc = s => s === "B" ? "var(--port)" : s === "T" ? "var(--stbd)" : null;
+
+  // Chargers row near the bow
+  const ch = [...M.chargers.values()];
+  const chB = ch.filter(c => c.side === "B"), chT = ch.filter(c => c.side === "T"), chC = ch.filter(c => c.side !== "B" && c.side !== "T");
+  const cw = 50, cy = 72, chh = 40;
+  chB.forEach((c, i) => unit(176 - (chB.length - i) * (cw + 4), cy, cw, chh, c, [c.short, c.state ? shortState(c.state) : fmt(c.dc, 1) + " kW"], "charging", sc("B")));
+  chT.forEach((c, i) => unit(184 + i * (cw + 4), cy, cw, chh, c, [c.short, c.state ? shortState(c.state) : fmt(c.dc, 1) + " kW"], "charging", sc("T")));
+  chC.forEach((c, i) => unit(180 - (chC.length * (cw + 4) - 4) / 2 + i * (cw + 4), cy, cw, chh, c, [c.short, c.state ? shortState(c.state) : fmt(c.dc, 1) + " kW"], "charging"));
+  if (ch.length) text(180, cy - 8, "Shore chargers", "lbl");
+
+  // Battery packs
+  const pk = M.packSides, top = 140, avail = 250;
+  ["B", "T"].forEach(s => {
+    const list = pk[s] || []; if (!list.length) return;
+    const h = Math.min(54, avail / list.length - 8), x = s === "B" ? 54 : 188;
+    list.forEach((p, i) => unit(x, top + i * (h + 8), 118, h, p,
+      h >= 44 ? [`${p.short}  ${fmt(p.soc, 0)}%`, `${fmt(p.cur, 0)} A  ${fmt(p.cell, 0)} °C`] : [`${p.short} ${fmt(p.soc, 0)}% ${fmt(p.cell, 0)}°C`], "battery", sc(s)));
+  });
+  text(180, top - 8, "Battery packs", "lbl");
+
+  // Generator + converter
+  const gy = 408;
+  const g = M.gen;
+  unit(118, gy, 124, 50, { name:"Generator", key:"gen", level:g.level, why:g.why }, ["Generator", g.running === null ? "no data" : g.running ? `On  ${fmt(g.load, 0)}%` : "Off"], "generator");
+  const cv = [...M.convs.values()];
+  cv.forEach((c, i) => unit(c.side === "B" ? 50 : 250, gy + i * 56, 60, 50, c, ["Conv.", c.state ? shortState(c.state) : fmt(c.pAct, 0) + " kW"], "converter", sc(c.side)));
+
+  // Motors at the stern
+  const mot = [...M.motors.values()];
+  mot.forEach(m => unit(m.side === "T" ? 190 : 56, 468, 114, 46, m, [m.name.replace(" motor", "").replace("Port", "Port motor").replace("Starboard", "Stbd motor"), m.level === "stale" ? "not reporting" : `${fmt(m.power, 0)} kW  ${fmt(m.temp, 0)} °C`], "propulsion", sc(m.side)));
+}
+const shortState = s => ({ Running:"Running", PreOperational:"Standby", InitReset:"Reset", Precharge:"Precharge" }[s] || s);
+
+function renderLists(M){
+  const c = M.counts, o = $("overall");
+  const n = c.alert + c.watch;
+  if (!M.packs.size && !M.motors.size && M.gen.running === null && !M.chargers.size) {
+    o.className = "overall watch"; o.textContent = "No readings from this boat in this window";
+    $("overallSub").textContent = "Try a longer window, or check the requests log below.";
+    $("recs").innerHTML = ""; $("alerts").innerHTML = `<li class="empty">Nothing to check without data.</li>`;
+    return;
+  }
+  o.className = "overall " + (c.alert ? "alert" : c.watch ? "watch" : "ok");
+  o.textContent = c.alert ? `${c.alert} thing${c.alert > 1 ? "s" : ""} need attention now` : c.watch ? `${c.watch} thing${c.watch > 1 ? "s" : ""} to watch` : "All systems normal";
+  $("overallSub").textContent = c.stale ? `${c.stale} unit${c.stale > 1 ? "s" : ""} not reporting` : (n ? "" : `As of ${fmtTime(M.ref, true)} UTC`);
+
+  const recs = $("recs"); recs.textContent = "";
+  if (!M.recs.length) recs.innerHTML = `<li style="border-left-color:var(--ok)"><b>Nothing to change right now</b><p>Advice appears here when the numbers point to a saving or a risk.</p></li>`;
+  M.recs.forEach(r => {
+    const li = document.createElement("li");
+    li.innerHTML = (r.eur >= 1 ? `<span class="eur">${eur(r.eur)}</span>` : "") + `<b>${esc(r.title)}</b><p>${esc(r.text)}</p>`;
+    recs.appendChild(li);
+  });
+
+  const ul = $("alerts"); ul.textContent = "";
+  if (!M.alerts.length) ul.innerHTML = `<li class="empty">Nothing outside the thresholds in this window.</li>`;
+  M.alerts.slice(0, 14).forEach(a => {
+    const li = document.createElement("li"); li.className = a.level;
+    const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = { alert:"Act now", watch:"Watch", stale:"Silent" }[a.level];
+    const b = document.createElement("button"); b.type = "button"; b.textContent = a.text; b.onclick = () => focusUnit(a.sys, a.unit);
+    li.append(tag, b); ul.appendChild(li);
+  });
+  if (M.alerts.length > 14) { const li = document.createElement("li"); li.className = "empty"; li.textContent = `+ ${M.alerts.length - 14} more in the tabs below`; ul.appendChild(li); }
+}
+
+/* Tabs */
+const TABS = [["battery", "Batteries"], ["propulsion", "Propulsion"], ["generator", "Generator"], ["charging", "Charging"], ["converter", "Converter"]];
+function renderTabs(M){
+  const bar = $("tabs"); bar.textContent = "";
+  const lvl = sys => M.alerts.filter(a => a.sys === sys).reduce((l, a) => worst(l, a.level === "stale" ? "ok" : a.level), "ok");
+  TABS.forEach(([k, label]) => {
+    if (k === "converter" && !M.convs.size) { if (state.tab === k) state.tab = "battery"; return; }
+    const b = document.createElement("button"); b.type = "button"; b.role = "tab"; b.id = "tb-" + k;
+    b.setAttribute("aria-selected", String(state.tab === k)); b.setAttribute("aria-controls", "tab-" + k);
+    b.textContent = label;
+    const l = lvl(k); if (l !== "ok") { const f = document.createElement("span"); f.className = "flag " + l; f.title = l === "alert" ? "Needs attention" : "Something to watch"; b.appendChild(f); }
+    b.onclick = () => { state.tab = k; state.hl = null; renderTabs(M); showTab(); };
+    bar.appendChild(b);
+  });
+  showTab();
+}
+function showTab(){ TABS.forEach(([k]) => { $("tab-" + k).hidden = k !== state.tab; }); }
+function focusUnit(tab, key){
+  state.tab = tab; state.hl = key;
+  if (!state.last) return;
+  renderTabs(state.last.M); renderPanels(state.last.ctx, state.last.M);
+  const row = document.querySelector(`#tab-${tab} tr.hl`) || $("tab-" + tab);
+  row.scrollIntoView({ behavior:matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"center" });
+}
+
+/* Detail panels */
+const cell = (v, d, lvl) => `<td class="${lvl || ""}">${fmt(v, d)}</td>`;
+const stat = (v, k, u = "") => `<div><div class="v">${v}${u ? `<small>${u}</small>` : ""}</div><div class="k">${k}</div></div>`;
+const lvlIf = (v, thr, soft) => v === null ? "" : v > thr ? "alert" : soft !== undefined && soft > thr ? "watch" : "";
+function renderPanels(ctx, M){
+  const { R, incMs, W } = ctx, withDate = W.ms > 24 * 3600e3, lbl = ks => ks.map(k => fmtTime(new Date(k), withDate));
+  const subInc = `${W.inc[1]}-${W.inc[0]} buckets, UTC`;
+  const port = css("--port"), stbd = css("--stbd"), ink = css("--ink"), amber = css("--amber");
+  const dashes = [[], [6, 3], [2, 3], [10, 3, 2, 3]];
+
+  /* Batteries */
+  const packs = [...M.packs.values()].sort((a, b) => (a.side + a.short).localeCompare(b.side + b.short));
+  const pRow = p => `<tr class="${state.hl === p.key ? "hl" : ""}"><td><span class="swatch" style="background:${sideColor(p.side)}"></span>${esc(p.name)} <span class="sub">${esc(p.code)}</span></td>` +
+    (p.level === "stale" ? `<td class="stale" colspan="7">not reporting — last ${p.last ? fmtTime(p.last, true) + " UTC" : "never in window"}</td>` :
+    cell(p.soc, 0) + cell(p.cur, 1, lvlIf(Math.abs(p.cur ?? 0), N("thrCurrent"))) + cell(p.curPeak, 0, lvlIf(p.curPeak, N("thrCurrent")) && "watch") +
+    cell(p.cell, 0, lvlIf(p.cell, N("thrCellTemp"))) + cell(p.delta, 1, p.delta > N("thrPackDelta") ? "watch" : "") + cell(p.volt, 1) +
+    `<td>${fmt(p.soh, 1)}${p.sohMin !== null && p.soh !== null && p.sohMin < p.soh - 0.2 ? ` <span class="sub">(min ${fmt(p.sohMin, 1)})</span>` : ""}</td>`) + `</tr>`;
+  const hiH = s => fmtDur(M.hi[s] * incMs), loH = s => fmtDur(M.lo[s] * incMs);
+  $("tab-battery").innerHTML = `
+    <div class="stats">
+      ${stat(fmt(M.side.B.soc, 0) + " / " + fmt(M.side.T.soc, 0), "Charge now, port / starboard", "%")}
+      ${stat(M.socGap === null ? "—" : fmt(M.socGap, 0), `Port–starboard gap (alert above ${N("thrSocDiff")})`, "pts")}
+      ${stat(hiH("B") + " / " + hiH("T"), "Time above 95% charge, port / stbd")}
+      ${stat(loH("B") + " / " + loH("T"), "Time below 15% charge, port / stbd")}
+    </div>
+    <div class="tablewrap"><table class="units"><thead><tr><th>Pack</th><th>Charge %</th><th>Current A</th><th>Peak |A| in window</th><th>Hottest cell °C</th><th>vs siblings °C</th><th>Voltage V</th><th>Health %</th></tr></thead>
+    <tbody>${packs.map(pRow).join("") || `<tr><td colspan="8" class="stale">No battery data in this window.</td></tr>`}</tbody></table></div>
+    <div class="charts">
+      <section class="chart"><h4>Pack current</h4><div class="sub">Largest magnitude per ${subInc}; negative is discharging. Alert at ±${N("thrCurrent")} A.</div><div class="box"><canvas id="cCur"></canvas></div></section>
+      <section class="chart"><h4>Hottest cell per pack</h4><div class="sub">Max per ${subInc}. Alert at ${N("thrCellTemp")} °C.</div><div class="box"><canvas id="cTemp"></canvas></div></section>
+      <section class="chart"><h4>Charge by side</h4><div class="sub">Average per ${subInc}</div><div class="box"><canvas id="cSoc"></canvas></div></section>
+      <section class="chart"><h4>Battery flow</h4><div class="sub">Negative means the battery is discharging</div><div class="box"><canvas id="cPow"></canvas></div></section>
+    </div>`;
+  const packName = new Map(packs.map((p, i) => [p.key, p]));
+  const cur = series(R.iCur, incMs, unitKey, r => { const a = num(r.mn), b = num(r.mx); return a === null ? b : b === null ? a : Math.abs(a) > Math.abs(b) ? a : b; });
+  const pds = (s, keyOrder) => keyOrder.filter(k => packName.has(k)).map(k => { const p = packName.get(k), i = (M.packSides[p.side] || []).indexOf(p);
+    return { label:p.name, data:s.get(k), borderColor:sideColor(p.side), borderDash:dashes[i % 4], borderWidth:state.hl === k ? 3.5 : 1.8 }; });
+  lineChart("cCur", lbl(cur.ks), pds(cur, cur.keys), "A");
+  const tmp = series(R.iTemp, incMs, unitKey, r => num(r.mx));
+  lineChart("cTemp", lbl(tmp.ks), pds(tmp, tmp.keys), "°C");
+  const socS = series(R.iSoc, incMs, r => trim(r.side), r => num(r.v));
+  lineChart("cSoc", lbl(socS.ks), [{ label:"Port", data:socS.get("B"), borderColor:port }, { label:"Starboard", data:socS.get("T"), borderColor:stbd }], "%", { y:{ min:0, max:100 } });
+  const pw = series(R.iPow, incMs, r => trim(r.side), r => num(r.v));
+  lineChart("cPow", lbl(pw.ks), [{ label:"Port", data:pw.get("B"), borderColor:port }, { label:"Starboard", data:pw.get("T"), borderColor:stbd }], "kW");
+
+  /* Propulsion */
+  const mots = [...M.motors.values()].sort((a, b) => a.side.localeCompare(b.side));
+  const mRow = m => `<tr class="${state.hl === m.key ? "hl" : ""}"><td><span class="swatch" style="background:${sideColor(m.side)}"></span>${esc(m.name)}</td>` +
+    (m.level === "stale" ? `<td class="stale" colspan="6">not reporting — last ${m.last ? fmtTime(m.last, true) + " UTC" : "never in window"}</td>` :
+    cell(m.power, 1) + cell(m.powMax, 0) + cell(m.volt, 0) + cell(m.temp, 0, lvlIf(m.temp, N("thrMotorTemp"), m.tempMax)) + cell(m.etemp, 0, lvlIf(m.etemp, N("thrElecTemp"), m.etempMax)) + cell(m.hours, 0)) + `</tr>`;
+  const curve = M.curve, A = M.arrival;
+  const eff = curve.map(c => ({ v:c.v, kwhpd:(c.p + N("houseLoad")) / c.v })).filter(c => c.v >= 2).sort((a, b) => a.kwhpd - b.kwhpd)[0];
+  $("tab-propulsion").innerHTML = `
+    <div class="stats">
+      ${stat(fmt(M.speedNow), "Speed now", S.speedUnit)}
+      ${stat(fmt(M.propNow, 0), "Propulsion power now", "kW")}
+      ${stat(M.speedNow && M.propNow ? fmt((M.propNow + N("houseLoad")) / M.speedNow, 2) : "—", `Energy per ${S.speedUnit === "kn" ? "NM" : "distance unit"} now`, "kWh")}
+      ${stat(eff ? fmt(eff.v, 1) : "—", eff ? `Most efficient speed (${fmt(eff.kwhpd, 2)} kWh per ${S.speedUnit === "kn" ? "NM" : "unit"})` : "Most efficient speed", eff ? S.speedUnit : "")}
+    </div>
+    <div class="tablewrap"><table class="units"><thead><tr><th>Motor</th><th>Power kW</th><th>Peak kW</th><th>Voltage V</th><th>Motor °C</th><th>Electronics °C</th><th>Hours</th></tr></thead>
+    <tbody>${mots.map(mRow).join("") || `<tr><td colspan="7" class="stale">No motor data in this window.</td></tr>`}</tbody></table></div>
+    <div class="charts">
+      <section class="chart"><h4>Speed and power</h4><div class="sub">Typical propulsion power at each speed, from the last 14 days (15-min averages, both motors). ${curve.length ? "" : "Not enough history yet."}</div><div class="box"><canvas id="cCurve"></canvas></div></section>
+      <section class="chart"><h4>Speed over ground</h4><div class="sub">Average and max per ${subInc}</div><div class="box"><canvas id="cSpeed"></canvas></div></section>
+      <section class="chart"><h4>Motor power</h4><div class="sub">Average per ${subInc}</div><div class="box"><canvas id="cMotP"></canvas></div></section>
+      <section class="chart"><h4>Motor and electronics temperature</h4><div class="sub">Max per ${subInc}</div><div class="box"><canvas id="cMotT"></canvas></div></section>
+      <section class="chart"><h4>Shaft speed</h4><div class="sub">Average RPM per side</div><div class="box"><canvas id="cRpm"></canvas></div></section>
+    </div>`;
+  curveChart("cCurve", curve, M.speedNow >= 0.5 && M.propNow !== null ? { v:M.speedNow, p:M.propNow } : null);
+  const spA = series(R.iSpeed, incMs, () => "a", r => num(r.v)), spM = series(R.iSpeed, incMs, () => "a", r => num(r.mx));
+  lineChart("cSpeed", lbl(spA.ks), [{ label:"Average", data:spA.get("a"), borderColor:ink }, { label:"Max", data:spM.get("a"), borderColor:amber, borderDash:[4, 3] }], S.speedUnit);
+  const mp = series(R.iMotP, incMs, r => trim(r.side), r => num(r.v));
+  lineChart("cMotP", lbl(mp.ks), [{ label:"Port", data:mp.get("B"), borderColor:port }, { label:"Starboard", data:mp.get("T"), borderColor:stbd }], "kW");
+  const mt = series(R.iMotT, incMs, r => trim(r.side) + trim(r.component), r => num(r.mx));
+  lineChart("cMotT", lbl(mt.ks), [
+    { label:"Port motor", data:mt.get("BggMotorTemperature"), borderColor:port },
+    { label:"Port electronics", data:mt.get("BggElectronicTemperature"), borderColor:port, borderDash:[5, 3] },
+    { label:"Stbd motor", data:mt.get("TggMotorTemperature"), borderColor:stbd },
+    { label:"Stbd electronics", data:mt.get("TggElectronicTemperature"), borderColor:stbd, borderDash:[5, 3] }
+  ], "°C");
+  const rp = series(R.iRpm, incMs, r => trim(r.side), r => num(r.v));
+  lineChart("cRpm", lbl(rp.ks), [{ label:"Port", data:rp.get("B"), borderColor:port }, { label:"Starboard", data:rp.get("T"), borderColor:stbd }], "rpm");
+
+  /* Generator */
+  const g = M.gen, price = N("dieselPrice"), days = W.ms / 86400e3;
+  const evList = M.events.slice(-30).reverse().map(e => `<li class="${e.flag ? "flag" : ""}"><span>${fmtTime(e.t, true)} UTC</span><span>${e.type === "start" ? "Started" : "Stopped"}</span><span>battery ${fmt(e.soc, 0)}%</span>${e.flag ? `<span>— started above ${N("stopGenSoc")}% charge</span>` : ""}</li>`).join("");
+  $("tab-generator").innerHTML = `
+    <div class="stats">
+      ${stat(fmt(g.hours, 1), `Run hours in ${W.label}`, "h")}
+      ${stat(fmt(g.litres, 0), `Diesel burned in ${W.label}`, "L")}
+      ${stat(eur(g.litres !== null ? g.litres * price : null), `Cost at €${price}/L` + (days > 1 && g.litres !== null ? `, ${eur(g.litres * price / days)} per day` : ""))}
+      ${stat(fmt(g.starts, 0), "Starts in this window" + (g.failed ? `, ${fmt(g.failed, 0)} failed` : ""))}
+      ${stat(fmt(g.avgLoad, 0), "Average load while running", "%")}
+      ${stat(g.hours ? fmt(g.litres / g.hours, 1) : fmt(g.avgFuel, 1), "Litres per running hour", "L/h")}
+    </div>
+    <div class="tablewrap"><table class="units"><thead><tr><th>Reading, last 15 min</th><th>Value</th><th>Max while running in window</th></tr></thead><tbody>
+      <tr class="${state.hl === "gen" ? "hl" : ""}"><td>Engine</td><td>${g.running === null ? "—" : g.running ? `Running, ${fmt(g.rpm, 0)} rpm` : "Off"}</td><td></td></tr>
+      <tr><td>Load</td>${cell(g.load, 0)}<td>—</td></tr>
+      <tr><td>Fuel rate, L/h</td>${cell(g.fuelRate, 1)}<td>—</td></tr>
+      <tr><td>Coolant, °C</td>${cell(g.coolant, 0, lvlIf(g.coolant, N("thrCoolant")))}${cell(g.maxCoolant, 0, lvlIf(g.maxCoolant, N("thrCoolant")) && "watch")}</tr>
+      <tr><td>Exhaust, °C</td>${cell(g.exhaust, 0)}${cell(g.maxExhaust, 0)}</tr>
+      <tr><td>Oil pressure</td>${cell(g.oil, 2)}<td>—</td></tr>
+      <tr><td>Starter battery, V</td>${cell(g.batt, 1)}<td>—</td></tr>
+      <tr><td>Total run hours</td>${cell(g.runHours, 0)}<td>—</td></tr>
+    </tbody></table></div>
+    <div class="charts">
+      <section class="chart"><h4>Generator and battery</h4><div class="sub">Fuel rate and average charge, ${W.gen[1]}-${W.gen[0]} buckets, UTC</div><div class="box"><canvas id="cGen"></canvas></div></section>
+      <section class="chart"><h4>Starts and stops</h4><div class="sub">Most recent first; highlighted starts had more than ${N("stopGenSoc")}% charge</div>
+        <ul class="events" style="margin-top:8px;max-height:220px;overflow-y:auto">${evList || `<li class="empty">No starts or stops in this window.</li>`}</ul></section>
+    </div>`;
+  const gks = [...new Set([...M.fuelBk.keys(), ...M.socBk.keys()])].sort((a, b) => a - b);
+  const gl = gks.map(k => fmtTime(new Date(k), withDate));
+  if (charts.cGen) charts.cGen.destroy();
+  const { ink:mu, grid, font } = chartBase();
+  charts.cGen = new Chart($("cGen"), { type:"line",
+    data:{ labels:gl, datasets:[
+      { label:"Fuel rate (L/h)", data:gks.map(k => M.fuelBk.get(k) ?? null), borderColor:amber, backgroundColor:amber + "33", fill:true, yAxisID:"y", borderWidth:2, pointRadius:0, stepped:true, spanGaps:true },
+      { label:"Battery charge (%)", data:gks.map(k => M.socBk.get(k) ?? null), borderColor:ink, yAxisID:"y1", borderWidth:2, pointRadius:0, tension:.2, spanGaps:true }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{ mode:"index", intersect:false },
+      plugins:{ legend:{ labels:{ color:mu, boxWidth:12, boxHeight:3, font } } },
+      scales:{ x:{ ticks:{ color:mu, maxTicksLimit:7, maxRotation:0, font }, grid:{ display:false } },
+        y:{ position:"left", beginAtZero:true, ticks:{ color:mu, font }, grid:{ color:grid }, title:{ display:true, text:"L/h", color:mu, font } },
+        y1:{ position:"right", min:0, max:100, ticks:{ color:mu, font }, grid:{ display:false }, title:{ display:true, text:"%", color:mu, font } } } } });
+
+  /* Charging */
+  const chs = [...M.chargers.values()].sort((a, b) => (a.side + a.short).localeCompare(b.side + b.short));
+  const cRow = c => `<tr class="${state.hl === c.key ? "hl" : ""}"><td>${c.side ? `<span class="swatch" style="background:${sideColor(c.side)}"></span>` : ""}${esc(c.name)} <span class="sub">${esc(c.code)}</span></td>` +
+    (c.level === "stale" ? `<td class="stale" colspan="6">not reporting — last ${c.last ? fmtTime(c.last, true) + " UTC" : "never in window"}</td>` :
+    `<td>${esc(c.state ?? "—")}</td>` + cell(c.dc, 1) + cell(c.acV, 0) + cell(c.acA, 1) + `<td>${c.l.map(x => fmt(x.a, 1)).join(" / ")}</td>` + cell(c.etemp, 0, lvlIf(c.etemp, N("thrElecTemp"), c.etempMax))) + `</tr>`;
+  const src = M.src, tot = src.shoreKwh + src.dieselKwh;
+  $("tab-charging").innerHTML = `
+    <div class="stats">
+      ${stat(fmt(src.shoreKwh, 0), `From shore, ${fmtDur(src.shoreH * 3600e3)} charging (generator off)`, "kWh")}
+      ${stat(fmt(src.dieselKwh, 0), `While generator ran, ${fmtDur(src.dieselH * 3600e3)}`, "kWh")}
+      ${stat(tot ? fmt(src.shoreKwh / tot * 100, 0) : "—", "Share of charging from shore", "%")}
+      ${stat(S.shorePower === "yes" ? "Yes" : S.shorePower === "no" ? "No" : "Unknown", "Shore power at the dock (set in settings)")}
+    </div>
+    <div class="tablewrap"><table class="units"><thead><tr><th>Charger</th><th>State</th><th>DC out kW</th><th>AC V</th><th>AC A</th><th>L1 / L2 / L3 A</th><th>Electronics °C</th></tr></thead>
+    <tbody>${chs.map(cRow).join("") || `<tr><td colspan="7" class="stale">No charger data in this window.</td></tr>`}</tbody></table></div>
+    <p class="sub">Charging with the generator on counts as diesel-sourced when the charger and generator run in the same ${W.gen[1]}-${W.gen[0]} bucket.</p>`;
+
+  /* Converter */
+  if (M.convs.size) {
+    const cv = [...M.convs.values()];
+    $("tab-converter").innerHTML = `
+      <div class="tablewrap"><table class="units"><thead><tr><th>Converter</th><th>State</th><th>Power actual kW</th><th>Power requested kW</th><th>DC bus V</th></tr></thead><tbody>
+      ${cv.map(c => `<tr class="${state.hl === c.key ? "hl" : ""}"><td>${c.side ? `<span class="swatch" style="background:${sideColor(c.side)}"></span>` : ""}${esc(c.name)}</td>` +
+        (c.level === "stale" ? `<td class="stale" colspan="4">not reporting</td>` : `<td>${esc(c.state ?? "—")}</td>${cell(c.pAct, 1)}${cell(c.pReq, 1)}${cell(c.dcV, 0)}`) + `</tr>`).join("")}
+      </tbody></table></div>
+      <p class="sub">Actual power is always zero or negative in the data; which direction it represents is not yet confirmed.</p>
+      <div class="charts"><section class="chart"><h4>Converter power and DC bus</h4><div class="sub">Average per ${subInc}</div><div class="box"><canvas id="cCnv"></canvas></div></section></div>`;
+    const cs = series(R.iCnv, incMs, r => trim(r.component), r => num(r.v));
+    if (charts.cCnv) charts.cCnv.destroy();
+    charts.cCnv = new Chart($("cCnv"), { type:"line",
+      data:{ labels:lbl(cs.ks), datasets:[
+        { label:"Power actual (kW)", data:cs.get("gPowerActual"), borderColor:amber, yAxisID:"y", borderWidth:2, pointRadius:0, spanGaps:true },
+        { label:"DC bus (V)", data:cs.get("dcVoltage"), borderColor:ink, yAxisID:"y1", borderWidth:2, pointRadius:0, spanGaps:true }
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false, animation:false, interaction:{ mode:"index", intersect:false },
+        plugins:{ legend:{ labels:{ color:mu, boxWidth:12, boxHeight:3, font } } },
+        scales:{ x:{ ticks:{ color:mu, maxTicksLimit:7, maxRotation:0, font }, grid:{ display:false } },
+          y:{ ticks:{ color:mu, font }, grid:{ color:grid }, title:{ display:true, text:"kW", color:mu, font } },
+          y1:{ position:"right", ticks:{ color:mu, font }, grid:{ display:false }, title:{ display:true, text:"V", color:mu, font } } } } });
+  }
+}
+
+/* =================== Controls =================== */
+function initWindows(){
+  const seg = $("winSeg");
+  Object.entries(WINDOWS).forEach(([k, w]) => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = w.label;
+    b.setAttribute("aria-pressed", String(k === state.win));
+    b.onclick = () => { state.win = k; seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); refresh(); };
+    seg.appendChild(b);
+  });
+  $("anchorSeg").querySelectorAll("button").forEach(b => b.onclick = () => {
+    state.anchor = b.dataset.a;
+    $("anchorSeg").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    refresh();
+  });
+}
+$("boatSel").onchange = e => { state.boat = e.target.value; state.hl = null; refresh(); };
+$("refreshBtn").onclick = refresh;
+$("autoSel").onchange = e => { clearInterval(state.timer); const s = +e.target.value; state.timer = s ? setInterval(refresh, s * 1000) : null; };
+
+/* Cruise inputs on the helm: re-forecast without re-querying */
+$("cruiseEnd").value = S.cruiseEnd || "";
+$("reserveMin").value = S.reserveMin;
+function recompute(){
+  S.cruiseEnd = $("cruiseEnd").value; S.reserveMin = $("reserveMin").value || DEFAULTS.reserveMin; saveSettings(S);
+  if (!state.last) return;
+  const { ctx, M } = state.last;
+  M.arrival = arrival(M, ctx.anchorDate); M.recs = recommendations(M);
+  renderHelm(ctx, M); renderLists(M);
+}
+$("cruiseEnd").addEventListener("change", recompute);
+$("reserveMin").addEventListener("change", recompute);
+
+/* Settings drawer, generated from SCHEMA */
+const form = $("setForm");
+function buildForm(){
+  let fs = null, html = "";
+  const field = f => {
+    const id = "f_" + f.key;
+    const input = f.type === "select"
+      ? `<select id="${id}" name="${f.key}">${f.options.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("")}</select>`
+      : `<input id="${id}" name="${f.key}" ${f.type === "number" ? 'type="number" step="any"' : ""}>`;
+    return `<div class="field"><label for="${id}">${esc(f.label)}</label>${input}${f.hint ? `<div class="hint">${esc(f.hint)}</div>` : ""}</div>`;
+  };
+  const done = new Set();
+  SCHEMA.forEach((f, i) => {
+    if (f.section) { if (fs) html += "</fieldset>"; html += `<fieldset><legend>${esc(f.section)}</legend>`; fs = true; return; }
+    if (done.has(f.key)) return;
+    if (f.pair) { const p = SCHEMA.find(x => x.key === f.pair); done.add(p.key); html += `<div class="pair">${field(f)}${field(p)}</div>`; }
+    else html += field(f);
+  });
+  html += `</fieldset><fieldset><legend>Example request</legend><pre class="preview" id="curlPreview"></pre><div id="testResult" aria-live="polite"></div></fieldset>`;
+  form.innerHTML = html;
+}
+buildForm();
+function openDrawer(){ fillForm(S); $("drawer").classList.add("show"); $("scrim").classList.add("show"); $("drawer").setAttribute("aria-hidden", "false"); form.elements.host.focus(); }
+function closeDrawer(){ applyTheme(S.theme); $("drawer").classList.remove("show"); $("scrim").classList.remove("show"); $("drawer").setAttribute("aria-hidden", "true"); $("connBtn").focus(); }
+function fillForm(s){ Object.keys(DEFAULTS).forEach(k => { if (form.elements[k]) form.elements[k].value = s[k]; }); $("testResult").textContent = ""; updatePreview(); }
+function readForm(){ const s = {}; Object.keys(DEFAULTS).forEach(k => s[k] = form.elements[k] ? trim(form.elements[k].value) : DEFAULTS[k]); return s; }
+function updatePreview(){
+  const saved = S; S = Object.assign({}, S, readForm());
+  const { body, headers } = buildRequest(`sql ${S.dbms} format=json "select boat, count(*) as n from location group by boat"`, true);
+  $("curlPreview").textContent = curlFor(body, headers);
+  S = saved;
+}
+form.addEventListener("input", updatePreview);
+form.elements.theme.addEventListener("change", e => applyTheme(e.target.value));
+$("connBtn").onclick = openDrawer; $("bannerBtn").onclick = openDrawer;
+$("closeDrawer").onclick = closeDrawer; $("scrim").onclick = closeDrawer;
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("drawer").classList.contains("show")) closeDrawer(); });
+$("resetBtn").onclick = () => fillForm(DEFAULTS);
+$("saveBtn").onclick = () => {
+  S = Object.assign({}, S, readForm()); saveSettings(S);
+  $("cruiseEnd").value = S.cruiseEnd || ""; $("reserveMin").value = S.reserveMin;
+  state.curves = {}; renderLegend(); closeDrawer(); refresh();
+};
+$("testBtn").onclick = async () => {
+  const saved = S; S = Object.assign({}, S, readForm());
+  const out = $("testResult"); out.className = ""; out.textContent = `Sending "get status" to ${endpoint()}…`;
+  try { const d = await anylog("get status", false); out.className = "ok-t"; out.textContent = "Node replied: " + (typeof d === "string" ? d : JSON.stringify(d)).slice(0, 200); }
+  catch (e) { out.className = "err-t"; out.textContent = e.message; }
+  finally { S = saved; }
+};
+
+/* Theme */
+const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+let appliedTheme = null;
+function applyTheme(choice){
+  choice = ["light", "dark"].includes(choice) ? choice : "system";
+  const root = document.documentElement;
+  if (choice === "system") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", choice);
+  const dark = choice === "dark" || (choice === "system" && darkQuery.matches);
+  root.classList.toggle("is-dark", dark);
+  const key = choice + ":" + dark;
+  if (key === appliedTheme) return;
+  appliedTheme = key;
+  if (state.last) renderAll(state.last.ctx, state.last.M, false);
+}
+darkQuery.addEventListener("change", () => { appliedTheme = null; applyTheme(S.theme); });
+applyTheme(S.theme);
+
+initWindows();
+renderLegend();
+refresh();
+</script>
+</body>
+</html>

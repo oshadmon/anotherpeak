@@ -1,0 +1,4952 @@
+[
+  {
+    "object": {
+      "description": "AnotherPeak fleet positions",
+      "dbms": "<DB NAME>",
+      "table": "location",
+      "name": "anotherpeak - fleet"
+    }
+  },
+  {
+    "uns": {
+      "name": "anotherpeak",
+      "namespace": "anotherpeak",
+      "object_id": "anotherpeak - fleet",
+      "isa95": {
+        "level": "L4",
+        "entity": "Enterprise",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios - position",
+      "dbms": "<DB NAME>",
+      "table": "location",
+      "where": "boat = 'Helios'",
+      "name": "Helios - position",
+      "location": "45.705, 5.885"
+    }
+  },
+  {
+    "uns": {
+      "name": "helios",
+      "namespace": "anotherpeak/helios",
+      "object_id": "Helios - position",
+      "isa95": {
+        "level": "L3",
+        "entity": "Site",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: battery state of charge (%)",
+      "dbms": "<DB NAME>",
+      "table": "batterystateofchargepercent",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - state_of_charge",
+      "focus": [
+        "battery_health",
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "battery",
+      "namespace": "anotherpeak/helios/battery",
+      "object_id": "Helios - battery - state_of_charge",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "state_of_charge",
+      "namespace": "anotherpeak/helios/battery/state_of_charge",
+      "object_id": "Helios - battery - state_of_charge",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: current battery power",
+      "dbms": "<DB NAME>",
+      "table": "currentbatterypower",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - battery_power",
+      "focus": [
+        "battery_health"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "battery_power",
+      "namespace": "anotherpeak/helios/battery/battery_power",
+      "object_id": "Helios - battery - battery_power",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: high-voltage battery capacity",
+      "dbms": "<DB NAME>",
+      "table": "hvbatterycapacity",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - hv_capacity",
+      "focus": [
+        "battery_health"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "hv_capacity",
+      "namespace": "anotherpeak/helios/battery/hv_capacity",
+      "object_id": "Helios - battery - hv_capacity",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: low-voltage battery max capacity",
+      "dbms": "<DB NAME>",
+      "table": "lvbatterymaxcapacity",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - lv_max_capacity",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "lv_max_capacity",
+      "namespace": "anotherpeak/helios/battery/lv_max_capacity",
+      "object_id": "Helios - battery - lv_max_capacity",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: range remaining on battery",
+      "dbms": "<DB NAME>",
+      "table": "rangebattery",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - range",
+      "focus": [
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "range",
+      "namespace": "anotherpeak/helios/battery/range",
+      "object_id": "Helios - battery - range",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: time remaining on battery",
+      "dbms": "<DB NAME>",
+      "table": "timebattery",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - time_on_battery",
+      "focus": [
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "time_on_battery",
+      "namespace": "anotherpeak/helios/battery/time_on_battery",
+      "object_id": "Helios - battery - time_on_battery",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: time to full charge (minutes)",
+      "dbms": "<DB NAME>",
+      "table": "timetofullminute",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - time_to_full",
+      "focus": [
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "time_to_full",
+      "namespace": "anotherpeak/helios/battery/time_to_full",
+      "object_id": "Helios - battery - time_to_full",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: starter battery voltage",
+      "dbms": "<DB NAME>",
+      "table": "starterbatteryvoltage",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - starter_voltage",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "starter_voltage",
+      "namespace": "anotherpeak/helios/battery/starter_voltage",
+      "object_id": "Helios - battery - starter_voltage",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: battery connection state",
+      "dbms": "<DB NAME>",
+      "table": "stbdbatteryconnectionstate",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - connection_state",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "connection_state",
+      "namespace": "anotherpeak/helios/battery/connection_state",
+      "object_id": "Helios - battery - connection_state",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: HV battery visible on bus",
+      "dbms": "<DB NAME>",
+      "table": "stbdhvbatteryvisible",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - hv_visible",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "hv_visible",
+      "namespace": "anotherpeak/helios/battery/hv_visible",
+      "object_id": "Helios - battery - hv_visible",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery system: starter battery visible on bus",
+      "dbms": "<DB NAME>",
+      "table": "stbdstarterbatteryvisible",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - starter_visible",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "starter_visible",
+      "namespace": "anotherpeak/helios/battery/starter_visible",
+      "object_id": "Helios - battery - starter_visible",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: all components (gCurrent, actualCurrent, gStateOfCharge, actualSoc, gStateOfHealth, gPackVoltage, gAverageTemperature, gMaxCellTemperature, actualTempBattery, actualTempBatteryMax, gTimeToFullMinute, ekmvPresHigh)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios'",
+      "name": "Helios - battery - bms",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "bms",
+      "namespace": "anotherpeak/helios/battery/bms",
+      "object_id": "Helios - battery - bms",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: pack current (negative = discharge)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'gCurrent'",
+      "name": "Helios - battery - bms - current",
+      "component": "gCurrent",
+      "value_column": "value",
+      "unit": "A",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "current",
+      "namespace": "anotherpeak/helios/battery/bms/current",
+      "object_id": "Helios - battery - bms - current",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: pack current, actual (secondary source)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'actualCurrent'",
+      "name": "Helios - battery - bms - current_actual",
+      "component": "actualCurrent",
+      "value_column": "value",
+      "unit": "A",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "current_actual",
+      "namespace": "anotherpeak/helios/battery/bms/current_actual",
+      "object_id": "Helios - battery - bms - current_actual",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: state of charge",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'gStateOfCharge'",
+      "name": "Helios - battery - bms - state_of_charge",
+      "component": "gStateOfCharge",
+      "value_column": "value",
+      "unit": "%",
+      "focus": [
+        "battery_health",
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "state_of_charge",
+      "namespace": "anotherpeak/helios/battery/bms/state_of_charge",
+      "object_id": "Helios - battery - bms - state_of_charge",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: state of charge, actual (secondary source)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'actualSoc'",
+      "name": "Helios - battery - bms - state_of_charge_actual",
+      "component": "actualSoc",
+      "value_column": "value",
+      "unit": "%",
+      "focus": [
+        "battery_health",
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "state_of_charge_actual",
+      "namespace": "anotherpeak/helios/battery/bms/state_of_charge_actual",
+      "object_id": "Helios - battery - bms - state_of_charge_actual",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: state of health",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'gStateOfHealth'",
+      "name": "Helios - battery - bms - state_of_health",
+      "component": "gStateOfHealth",
+      "value_column": "value",
+      "unit": "%",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "state_of_health",
+      "namespace": "anotherpeak/helios/battery/bms/state_of_health",
+      "object_id": "Helios - battery - bms - state_of_health",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: pack voltage",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'gPackVoltage'",
+      "name": "Helios - battery - bms - pack_voltage",
+      "component": "gPackVoltage",
+      "value_column": "value",
+      "unit": "V",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "pack_voltage",
+      "namespace": "anotherpeak/helios/battery/bms/pack_voltage",
+      "object_id": "Helios - battery - bms - pack_voltage",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: average cell temperature",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'gAverageTemperature'",
+      "name": "Helios - battery - bms - avg_temperature",
+      "component": "gAverageTemperature",
+      "value_column": "value",
+      "unit": "°C",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "avg_temperature",
+      "namespace": "anotherpeak/helios/battery/bms/avg_temperature",
+      "object_id": "Helios - battery - bms - avg_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: max cell temperature",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'gMaxCellTemperature'",
+      "name": "Helios - battery - bms - max_cell_temperature",
+      "component": "gMaxCellTemperature",
+      "value_column": "value",
+      "unit": "°C",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "max_cell_temperature",
+      "namespace": "anotherpeak/helios/battery/bms/max_cell_temperature",
+      "object_id": "Helios - battery - bms - max_cell_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: battery temperature, actual (secondary source)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'actualTempBattery'",
+      "name": "Helios - battery - bms - temperature_actual",
+      "component": "actualTempBattery",
+      "value_column": "value",
+      "unit": "°C",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "temperature_actual",
+      "namespace": "anotherpeak/helios/battery/bms/temperature_actual",
+      "object_id": "Helios - battery - bms - temperature_actual",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: max battery temperature, actual (secondary source)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'actualTempBatteryMax'",
+      "name": "Helios - battery - bms - temperature_max_actual",
+      "component": "actualTempBatteryMax",
+      "value_column": "value",
+      "unit": "°C",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "temperature_max_actual",
+      "namespace": "anotherpeak/helios/battery/bms/temperature_max_actual",
+      "object_id": "Helios - battery - bms - temperature_max_actual",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: time to full charge",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'gTimeToFullMinute' and value < 65535",
+      "name": "Helios - battery - bms - time_to_full",
+      "component": "gTimeToFullMinute",
+      "value_column": "value",
+      "unit": "min",
+      "focus": [
+        "comfort"
+      ],
+      "invalid_value": 65535
+    }
+  },
+  {
+    "uns": {
+      "name": "time_to_full",
+      "namespace": "anotherpeak/helios/battery/bms/time_to_full",
+      "object_id": "Helios - battery - bms - time_to_full",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios battery management system: ekmvPresHigh (meaning/unit to confirm with customer)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'Helios' and component = 'ekmvPresHigh'",
+      "name": "Helios - battery - bms - ekmv_pres_high",
+      "component": "ekmvPresHigh",
+      "value_column": "value",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "ekmv_pres_high",
+      "namespace": "anotherpeak/helios/battery/bms/ekmv_pres_high",
+      "object_id": "Helios - battery - bms - ekmv_pres_high",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios electric propulsion motor and drive: all components (ggMotorPower, gMotorVoltage, ggMotorTemperature, ggElectronicTemperature, totalTimeEnabledHours)",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'Helios'",
+      "name": "Helios - motor - propulsion",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "motor",
+      "namespace": "anotherpeak/helios/motor",
+      "object_id": "Helios - motor - propulsion",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "propulsion",
+      "namespace": "anotherpeak/helios/motor/propulsion",
+      "object_id": "Helios - motor - propulsion",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios electric propulsion motor and drive: motor power",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'Helios' and component = 'ggMotorPower'",
+      "name": "Helios - motor - propulsion - motor_power",
+      "component": "ggMotorPower",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "diesel",
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "motor_power",
+      "namespace": "anotherpeak/helios/motor/propulsion/motor_power",
+      "object_id": "Helios - motor - propulsion - motor_power",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios electric propulsion motor and drive: motor DC voltage",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'Helios' and component = 'gMotorVoltage'",
+      "name": "Helios - motor - propulsion - motor_voltage",
+      "component": "gMotorVoltage",
+      "value_column": "value",
+      "unit": "V",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "motor_voltage",
+      "namespace": "anotherpeak/helios/motor/propulsion/motor_voltage",
+      "object_id": "Helios - motor - propulsion - motor_voltage",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios electric propulsion motor and drive: motor temperature",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'Helios' and component = 'ggMotorTemperature'",
+      "name": "Helios - motor - propulsion - motor_temperature",
+      "component": "ggMotorTemperature",
+      "value_column": "value",
+      "unit": "°C"
+    }
+  },
+  {
+    "uns": {
+      "name": "motor_temperature",
+      "namespace": "anotherpeak/helios/motor/propulsion/motor_temperature",
+      "object_id": "Helios - motor - propulsion - motor_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios electric propulsion motor and drive: drive electronics temperature",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'Helios' and component = 'ggElectronicTemperature'",
+      "name": "Helios - motor - propulsion - electronics_temperature",
+      "component": "ggElectronicTemperature",
+      "value_column": "value",
+      "unit": "°C"
+    }
+  },
+  {
+    "uns": {
+      "name": "electronics_temperature",
+      "namespace": "anotherpeak/helios/motor/propulsion/electronics_temperature",
+      "object_id": "Helios - motor - propulsion - electronics_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios electric propulsion motor and drive: total time enabled",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'Helios' and component = 'totalTimeEnabledHours'",
+      "name": "Helios - motor - propulsion - time_enabled",
+      "component": "totalTimeEnabledHours",
+      "value_column": "value",
+      "unit": "h"
+    }
+  },
+  {
+    "uns": {
+      "name": "time_enabled",
+      "namespace": "anotherpeak/helios/motor/propulsion/time_enabled",
+      "object_id": "Helios - motor - propulsion - time_enabled",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios electric propulsion motors: propeller shaft RPM",
+      "dbms": "<DB NAME>",
+      "table": "stbdrpmshaft",
+      "where": "boat = 'Helios'",
+      "name": "Helios - motor - shaft_rpm",
+      "focus": [
+        "diesel"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "shaft_rpm",
+      "namespace": "anotherpeak/helios/motor/shaft_rpm",
+      "object_id": "Helios - motor - shaft_rpm",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios electric propulsion motors: drive state",
+      "dbms": "<DB NAME>",
+      "table": "stbddrivestate",
+      "where": "boat = 'Helios'",
+      "name": "Helios - motor - drive_state",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "drive_state",
+      "namespace": "anotherpeak/helios/motor/drive_state",
+      "object_id": "Helios - motor - drive_state",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios electric propulsion motors: confirmed drive power",
+      "dbms": "<DB NAME>",
+      "table": "drivepowerconfirmed",
+      "where": "boat = 'Helios'",
+      "name": "Helios - motor - drive_power_confirmed",
+      "focus": [
+        "diesel",
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "drive_power_confirmed",
+      "namespace": "anotherpeak/helios/motor/drive_power_confirmed",
+      "object_id": "Helios - motor - drive_power_confirmed",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC charger power",
+      "dbms": "<DB NAME>",
+      "table": "stbdacchargerpower",
+      "where": "boat = 'Helios'",
+      "name": "Helios - charger - charger_power",
+      "focus": [
+        "battery_health",
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "charger",
+      "namespace": "anotherpeak/helios/charger",
+      "object_id": "Helios - charger - charger_power",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "charger_power",
+      "namespace": "anotherpeak/helios/charger/charger_power",
+      "object_id": "Helios - charger - charger_power",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC charger enabled",
+      "dbms": "<DB NAME>",
+      "table": "stbdacchargerenable",
+      "where": "boat = 'Helios'",
+      "name": "Helios - charger - charger_enable",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "charger_enable",
+      "namespace": "anotherpeak/helios/charger/charger_enable",
+      "object_id": "Helios - charger - charger_enable",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC charger visible on bus",
+      "dbms": "<DB NAME>",
+      "table": "stbdacchargervisible",
+      "where": "boat = 'Helios'",
+      "name": "Helios - charger - charger_visible",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "charger_visible",
+      "namespace": "anotherpeak/helios/charger/charger_visible",
+      "object_id": "Helios - charger - charger_visible",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: all components (gState, gWake, gActDcPower, gActAcCurrent, gActAcVoltage, gActElectronicTemperature, currentL1, currentL2, currentL3, voltageL1, voltageL2, voltageL3)",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios'",
+      "name": "Helios - charger - ac_charger",
+      "value_columns": [
+        "str_value",
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "ac_charger",
+      "namespace": "anotherpeak/helios/charger/ac_charger",
+      "object_id": "Helios - charger - ac_charger",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: charger state (e.g. InitReset, Running)",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'gState'",
+      "name": "Helios - charger - ac_charger - state",
+      "component": "gState",
+      "value_column": "str_value"
+    }
+  },
+  {
+    "uns": {
+      "name": "state",
+      "namespace": "anotherpeak/helios/charger/ac_charger/state",
+      "object_id": "Helios - charger - ac_charger - state",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: charger wake (0/1)",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'gWake'",
+      "name": "Helios - charger - ac_charger - wake",
+      "component": "gWake",
+      "value_column": "value"
+    }
+  },
+  {
+    "uns": {
+      "name": "wake",
+      "namespace": "anotherpeak/helios/charger/ac_charger/wake",
+      "object_id": "Helios - charger - ac_charger - wake",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: DC output power",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'gActDcPower'",
+      "name": "Helios - charger - ac_charger - dc_power",
+      "component": "gActDcPower",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "battery_health",
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "dc_power",
+      "namespace": "anotherpeak/helios/charger/ac_charger/dc_power",
+      "object_id": "Helios - charger - ac_charger - dc_power",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC input current",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'gActAcCurrent'",
+      "name": "Helios - charger - ac_charger - ac_current",
+      "component": "gActAcCurrent",
+      "value_column": "value",
+      "unit": "A"
+    }
+  },
+  {
+    "uns": {
+      "name": "ac_current",
+      "namespace": "anotherpeak/helios/charger/ac_charger/ac_current",
+      "object_id": "Helios - charger - ac_charger - ac_current",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC input voltage",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'gActAcVoltage'",
+      "name": "Helios - charger - ac_charger - ac_voltage",
+      "component": "gActAcVoltage",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "ac_voltage",
+      "namespace": "anotherpeak/helios/charger/ac_charger/ac_voltage",
+      "object_id": "Helios - charger - ac_charger - ac_voltage",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: charger electronics temperature",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'gActElectronicTemperature'",
+      "name": "Helios - charger - ac_charger - electronics_temperature",
+      "component": "gActElectronicTemperature",
+      "value_column": "value",
+      "unit": "°C"
+    }
+  },
+  {
+    "uns": {
+      "name": "electronics_temperature",
+      "namespace": "anotherpeak/helios/charger/ac_charger/electronics_temperature",
+      "object_id": "Helios - charger - ac_charger - electronics_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC phase L1 current",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'currentL1'",
+      "name": "Helios - charger - ac_charger - current_l1",
+      "component": "currentL1",
+      "value_column": "value",
+      "unit": "A"
+    }
+  },
+  {
+    "uns": {
+      "name": "current_l1",
+      "namespace": "anotherpeak/helios/charger/ac_charger/current_l1",
+      "object_id": "Helios - charger - ac_charger - current_l1",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC phase L2 current",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'currentL2'",
+      "name": "Helios - charger - ac_charger - current_l2",
+      "component": "currentL2",
+      "value_column": "value",
+      "unit": "A"
+    }
+  },
+  {
+    "uns": {
+      "name": "current_l2",
+      "namespace": "anotherpeak/helios/charger/ac_charger/current_l2",
+      "object_id": "Helios - charger - ac_charger - current_l2",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC phase L3 current",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'currentL3'",
+      "name": "Helios - charger - ac_charger - current_l3",
+      "component": "currentL3",
+      "value_column": "value",
+      "unit": "A"
+    }
+  },
+  {
+    "uns": {
+      "name": "current_l3",
+      "namespace": "anotherpeak/helios/charger/ac_charger/current_l3",
+      "object_id": "Helios - charger - ac_charger - current_l3",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC phase L1 voltage",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'voltageL1'",
+      "name": "Helios - charger - ac_charger - voltage_l1",
+      "component": "voltageL1",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "voltage_l1",
+      "namespace": "anotherpeak/helios/charger/ac_charger/voltage_l1",
+      "object_id": "Helios - charger - ac_charger - voltage_l1",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC phase L2 voltage",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'voltageL2'",
+      "name": "Helios - charger - ac_charger - voltage_l2",
+      "component": "voltageL2",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "voltage_l2",
+      "namespace": "anotherpeak/helios/charger/ac_charger/voltage_l2",
+      "object_id": "Helios - charger - ac_charger - voltage_l2",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios AC shore charger: AC phase L3 voltage",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'Helios' and component = 'voltageL3'",
+      "name": "Helios - charger - ac_charger - voltage_l3",
+      "component": "voltageL3",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "voltage_l3",
+      "namespace": "anotherpeak/helios/charger/ac_charger/voltage_l3",
+      "object_id": "Helios - charger - ac_charger - voltage_l3",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: all components (EngineState, EngineRPM, EngRPMfiltered, EngineSpeed, SpeedRequest, SpeedReqRPM, Load, FuelRate, TotalFuelUsed, RunHours, EngineRunHours, ServiceTime, NumSuccStarts, NumUnscStarts, ExhaustTemp, CoolTemp, T-Coolant, T-IntManifold, OilPress, P-Oil, BatteryVolt, D+, CPUTemp)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios'",
+      "name": "Helios - generator - engine",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "generator",
+      "namespace": "anotherpeak/helios/generator",
+      "object_id": "Helios - generator - engine",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "engine",
+      "namespace": "anotherpeak/helios/generator/engine",
+      "object_id": "Helios - generator - engine",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: engine state code (1-11)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'EngineState'",
+      "name": "Helios - generator - engine - state",
+      "component": "EngineState",
+      "value_column": "value",
+      "focus": [
+        "diesel",
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "state",
+      "namespace": "anotherpeak/helios/generator/engine/state",
+      "object_id": "Helios - generator - engine - state",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: engine RPM",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'EngineRPM'",
+      "name": "Helios - generator - engine - rpm",
+      "component": "EngineRPM",
+      "value_column": "value",
+      "unit": "rpm",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "rpm",
+      "namespace": "anotherpeak/helios/generator/engine/rpm",
+      "object_id": "Helios - generator - engine - rpm",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: engine RPM, filtered",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'EngRPMfiltered'",
+      "name": "Helios - generator - engine - rpm_filtered",
+      "component": "EngRPMfiltered",
+      "value_column": "value",
+      "unit": "rpm",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "rpm_filtered",
+      "namespace": "anotherpeak/helios/generator/engine/rpm_filtered",
+      "object_id": "Helios - generator - engine - rpm_filtered",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: engine speed (CAN)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'EngineSpeed' and value < 32768",
+      "name": "Helios - generator - engine - engine_speed",
+      "component": "EngineSpeed",
+      "value_column": "value",
+      "unit": "rpm",
+      "focus": [
+        "diesel"
+      ],
+      "invalid_value": 32768
+    }
+  },
+  {
+    "uns": {
+      "name": "engine_speed",
+      "namespace": "anotherpeak/helios/generator/engine/engine_speed",
+      "object_id": "Helios - generator - engine - engine_speed",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: speed request",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'SpeedRequest'",
+      "name": "Helios - generator - engine - speed_request",
+      "component": "SpeedRequest",
+      "value_column": "value",
+      "unit": "%",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "speed_request",
+      "namespace": "anotherpeak/helios/generator/engine/speed_request",
+      "object_id": "Helios - generator - engine - speed_request",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: speed request",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'SpeedReqRPM'",
+      "name": "Helios - generator - engine - speed_request_rpm",
+      "component": "SpeedReqRPM",
+      "value_column": "value",
+      "unit": "rpm",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "speed_request_rpm",
+      "namespace": "anotherpeak/helios/generator/engine/speed_request_rpm",
+      "object_id": "Helios - generator - engine - speed_request_rpm",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: engine load",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'Load' and value < 32768",
+      "name": "Helios - generator - engine - load",
+      "component": "Load",
+      "value_column": "value",
+      "unit": "%",
+      "focus": [
+        "diesel"
+      ],
+      "invalid_value": 32768
+    }
+  },
+  {
+    "uns": {
+      "name": "load",
+      "namespace": "anotherpeak/helios/generator/engine/load",
+      "object_id": "Helios - generator - engine - load",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: fuel rate",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'FuelRate' and value < 3276.8",
+      "name": "Helios - generator - engine - fuel_rate",
+      "component": "FuelRate",
+      "value_column": "value",
+      "unit": "L/h",
+      "focus": [
+        "diesel"
+      ],
+      "invalid_value": 3276.8
+    }
+  },
+  {
+    "uns": {
+      "name": "fuel_rate",
+      "namespace": "anotherpeak/helios/generator/engine/fuel_rate",
+      "object_id": "Helios - generator - engine - fuel_rate",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: total fuel used",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'TotalFuelUsed' and value < 214748364.8",
+      "name": "Helios - generator - engine - total_fuel_used",
+      "component": "TotalFuelUsed",
+      "value_column": "value",
+      "unit": "L",
+      "focus": [
+        "diesel"
+      ],
+      "invalid_value": 214748364.8
+    }
+  },
+  {
+    "uns": {
+      "name": "total_fuel_used",
+      "namespace": "anotherpeak/helios/generator/engine/total_fuel_used",
+      "object_id": "Helios - generator - engine - total_fuel_used",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: run hours (controller)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'RunHours'",
+      "name": "Helios - generator - engine - run_hours",
+      "component": "RunHours",
+      "value_column": "value",
+      "unit": "h",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "run_hours",
+      "namespace": "anotherpeak/helios/generator/engine/run_hours",
+      "object_id": "Helios - generator - engine - run_hours",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: run hours (engine ECU)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'EngineRunHours' and value < 2147483648",
+      "name": "Helios - generator - engine - engine_run_hours",
+      "component": "EngineRunHours",
+      "value_column": "value",
+      "unit": "h",
+      "focus": [
+        "diesel"
+      ],
+      "invalid_value": 2147483648
+    }
+  },
+  {
+    "uns": {
+      "name": "engine_run_hours",
+      "namespace": "anotherpeak/helios/generator/engine/engine_run_hours",
+      "object_id": "Helios - generator - engine - engine_run_hours",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: service time counter",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'ServiceTime'",
+      "name": "Helios - generator - engine - service_time",
+      "component": "ServiceTime",
+      "value_column": "value",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "service_time",
+      "namespace": "anotherpeak/helios/generator/engine/service_time",
+      "object_id": "Helios - generator - engine - service_time",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: successful starts count",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'NumSuccStarts'",
+      "name": "Helios - generator - engine - successful_starts",
+      "component": "NumSuccStarts",
+      "value_column": "value",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "successful_starts",
+      "namespace": "anotherpeak/helios/generator/engine/successful_starts",
+      "object_id": "Helios - generator - engine - successful_starts",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: unsuccessful starts count",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'NumUnscStarts'",
+      "name": "Helios - generator - engine - unsuccessful_starts",
+      "component": "NumUnscStarts",
+      "value_column": "value"
+    }
+  },
+  {
+    "uns": {
+      "name": "unsuccessful_starts",
+      "namespace": "anotherpeak/helios/generator/engine/unsuccessful_starts",
+      "object_id": "Helios - generator - engine - unsuccessful_starts",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: exhaust temperature",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'ExhaustTemp'",
+      "name": "Helios - generator - engine - exhaust_temperature",
+      "component": "ExhaustTemp",
+      "value_column": "value",
+      "unit": "°C",
+      "focus": [
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "exhaust_temperature",
+      "namespace": "anotherpeak/helios/generator/engine/exhaust_temperature",
+      "object_id": "Helios - generator - engine - exhaust_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: coolant temperature (controller)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'CoolTemp' and value < 32768",
+      "name": "Helios - generator - engine - coolant_temperature",
+      "component": "CoolTemp",
+      "value_column": "value",
+      "unit": "°C",
+      "invalid_value": 32768
+    }
+  },
+  {
+    "uns": {
+      "name": "coolant_temperature",
+      "namespace": "anotherpeak/helios/generator/engine/coolant_temperature",
+      "object_id": "Helios - generator - engine - coolant_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: coolant temperature (engine ECU)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'T-Coolant' and value < 32768",
+      "name": "Helios - generator - engine - coolant_temperature_ecu",
+      "component": "T-Coolant",
+      "value_column": "value",
+      "unit": "°C",
+      "invalid_value": 32768
+    }
+  },
+  {
+    "uns": {
+      "name": "coolant_temperature_ecu",
+      "namespace": "anotherpeak/helios/generator/engine/coolant_temperature_ecu",
+      "object_id": "Helios - generator - engine - coolant_temperature_ecu",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: intake manifold temperature",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'T-IntManifold' and value < 32768",
+      "name": "Helios - generator - engine - intake_manifold_temperature",
+      "component": "T-IntManifold",
+      "value_column": "value",
+      "unit": "°C",
+      "invalid_value": 32768
+    }
+  },
+  {
+    "uns": {
+      "name": "intake_manifold_temperature",
+      "namespace": "anotherpeak/helios/generator/engine/intake_manifold_temperature",
+      "object_id": "Helios - generator - engine - intake_manifold_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: oil pressure (controller)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'OilPress' and value < 327.68",
+      "name": "Helios - generator - engine - oil_pressure",
+      "component": "OilPress",
+      "value_column": "value",
+      "invalid_value": 327.68
+    }
+  },
+  {
+    "uns": {
+      "name": "oil_pressure",
+      "namespace": "anotherpeak/helios/generator/engine/oil_pressure",
+      "object_id": "Helios - generator - engine - oil_pressure",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: oil pressure (engine ECU)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'P-Oil' and value < 327.68",
+      "name": "Helios - generator - engine - oil_pressure_ecu",
+      "component": "P-Oil",
+      "value_column": "value",
+      "invalid_value": 327.68
+    }
+  },
+  {
+    "uns": {
+      "name": "oil_pressure_ecu",
+      "namespace": "anotherpeak/helios/generator/engine/oil_pressure_ecu",
+      "object_id": "Helios - generator - engine - oil_pressure_ecu",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: generator starter battery voltage",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'BatteryVolt'",
+      "name": "Helios - generator - engine - starter_battery_voltage",
+      "component": "BatteryVolt",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "starter_battery_voltage",
+      "namespace": "anotherpeak/helios/generator/engine/starter_battery_voltage",
+      "object_id": "Helios - generator - engine - starter_battery_voltage",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: alternator D+ voltage",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'D+'",
+      "name": "Helios - generator - engine - alternator_d_plus",
+      "component": "D+",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "alternator_d_plus",
+      "namespace": "anotherpeak/helios/generator/engine/alternator_d_plus",
+      "object_id": "Helios - generator - engine - alternator_d_plus",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios diesel generator engine: generator controller CPU temperature",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'Helios' and component = 'CPUTemp'",
+      "name": "Helios - generator - engine - controller_cpu_temperature",
+      "component": "CPUTemp",
+      "value_column": "value",
+      "unit": "°C"
+    }
+  },
+  {
+    "uns": {
+      "name": "controller_cpu_temperature",
+      "namespace": "anotherpeak/helios/generator/engine/controller_cpu_temperature",
+      "object_id": "Helios - generator - engine - controller_cpu_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios power management: power balance (negative = discharging)",
+      "dbms": "<DB NAME>",
+      "table": "powerbalance",
+      "where": "boat = 'Helios'",
+      "name": "Helios - power - power_balance",
+      "focus": [
+        "battery_health",
+        "diesel"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "power",
+      "namespace": "anotherpeak/helios/power",
+      "object_id": "Helios - power - power_balance",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "power_balance",
+      "namespace": "anotherpeak/helios/power/power_balance",
+      "object_id": "Helios - power - power_balance",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios power converter (generator to DC bus): all components (gState, dcVoltage, gPowerRequested, gPowerActual, powerRequest, powerActual)",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'Helios'",
+      "name": "Helios - power - converter",
+      "value_columns": [
+        "str_value",
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "converter",
+      "namespace": "anotherpeak/helios/power/converter",
+      "object_id": "Helios - power - converter",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios power converter (generator to DC bus): converter state (e.g. Running)",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'Helios' and component = 'gState'",
+      "name": "Helios - power - converter - state",
+      "component": "gState",
+      "value_column": "str_value"
+    }
+  },
+  {
+    "uns": {
+      "name": "state",
+      "namespace": "anotherpeak/helios/power/converter/state",
+      "object_id": "Helios - power - converter - state",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios power converter (generator to DC bus): DC bus voltage",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'Helios' and component = 'dcVoltage'",
+      "name": "Helios - power - converter - dc_voltage",
+      "component": "dcVoltage",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "dc_voltage",
+      "namespace": "anotherpeak/helios/power/converter/dc_voltage",
+      "object_id": "Helios - power - converter - dc_voltage",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios power converter (generator to DC bus): power requested",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'Helios' and component = 'gPowerRequested'",
+      "name": "Helios - power - converter - power_requested",
+      "component": "gPowerRequested",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "power_requested",
+      "namespace": "anotherpeak/helios/power/converter/power_requested",
+      "object_id": "Helios - power - converter - power_requested",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios power converter (generator to DC bus): power actual",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'Helios' and component = 'gPowerActual'",
+      "name": "Helios - power - converter - power_actual",
+      "component": "gPowerActual",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "power_actual",
+      "namespace": "anotherpeak/helios/power/converter/power_actual",
+      "object_id": "Helios - power - converter - power_actual",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios power converter (generator to DC bus): power request (raw)",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'Helios' and component = 'powerRequest'",
+      "name": "Helios - power - converter - power_request_raw",
+      "component": "powerRequest",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "power_request_raw",
+      "namespace": "anotherpeak/helios/power/converter/power_request_raw",
+      "object_id": "Helios - power - converter - power_request_raw",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios power converter (generator to DC bus): power actual (raw)",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'Helios' and component = 'powerActual'",
+      "name": "Helios - power - converter - power_actual_raw",
+      "component": "powerActual",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "power_actual_raw",
+      "namespace": "anotherpeak/helios/power/converter/power_actual_raw",
+      "object_id": "Helios - power - converter - power_actual_raw",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios power management: power converter output",
+      "dbms": "<DB NAME>",
+      "table": "elptxpower",
+      "where": "boat = 'Helios'",
+      "name": "Helios - power - converter_power",
+      "focus": [
+        "diesel"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "converter_power",
+      "namespace": "anotherpeak/helios/power/converter_power",
+      "object_id": "Helios - power - converter_power",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios navigation and trip: GPS position (lat, lon)",
+      "dbms": "<DB NAME>",
+      "table": "location",
+      "where": "boat = 'Helios'",
+      "name": "Helios - navigation - position"
+    }
+  },
+  {
+    "uns": {
+      "name": "navigation",
+      "namespace": "anotherpeak/helios/navigation",
+      "object_id": "Helios - navigation - position",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "position",
+      "namespace": "anotherpeak/helios/navigation/position",
+      "object_id": "Helios - navigation - position",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios navigation and trip: speed over ground",
+      "dbms": "<DB NAME>",
+      "table": "speedoverground",
+      "where": "boat = 'Helios'",
+      "name": "Helios - navigation - speed_over_ground",
+      "focus": [
+        "diesel",
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "speed_over_ground",
+      "namespace": "anotherpeak/helios/navigation/speed_over_ground",
+      "object_id": "Helios - navigation - speed_over_ground",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios navigation and trip: heading to home port",
+      "dbms": "<DB NAME>",
+      "table": "headinghome",
+      "where": "boat = 'Helios'",
+      "name": "Helios - navigation - heading_home",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "heading_home",
+      "namespace": "anotherpeak/helios/navigation/heading_home",
+      "object_id": "Helios - navigation - heading_home",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios navigation and trip: heading to destination",
+      "dbms": "<DB NAME>",
+      "table": "headingdestination",
+      "where": "boat = 'Helios'",
+      "name": "Helios - navigation - heading_destination",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "heading_destination",
+      "namespace": "anotherpeak/helios/navigation/heading_destination",
+      "object_id": "Helios - navigation - heading_destination",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios navigation and trip: distance to destination",
+      "dbms": "<DB NAME>",
+      "table": "distancedestination",
+      "where": "boat = 'Helios'",
+      "name": "Helios - navigation - distance_destination",
+      "focus": [
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "distance_destination",
+      "namespace": "anotherpeak/helios/navigation/distance_destination",
+      "object_id": "Helios - navigation - distance_destination",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios navigation and trip: trip log",
+      "dbms": "<DB NAME>",
+      "table": "trip",
+      "where": "boat = 'Helios'",
+      "name": "Helios - navigation - trip",
+      "focus": [
+        "diesel"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "trip",
+      "namespace": "anotherpeak/helios/navigation/trip",
+      "object_id": "Helios - navigation - trip",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios vessel systems and onboard computer: system state (device_wake, drive_enable, on)",
+      "dbms": "<DB NAME>",
+      "table": "systemstate",
+      "where": "boat = 'Helios'",
+      "name": "Helios - system - system_state",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "system",
+      "namespace": "anotherpeak/helios/system",
+      "object_id": "Helios - system - system_state",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "system_state",
+      "namespace": "anotherpeak/helios/system/system_state",
+      "object_id": "Helios - system - system_state",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios vessel systems and onboard computer: vessel operational state",
+      "dbms": "<DB NAME>",
+      "table": "vesselstate",
+      "where": "boat = 'Helios'",
+      "name": "Helios - system - vessel_state",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "vessel_state",
+      "namespace": "anotherpeak/helios/system/vessel_state",
+      "object_id": "Helios - system - vessel_state",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios vessel systems and onboard computer: onboard server CPU load",
+      "dbms": "<DB NAME>",
+      "table": "servercpuload",
+      "where": "boat = 'Helios'",
+      "name": "Helios - system - server_cpu_load",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "server_cpu_load",
+      "namespace": "anotherpeak/helios/system/server_cpu_load",
+      "object_id": "Helios - system - server_cpu_load",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "Helios vessel systems and onboard computer: HMI network address",
+      "dbms": "<DB NAME>",
+      "table": "hmismuip",
+      "where": "boat = 'Helios'",
+      "name": "Helios - system - hmi_ip",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "hmi_ip",
+      "namespace": "anotherpeak/helios/system/hmi_ip",
+      "object_id": "Helios - system - hmi_ip",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix - position",
+      "dbms": "<DB NAME>",
+      "table": "location",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - position",
+      "location": "45.705, 5.885"
+    }
+  },
+  {
+    "uns": {
+      "name": "hydraaix",
+      "namespace": "anotherpeak/hydraaix",
+      "object_id": "HydraAix - position",
+      "isa95": {
+        "level": "L3",
+        "entity": "Site",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: battery state of charge (%)",
+      "dbms": "<DB NAME>",
+      "table": "batterystateofchargepercent",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - state_of_charge",
+      "focus": [
+        "battery_health",
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "battery",
+      "namespace": "anotherpeak/hydraaix/battery",
+      "object_id": "HydraAix - battery - state_of_charge",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "state_of_charge",
+      "namespace": "anotherpeak/hydraaix/battery/state_of_charge",
+      "object_id": "HydraAix - battery - state_of_charge",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: current battery power",
+      "dbms": "<DB NAME>",
+      "table": "currentbatterypower",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - battery_power",
+      "focus": [
+        "battery_health"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "battery_power",
+      "namespace": "anotherpeak/hydraaix/battery/battery_power",
+      "object_id": "HydraAix - battery - battery_power",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: high-voltage battery capacity",
+      "dbms": "<DB NAME>",
+      "table": "hvbatterycapacity",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - hv_capacity",
+      "focus": [
+        "battery_health"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "hv_capacity",
+      "namespace": "anotherpeak/hydraaix/battery/hv_capacity",
+      "object_id": "HydraAix - battery - hv_capacity",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: low-voltage battery max capacity",
+      "dbms": "<DB NAME>",
+      "table": "lvbatterymaxcapacity",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - lv_max_capacity",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "lv_max_capacity",
+      "namespace": "anotherpeak/hydraaix/battery/lv_max_capacity",
+      "object_id": "HydraAix - battery - lv_max_capacity",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: range remaining on battery",
+      "dbms": "<DB NAME>",
+      "table": "rangebattery",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - range",
+      "focus": [
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "range",
+      "namespace": "anotherpeak/hydraaix/battery/range",
+      "object_id": "HydraAix - battery - range",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: time remaining on battery",
+      "dbms": "<DB NAME>",
+      "table": "timebattery",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - time_on_battery",
+      "focus": [
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "time_on_battery",
+      "namespace": "anotherpeak/hydraaix/battery/time_on_battery",
+      "object_id": "HydraAix - battery - time_on_battery",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: time to full charge (minutes)",
+      "dbms": "<DB NAME>",
+      "table": "timetofullminute",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - time_to_full",
+      "focus": [
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "time_to_full",
+      "namespace": "anotherpeak/hydraaix/battery/time_to_full",
+      "object_id": "HydraAix - battery - time_to_full",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: starter battery voltage",
+      "dbms": "<DB NAME>",
+      "table": "starterbatteryvoltage",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - starter_voltage",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "starter_voltage",
+      "namespace": "anotherpeak/hydraaix/battery/starter_voltage",
+      "object_id": "HydraAix - battery - starter_voltage",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: battery connection state",
+      "dbms": "<DB NAME>",
+      "table": "stbdbatteryconnectionstate",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - connection_state",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "connection_state",
+      "namespace": "anotherpeak/hydraaix/battery/connection_state",
+      "object_id": "HydraAix - battery - connection_state",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: HV battery visible on bus",
+      "dbms": "<DB NAME>",
+      "table": "stbdhvbatteryvisible",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - hv_visible",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "hv_visible",
+      "namespace": "anotherpeak/hydraaix/battery/hv_visible",
+      "object_id": "HydraAix - battery - hv_visible",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery system: starter battery visible on bus",
+      "dbms": "<DB NAME>",
+      "table": "stbdstarterbatteryvisible",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - starter_visible",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "starter_visible",
+      "namespace": "anotherpeak/hydraaix/battery/starter_visible",
+      "object_id": "HydraAix - battery - starter_visible",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: all components (gCurrent, actualCurrent, gStateOfCharge, actualSoc, gStateOfHealth, gPackVoltage, gAverageTemperature, gMaxCellTemperature, actualTempBattery, actualTempBatteryMax, gTimeToFullMinute, ekmvPresHigh)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - battery - bms",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "bms",
+      "namespace": "anotherpeak/hydraaix/battery/bms",
+      "object_id": "HydraAix - battery - bms",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: pack current (negative = discharge)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'gCurrent'",
+      "name": "HydraAix - battery - bms - current",
+      "component": "gCurrent",
+      "value_column": "value",
+      "unit": "A",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "current",
+      "namespace": "anotherpeak/hydraaix/battery/bms/current",
+      "object_id": "HydraAix - battery - bms - current",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: pack current, actual (secondary source)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'actualCurrent'",
+      "name": "HydraAix - battery - bms - current_actual",
+      "component": "actualCurrent",
+      "value_column": "value",
+      "unit": "A",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "current_actual",
+      "namespace": "anotherpeak/hydraaix/battery/bms/current_actual",
+      "object_id": "HydraAix - battery - bms - current_actual",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: state of charge",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'gStateOfCharge'",
+      "name": "HydraAix - battery - bms - state_of_charge",
+      "component": "gStateOfCharge",
+      "value_column": "value",
+      "unit": "%",
+      "focus": [
+        "battery_health",
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "state_of_charge",
+      "namespace": "anotherpeak/hydraaix/battery/bms/state_of_charge",
+      "object_id": "HydraAix - battery - bms - state_of_charge",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: state of charge, actual (secondary source)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'actualSoc'",
+      "name": "HydraAix - battery - bms - state_of_charge_actual",
+      "component": "actualSoc",
+      "value_column": "value",
+      "unit": "%",
+      "focus": [
+        "battery_health",
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "state_of_charge_actual",
+      "namespace": "anotherpeak/hydraaix/battery/bms/state_of_charge_actual",
+      "object_id": "HydraAix - battery - bms - state_of_charge_actual",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: state of health",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'gStateOfHealth'",
+      "name": "HydraAix - battery - bms - state_of_health",
+      "component": "gStateOfHealth",
+      "value_column": "value",
+      "unit": "%",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "state_of_health",
+      "namespace": "anotherpeak/hydraaix/battery/bms/state_of_health",
+      "object_id": "HydraAix - battery - bms - state_of_health",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: pack voltage",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'gPackVoltage'",
+      "name": "HydraAix - battery - bms - pack_voltage",
+      "component": "gPackVoltage",
+      "value_column": "value",
+      "unit": "V",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "pack_voltage",
+      "namespace": "anotherpeak/hydraaix/battery/bms/pack_voltage",
+      "object_id": "HydraAix - battery - bms - pack_voltage",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: average cell temperature",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'gAverageTemperature'",
+      "name": "HydraAix - battery - bms - avg_temperature",
+      "component": "gAverageTemperature",
+      "value_column": "value",
+      "unit": "°C",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "avg_temperature",
+      "namespace": "anotherpeak/hydraaix/battery/bms/avg_temperature",
+      "object_id": "HydraAix - battery - bms - avg_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: max cell temperature",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'gMaxCellTemperature'",
+      "name": "HydraAix - battery - bms - max_cell_temperature",
+      "component": "gMaxCellTemperature",
+      "value_column": "value",
+      "unit": "°C",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "max_cell_temperature",
+      "namespace": "anotherpeak/hydraaix/battery/bms/max_cell_temperature",
+      "object_id": "HydraAix - battery - bms - max_cell_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: battery temperature, actual (secondary source)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'actualTempBattery'",
+      "name": "HydraAix - battery - bms - temperature_actual",
+      "component": "actualTempBattery",
+      "value_column": "value",
+      "unit": "°C",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "temperature_actual",
+      "namespace": "anotherpeak/hydraaix/battery/bms/temperature_actual",
+      "object_id": "HydraAix - battery - bms - temperature_actual",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: max battery temperature, actual (secondary source)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'actualTempBatteryMax'",
+      "name": "HydraAix - battery - bms - temperature_max_actual",
+      "component": "actualTempBatteryMax",
+      "value_column": "value",
+      "unit": "°C",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "temperature_max_actual",
+      "namespace": "anotherpeak/hydraaix/battery/bms/temperature_max_actual",
+      "object_id": "HydraAix - battery - bms - temperature_max_actual",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: time to full charge",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'gTimeToFullMinute' and value < 65535",
+      "name": "HydraAix - battery - bms - time_to_full",
+      "component": "gTimeToFullMinute",
+      "value_column": "value",
+      "unit": "min",
+      "focus": [
+        "comfort"
+      ],
+      "invalid_value": 65535
+    }
+  },
+  {
+    "uns": {
+      "name": "time_to_full",
+      "namespace": "anotherpeak/hydraaix/battery/bms/time_to_full",
+      "object_id": "HydraAix - battery - bms - time_to_full",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix battery management system: ekmvPresHigh (meaning/unit to confirm with customer)",
+      "dbms": "<DB NAME>",
+      "table": "bmwix",
+      "where": "boat = 'HydraAix' and component = 'ekmvPresHigh'",
+      "name": "HydraAix - battery - bms - ekmv_pres_high",
+      "component": "ekmvPresHigh",
+      "value_column": "value",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "ekmv_pres_high",
+      "namespace": "anotherpeak/hydraaix/battery/bms/ekmv_pres_high",
+      "object_id": "HydraAix - battery - bms - ekmv_pres_high",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix electric propulsion motor and drive: all components (ggMotorPower, gMotorVoltage, ggMotorTemperature, ggElectronicTemperature, totalTimeEnabledHours)",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - motor - propulsion",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "motor",
+      "namespace": "anotherpeak/hydraaix/motor",
+      "object_id": "HydraAix - motor - propulsion",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "propulsion",
+      "namespace": "anotherpeak/hydraaix/motor/propulsion",
+      "object_id": "HydraAix - motor - propulsion",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix electric propulsion motor and drive: motor power",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'HydraAix' and component = 'ggMotorPower'",
+      "name": "HydraAix - motor - propulsion - motor_power",
+      "component": "ggMotorPower",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "diesel",
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "motor_power",
+      "namespace": "anotherpeak/hydraaix/motor/propulsion/motor_power",
+      "object_id": "HydraAix - motor - propulsion - motor_power",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix electric propulsion motor and drive: motor DC voltage",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'HydraAix' and component = 'gMotorVoltage'",
+      "name": "HydraAix - motor - propulsion - motor_voltage",
+      "component": "gMotorVoltage",
+      "value_column": "value",
+      "unit": "V",
+      "focus": [
+        "battery_health"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "motor_voltage",
+      "namespace": "anotherpeak/hydraaix/motor/propulsion/motor_voltage",
+      "object_id": "HydraAix - motor - propulsion - motor_voltage",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix electric propulsion motor and drive: motor temperature",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'HydraAix' and component = 'ggMotorTemperature'",
+      "name": "HydraAix - motor - propulsion - motor_temperature",
+      "component": "ggMotorTemperature",
+      "value_column": "value",
+      "unit": "°C"
+    }
+  },
+  {
+    "uns": {
+      "name": "motor_temperature",
+      "namespace": "anotherpeak/hydraaix/motor/propulsion/motor_temperature",
+      "object_id": "HydraAix - motor - propulsion - motor_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix electric propulsion motor and drive: drive electronics temperature",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'HydraAix' and component = 'ggElectronicTemperature'",
+      "name": "HydraAix - motor - propulsion - electronics_temperature",
+      "component": "ggElectronicTemperature",
+      "value_column": "value",
+      "unit": "°C"
+    }
+  },
+  {
+    "uns": {
+      "name": "electronics_temperature",
+      "namespace": "anotherpeak/hydraaix/motor/propulsion/electronics_temperature",
+      "object_id": "HydraAix - motor - propulsion - electronics_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix electric propulsion motor and drive: total time enabled",
+      "dbms": "<DB NAME>",
+      "table": "ach65",
+      "where": "boat = 'HydraAix' and component = 'totalTimeEnabledHours'",
+      "name": "HydraAix - motor - propulsion - time_enabled",
+      "component": "totalTimeEnabledHours",
+      "value_column": "value",
+      "unit": "h"
+    }
+  },
+  {
+    "uns": {
+      "name": "time_enabled",
+      "namespace": "anotherpeak/hydraaix/motor/propulsion/time_enabled",
+      "object_id": "HydraAix - motor - propulsion - time_enabled",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix electric propulsion motors: propeller shaft RPM",
+      "dbms": "<DB NAME>",
+      "table": "stbdrpmshaft",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - motor - shaft_rpm",
+      "focus": [
+        "diesel"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "shaft_rpm",
+      "namespace": "anotherpeak/hydraaix/motor/shaft_rpm",
+      "object_id": "HydraAix - motor - shaft_rpm",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix electric propulsion motors: drive state",
+      "dbms": "<DB NAME>",
+      "table": "stbddrivestate",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - motor - drive_state",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "drive_state",
+      "namespace": "anotherpeak/hydraaix/motor/drive_state",
+      "object_id": "HydraAix - motor - drive_state",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix electric propulsion motors: confirmed drive power",
+      "dbms": "<DB NAME>",
+      "table": "drivepowerconfirmed",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - motor - drive_power_confirmed",
+      "focus": [
+        "diesel",
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "drive_power_confirmed",
+      "namespace": "anotherpeak/hydraaix/motor/drive_power_confirmed",
+      "object_id": "HydraAix - motor - drive_power_confirmed",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC charger power",
+      "dbms": "<DB NAME>",
+      "table": "stbdacchargerpower",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - charger - charger_power",
+      "focus": [
+        "battery_health",
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "charger",
+      "namespace": "anotherpeak/hydraaix/charger",
+      "object_id": "HydraAix - charger - charger_power",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "charger_power",
+      "namespace": "anotherpeak/hydraaix/charger/charger_power",
+      "object_id": "HydraAix - charger - charger_power",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC charger enabled",
+      "dbms": "<DB NAME>",
+      "table": "stbdacchargerenable",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - charger - charger_enable",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "charger_enable",
+      "namespace": "anotherpeak/hydraaix/charger/charger_enable",
+      "object_id": "HydraAix - charger - charger_enable",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC charger visible on bus",
+      "dbms": "<DB NAME>",
+      "table": "stbdacchargervisible",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - charger - charger_visible",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "charger_visible",
+      "namespace": "anotherpeak/hydraaix/charger/charger_visible",
+      "object_id": "HydraAix - charger - charger_visible",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: all components (gState, gWake, gActDcPower, gActAcCurrent, gActAcVoltage, gActElectronicTemperature, currentL1, currentL2, currentL3, voltageL1, voltageL2, voltageL3)",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - charger - ac_charger",
+      "value_columns": [
+        "str_value",
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "ac_charger",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger",
+      "object_id": "HydraAix - charger - ac_charger",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: charger state (e.g. InitReset, Running)",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'gState'",
+      "name": "HydraAix - charger - ac_charger - state",
+      "component": "gState",
+      "value_column": "str_value"
+    }
+  },
+  {
+    "uns": {
+      "name": "state",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/state",
+      "object_id": "HydraAix - charger - ac_charger - state",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: charger wake (0/1)",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'gWake'",
+      "name": "HydraAix - charger - ac_charger - wake",
+      "component": "gWake",
+      "value_column": "value"
+    }
+  },
+  {
+    "uns": {
+      "name": "wake",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/wake",
+      "object_id": "HydraAix - charger - ac_charger - wake",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: DC output power",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'gActDcPower'",
+      "name": "HydraAix - charger - ac_charger - dc_power",
+      "component": "gActDcPower",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "battery_health",
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "dc_power",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/dc_power",
+      "object_id": "HydraAix - charger - ac_charger - dc_power",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC input current",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'gActAcCurrent'",
+      "name": "HydraAix - charger - ac_charger - ac_current",
+      "component": "gActAcCurrent",
+      "value_column": "value",
+      "unit": "A"
+    }
+  },
+  {
+    "uns": {
+      "name": "ac_current",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/ac_current",
+      "object_id": "HydraAix - charger - ac_charger - ac_current",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC input voltage",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'gActAcVoltage'",
+      "name": "HydraAix - charger - ac_charger - ac_voltage",
+      "component": "gActAcVoltage",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "ac_voltage",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/ac_voltage",
+      "object_id": "HydraAix - charger - ac_charger - ac_voltage",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: charger electronics temperature",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'gActElectronicTemperature'",
+      "name": "HydraAix - charger - ac_charger - electronics_temperature",
+      "component": "gActElectronicTemperature",
+      "value_column": "value",
+      "unit": "°C"
+    }
+  },
+  {
+    "uns": {
+      "name": "electronics_temperature",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/electronics_temperature",
+      "object_id": "HydraAix - charger - ac_charger - electronics_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC phase L1 current",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'currentL1'",
+      "name": "HydraAix - charger - ac_charger - current_l1",
+      "component": "currentL1",
+      "value_column": "value",
+      "unit": "A"
+    }
+  },
+  {
+    "uns": {
+      "name": "current_l1",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/current_l1",
+      "object_id": "HydraAix - charger - ac_charger - current_l1",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC phase L2 current",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'currentL2'",
+      "name": "HydraAix - charger - ac_charger - current_l2",
+      "component": "currentL2",
+      "value_column": "value",
+      "unit": "A"
+    }
+  },
+  {
+    "uns": {
+      "name": "current_l2",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/current_l2",
+      "object_id": "HydraAix - charger - ac_charger - current_l2",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC phase L3 current",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'currentL3'",
+      "name": "HydraAix - charger - ac_charger - current_l3",
+      "component": "currentL3",
+      "value_column": "value",
+      "unit": "A"
+    }
+  },
+  {
+    "uns": {
+      "name": "current_l3",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/current_l3",
+      "object_id": "HydraAix - charger - ac_charger - current_l3",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC phase L1 voltage",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'voltageL1'",
+      "name": "HydraAix - charger - ac_charger - voltage_l1",
+      "component": "voltageL1",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "voltage_l1",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/voltage_l1",
+      "object_id": "HydraAix - charger - ac_charger - voltage_l1",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC phase L2 voltage",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'voltageL2'",
+      "name": "HydraAix - charger - ac_charger - voltage_l2",
+      "component": "voltageL2",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "voltage_l2",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/voltage_l2",
+      "object_id": "HydraAix - charger - ac_charger - voltage_l2",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix AC shore charger: AC phase L3 voltage",
+      "dbms": "<DB NAME>",
+      "table": "bcl25",
+      "where": "boat = 'HydraAix' and component = 'voltageL3'",
+      "name": "HydraAix - charger - ac_charger - voltage_l3",
+      "component": "voltageL3",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "voltage_l3",
+      "namespace": "anotherpeak/hydraaix/charger/ac_charger/voltage_l3",
+      "object_id": "HydraAix - charger - ac_charger - voltage_l3",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: all components (EngineState, EngineRPM, EngRPMfiltered, EngineSpeed, SpeedRequest, SpeedReqRPM, Load, FuelRate, TotalFuelUsed, RunHours, EngineRunHours, ServiceTime, NumSuccStarts, NumUnscStarts, ExhaustTemp, CoolTemp, T-Coolant, T-IntManifold, OilPress, P-Oil, BatteryVolt, D+, CPUTemp)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - generator - engine",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "generator",
+      "namespace": "anotherpeak/hydraaix/generator",
+      "object_id": "HydraAix - generator - engine",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "engine",
+      "namespace": "anotherpeak/hydraaix/generator/engine",
+      "object_id": "HydraAix - generator - engine",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: engine state code (1-11)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'EngineState'",
+      "name": "HydraAix - generator - engine - state",
+      "component": "EngineState",
+      "value_column": "value",
+      "focus": [
+        "diesel",
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "state",
+      "namespace": "anotherpeak/hydraaix/generator/engine/state",
+      "object_id": "HydraAix - generator - engine - state",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: engine RPM",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'EngineRPM'",
+      "name": "HydraAix - generator - engine - rpm",
+      "component": "EngineRPM",
+      "value_column": "value",
+      "unit": "rpm",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "rpm",
+      "namespace": "anotherpeak/hydraaix/generator/engine/rpm",
+      "object_id": "HydraAix - generator - engine - rpm",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: engine RPM, filtered",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'EngRPMfiltered'",
+      "name": "HydraAix - generator - engine - rpm_filtered",
+      "component": "EngRPMfiltered",
+      "value_column": "value",
+      "unit": "rpm",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "rpm_filtered",
+      "namespace": "anotherpeak/hydraaix/generator/engine/rpm_filtered",
+      "object_id": "HydraAix - generator - engine - rpm_filtered",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: engine speed (CAN)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'EngineSpeed' and value < 32768",
+      "name": "HydraAix - generator - engine - engine_speed",
+      "component": "EngineSpeed",
+      "value_column": "value",
+      "unit": "rpm",
+      "focus": [
+        "diesel"
+      ],
+      "invalid_value": 32768
+    }
+  },
+  {
+    "uns": {
+      "name": "engine_speed",
+      "namespace": "anotherpeak/hydraaix/generator/engine/engine_speed",
+      "object_id": "HydraAix - generator - engine - engine_speed",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: speed request",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'SpeedRequest'",
+      "name": "HydraAix - generator - engine - speed_request",
+      "component": "SpeedRequest",
+      "value_column": "value",
+      "unit": "%",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "speed_request",
+      "namespace": "anotherpeak/hydraaix/generator/engine/speed_request",
+      "object_id": "HydraAix - generator - engine - speed_request",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: speed request",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'SpeedReqRPM'",
+      "name": "HydraAix - generator - engine - speed_request_rpm",
+      "component": "SpeedReqRPM",
+      "value_column": "value",
+      "unit": "rpm",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "speed_request_rpm",
+      "namespace": "anotherpeak/hydraaix/generator/engine/speed_request_rpm",
+      "object_id": "HydraAix - generator - engine - speed_request_rpm",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: engine load",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'Load' and value < 32768",
+      "name": "HydraAix - generator - engine - load",
+      "component": "Load",
+      "value_column": "value",
+      "unit": "%",
+      "focus": [
+        "diesel"
+      ],
+      "invalid_value": 32768
+    }
+  },
+  {
+    "uns": {
+      "name": "load",
+      "namespace": "anotherpeak/hydraaix/generator/engine/load",
+      "object_id": "HydraAix - generator - engine - load",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: fuel rate",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'FuelRate' and value < 3276.8",
+      "name": "HydraAix - generator - engine - fuel_rate",
+      "component": "FuelRate",
+      "value_column": "value",
+      "unit": "L/h",
+      "focus": [
+        "diesel"
+      ],
+      "invalid_value": 3276.8
+    }
+  },
+  {
+    "uns": {
+      "name": "fuel_rate",
+      "namespace": "anotherpeak/hydraaix/generator/engine/fuel_rate",
+      "object_id": "HydraAix - generator - engine - fuel_rate",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: total fuel used",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'TotalFuelUsed' and value < 214748364.8",
+      "name": "HydraAix - generator - engine - total_fuel_used",
+      "component": "TotalFuelUsed",
+      "value_column": "value",
+      "unit": "L",
+      "focus": [
+        "diesel"
+      ],
+      "invalid_value": 214748364.8
+    }
+  },
+  {
+    "uns": {
+      "name": "total_fuel_used",
+      "namespace": "anotherpeak/hydraaix/generator/engine/total_fuel_used",
+      "object_id": "HydraAix - generator - engine - total_fuel_used",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: run hours (controller)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'RunHours'",
+      "name": "HydraAix - generator - engine - run_hours",
+      "component": "RunHours",
+      "value_column": "value",
+      "unit": "h",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "run_hours",
+      "namespace": "anotherpeak/hydraaix/generator/engine/run_hours",
+      "object_id": "HydraAix - generator - engine - run_hours",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: run hours (engine ECU)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'EngineRunHours' and value < 2147483648",
+      "name": "HydraAix - generator - engine - engine_run_hours",
+      "component": "EngineRunHours",
+      "value_column": "value",
+      "unit": "h",
+      "focus": [
+        "diesel"
+      ],
+      "invalid_value": 2147483648
+    }
+  },
+  {
+    "uns": {
+      "name": "engine_run_hours",
+      "namespace": "anotherpeak/hydraaix/generator/engine/engine_run_hours",
+      "object_id": "HydraAix - generator - engine - engine_run_hours",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: service time counter",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'ServiceTime'",
+      "name": "HydraAix - generator - engine - service_time",
+      "component": "ServiceTime",
+      "value_column": "value",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "service_time",
+      "namespace": "anotherpeak/hydraaix/generator/engine/service_time",
+      "object_id": "HydraAix - generator - engine - service_time",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: successful starts count",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'NumSuccStarts'",
+      "name": "HydraAix - generator - engine - successful_starts",
+      "component": "NumSuccStarts",
+      "value_column": "value",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "successful_starts",
+      "namespace": "anotherpeak/hydraaix/generator/engine/successful_starts",
+      "object_id": "HydraAix - generator - engine - successful_starts",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: unsuccessful starts count",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'NumUnscStarts'",
+      "name": "HydraAix - generator - engine - unsuccessful_starts",
+      "component": "NumUnscStarts",
+      "value_column": "value"
+    }
+  },
+  {
+    "uns": {
+      "name": "unsuccessful_starts",
+      "namespace": "anotherpeak/hydraaix/generator/engine/unsuccessful_starts",
+      "object_id": "HydraAix - generator - engine - unsuccessful_starts",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: exhaust temperature",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'ExhaustTemp'",
+      "name": "HydraAix - generator - engine - exhaust_temperature",
+      "component": "ExhaustTemp",
+      "value_column": "value",
+      "unit": "°C",
+      "focus": [
+        "comfort"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "exhaust_temperature",
+      "namespace": "anotherpeak/hydraaix/generator/engine/exhaust_temperature",
+      "object_id": "HydraAix - generator - engine - exhaust_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: coolant temperature (controller)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'CoolTemp' and value < 32768",
+      "name": "HydraAix - generator - engine - coolant_temperature",
+      "component": "CoolTemp",
+      "value_column": "value",
+      "unit": "°C",
+      "invalid_value": 32768
+    }
+  },
+  {
+    "uns": {
+      "name": "coolant_temperature",
+      "namespace": "anotherpeak/hydraaix/generator/engine/coolant_temperature",
+      "object_id": "HydraAix - generator - engine - coolant_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: coolant temperature (engine ECU)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'T-Coolant' and value < 32768",
+      "name": "HydraAix - generator - engine - coolant_temperature_ecu",
+      "component": "T-Coolant",
+      "value_column": "value",
+      "unit": "°C",
+      "invalid_value": 32768
+    }
+  },
+  {
+    "uns": {
+      "name": "coolant_temperature_ecu",
+      "namespace": "anotherpeak/hydraaix/generator/engine/coolant_temperature_ecu",
+      "object_id": "HydraAix - generator - engine - coolant_temperature_ecu",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: intake manifold temperature",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'T-IntManifold' and value < 32768",
+      "name": "HydraAix - generator - engine - intake_manifold_temperature",
+      "component": "T-IntManifold",
+      "value_column": "value",
+      "unit": "°C",
+      "invalid_value": 32768
+    }
+  },
+  {
+    "uns": {
+      "name": "intake_manifold_temperature",
+      "namespace": "anotherpeak/hydraaix/generator/engine/intake_manifold_temperature",
+      "object_id": "HydraAix - generator - engine - intake_manifold_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: oil pressure (controller)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'OilPress' and value < 327.68",
+      "name": "HydraAix - generator - engine - oil_pressure",
+      "component": "OilPress",
+      "value_column": "value",
+      "invalid_value": 327.68
+    }
+  },
+  {
+    "uns": {
+      "name": "oil_pressure",
+      "namespace": "anotherpeak/hydraaix/generator/engine/oil_pressure",
+      "object_id": "HydraAix - generator - engine - oil_pressure",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: oil pressure (engine ECU)",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'P-Oil' and value < 327.68",
+      "name": "HydraAix - generator - engine - oil_pressure_ecu",
+      "component": "P-Oil",
+      "value_column": "value",
+      "invalid_value": 327.68
+    }
+  },
+  {
+    "uns": {
+      "name": "oil_pressure_ecu",
+      "namespace": "anotherpeak/hydraaix/generator/engine/oil_pressure_ecu",
+      "object_id": "HydraAix - generator - engine - oil_pressure_ecu",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: generator starter battery voltage",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'BatteryVolt'",
+      "name": "HydraAix - generator - engine - starter_battery_voltage",
+      "component": "BatteryVolt",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "starter_battery_voltage",
+      "namespace": "anotherpeak/hydraaix/generator/engine/starter_battery_voltage",
+      "object_id": "HydraAix - generator - engine - starter_battery_voltage",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: alternator D+ voltage",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'D+'",
+      "name": "HydraAix - generator - engine - alternator_d_plus",
+      "component": "D+",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "alternator_d_plus",
+      "namespace": "anotherpeak/hydraaix/generator/engine/alternator_d_plus",
+      "object_id": "HydraAix - generator - engine - alternator_d_plus",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix diesel generator engine: generator controller CPU temperature",
+      "dbms": "<DB NAME>",
+      "table": "gd",
+      "where": "boat = 'HydraAix' and component = 'CPUTemp'",
+      "name": "HydraAix - generator - engine - controller_cpu_temperature",
+      "component": "CPUTemp",
+      "value_column": "value",
+      "unit": "°C"
+    }
+  },
+  {
+    "uns": {
+      "name": "controller_cpu_temperature",
+      "namespace": "anotherpeak/hydraaix/generator/engine/controller_cpu_temperature",
+      "object_id": "HydraAix - generator - engine - controller_cpu_temperature",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix power management: power balance (negative = discharging)",
+      "dbms": "<DB NAME>",
+      "table": "powerbalance",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - power - power_balance",
+      "focus": [
+        "battery_health",
+        "diesel"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "power",
+      "namespace": "anotherpeak/hydraaix/power",
+      "object_id": "HydraAix - power - power_balance",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "power_balance",
+      "namespace": "anotherpeak/hydraaix/power/power_balance",
+      "object_id": "HydraAix - power - power_balance",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix power converter (generator to DC bus): all components (gState, dcVoltage, gPowerRequested, gPowerActual, powerRequest, powerActual)",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - power - converter",
+      "value_columns": [
+        "str_value",
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "converter",
+      "namespace": "anotherpeak/hydraaix/power/converter",
+      "object_id": "HydraAix - power - converter",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix power converter (generator to DC bus): converter state (e.g. Running)",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'HydraAix' and component = 'gState'",
+      "name": "HydraAix - power - converter - state",
+      "component": "gState",
+      "value_column": "str_value"
+    }
+  },
+  {
+    "uns": {
+      "name": "state",
+      "namespace": "anotherpeak/hydraaix/power/converter/state",
+      "object_id": "HydraAix - power - converter - state",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix power converter (generator to DC bus): DC bus voltage",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'HydraAix' and component = 'dcVoltage'",
+      "name": "HydraAix - power - converter - dc_voltage",
+      "component": "dcVoltage",
+      "value_column": "value",
+      "unit": "V"
+    }
+  },
+  {
+    "uns": {
+      "name": "dc_voltage",
+      "namespace": "anotherpeak/hydraaix/power/converter/dc_voltage",
+      "object_id": "HydraAix - power - converter - dc_voltage",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix power converter (generator to DC bus): power requested",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'HydraAix' and component = 'gPowerRequested'",
+      "name": "HydraAix - power - converter - power_requested",
+      "component": "gPowerRequested",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "power_requested",
+      "namespace": "anotherpeak/hydraaix/power/converter/power_requested",
+      "object_id": "HydraAix - power - converter - power_requested",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix power converter (generator to DC bus): power actual",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'HydraAix' and component = 'gPowerActual'",
+      "name": "HydraAix - power - converter - power_actual",
+      "component": "gPowerActual",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "power_actual",
+      "namespace": "anotherpeak/hydraaix/power/converter/power_actual",
+      "object_id": "HydraAix - power - converter - power_actual",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix power converter (generator to DC bus): power request (raw)",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'HydraAix' and component = 'powerRequest'",
+      "name": "HydraAix - power - converter - power_request_raw",
+      "component": "powerRequest",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "power_request_raw",
+      "namespace": "anotherpeak/hydraaix/power/converter/power_request_raw",
+      "object_id": "HydraAix - power - converter - power_request_raw",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix power converter (generator to DC bus): power actual (raw)",
+      "dbms": "<DB NAME>",
+      "table": "elptx",
+      "where": "boat = 'HydraAix' and component = 'powerActual'",
+      "name": "HydraAix - power - converter - power_actual_raw",
+      "component": "powerActual",
+      "value_column": "value",
+      "unit": "kW",
+      "focus": [
+        "diesel"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "power_actual_raw",
+      "namespace": "anotherpeak/hydraaix/power/converter/power_actual_raw",
+      "object_id": "HydraAix - power - converter - power_actual_raw",
+      "isa95": {
+        "level": "L0",
+        "entity": "Work Unit",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix power management: power converter output",
+      "dbms": "<DB NAME>",
+      "table": "elptxpower",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - power - converter_power",
+      "focus": [
+        "diesel"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "converter_power",
+      "namespace": "anotherpeak/hydraaix/power/converter_power",
+      "object_id": "HydraAix - power - converter_power",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix navigation and trip: GPS position (lat, lon)",
+      "dbms": "<DB NAME>",
+      "table": "location",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - navigation - position"
+    }
+  },
+  {
+    "uns": {
+      "name": "navigation",
+      "namespace": "anotherpeak/hydraaix/navigation",
+      "object_id": "HydraAix - navigation - position",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "position",
+      "namespace": "anotherpeak/hydraaix/navigation/position",
+      "object_id": "HydraAix - navigation - position",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix navigation and trip: speed over ground",
+      "dbms": "<DB NAME>",
+      "table": "speedoverground",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - navigation - speed_over_ground",
+      "focus": [
+        "diesel",
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "speed_over_ground",
+      "namespace": "anotherpeak/hydraaix/navigation/speed_over_ground",
+      "object_id": "HydraAix - navigation - speed_over_ground",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix navigation and trip: heading to home port",
+      "dbms": "<DB NAME>",
+      "table": "headinghome",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - navigation - heading_home",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "heading_home",
+      "namespace": "anotherpeak/hydraaix/navigation/heading_home",
+      "object_id": "HydraAix - navigation - heading_home",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix navigation and trip: heading to destination",
+      "dbms": "<DB NAME>",
+      "table": "headingdestination",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - navigation - heading_destination",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "heading_destination",
+      "namespace": "anotherpeak/hydraaix/navigation/heading_destination",
+      "object_id": "HydraAix - navigation - heading_destination",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix navigation and trip: distance to destination",
+      "dbms": "<DB NAME>",
+      "table": "distancedestination",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - navigation - distance_destination",
+      "focus": [
+        "comfort"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "distance_destination",
+      "namespace": "anotherpeak/hydraaix/navigation/distance_destination",
+      "object_id": "HydraAix - navigation - distance_destination",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix navigation and trip: trip log",
+      "dbms": "<DB NAME>",
+      "table": "trip",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - navigation - trip",
+      "focus": [
+        "diesel"
+      ],
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "trip",
+      "namespace": "anotherpeak/hydraaix/navigation/trip",
+      "object_id": "HydraAix - navigation - trip",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix vessel systems and onboard computer: system state (device_wake, drive_enable, on)",
+      "dbms": "<DB NAME>",
+      "table": "systemstate",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - system - system_state",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "system",
+      "namespace": "anotherpeak/hydraaix/system",
+      "object_id": "HydraAix - system - system_state",
+      "isa95": {
+        "level": "L2",
+        "entity": "Area",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "uns": {
+      "name": "system_state",
+      "namespace": "anotherpeak/hydraaix/system/system_state",
+      "object_id": "HydraAix - system - system_state",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix vessel systems and onboard computer: vessel operational state",
+      "dbms": "<DB NAME>",
+      "table": "vesselstate",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - system - vessel_state",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "vessel_state",
+      "namespace": "anotherpeak/hydraaix/system/vessel_state",
+      "object_id": "HydraAix - system - vessel_state",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix vessel systems and onboard computer: onboard server CPU load",
+      "dbms": "<DB NAME>",
+      "table": "servercpuload",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - system - server_cpu_load",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "server_cpu_load",
+      "namespace": "anotherpeak/hydraaix/system/server_cpu_load",
+      "object_id": "HydraAix - system - server_cpu_load",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  },
+  {
+    "object": {
+      "description": "HydraAix vessel systems and onboard computer: HMI network address",
+      "dbms": "<DB NAME>",
+      "table": "hmismuip",
+      "where": "boat = 'HydraAix'",
+      "name": "HydraAix - system - hmi_ip",
+      "value_columns": [
+        "value"
+      ]
+    }
+  },
+  {
+    "uns": {
+      "name": "hmi_ip",
+      "namespace": "anotherpeak/hydraaix/system/hmi_ip",
+      "object_id": "HydraAix - system - hmi_ip",
+      "isa95": {
+        "level": "L1",
+        "entity": "Work Center",
+        "standard": "ISA-95"
+      }
+    }
+  }
+]
