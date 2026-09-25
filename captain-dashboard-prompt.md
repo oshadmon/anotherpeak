@@ -14,10 +14,12 @@ AnyLog SQL rules (verified — do not deviate):
 - increments(<unit>, <n>, timestamp) goes in the SELECT list for time-bucketed aggregation, with GROUP BY for other columns.
 - period(<unit>, <n>, '<YYYY-MM-DD HH:MM:SS>', timestamp) goes in the WHERE clause for "last N units before a time".
 - increments() and period() cannot be combined in one query; use an explicit timestamp range with increments().
+- Window totals (min/max/avg over the selected range) use the same explicit range in the WHERE clause: timestamp >= '<from>' and timestamp < '<to>'. Use period() only for the 15-minute "current reading" snapshot.
+- increments(day, 1, timestamp) works for long ranges.
 - Arithmetic in the SELECT list is rejected (e.g. power*1000/voltage). Fetch raw columns and compute in JavaScript.
 - No joins. Combine tables client-side by matching timestamps.
 - The boat column may be space-padded ("Helios  "); trim in JS. WHERE boat = 'Helios' works.
-- Timestamps are UTC. Data currently spans 2026-07-10 to 2026-08-20, so default the time window to end at the latest data, with an option for "now".
+- Timestamps are UTC. Data currently spans 2026-07-10 to 2026-08-20. Default the time range to 2026-07-10 00:00:00 → 2026-08-21 00:00:00 UTC, set as a single DEFAULT_RANGE constant that is easy to change.
 
 ## Tables
 Long-format device tables (one row per measurement). Columns: boat, ip, id, side, component (= measurement name), value (float), timestamp. A physical unit is identified by (ip, id, side). Text values live in <table>_state with the same columns.
@@ -39,10 +41,21 @@ Data quirks:
 - Sampling is roughly every 5 minutes; don't present anything as second-level precision.
 
 ## Dashboard layout
-Top bar: boat switcher (discovered from the data, plus a configured "known boats" list), time window (1 h / 6 h / 24 h / 7 d / 30 d), window end (latest data / now), refresh and auto-refresh.
+Top bar: boat switcher (discovered from the data, plus a configured "known boats" list), a Grafana-style time range picker (below), refresh and auto-refresh.
+
+Time range picker:
+- One button showing the current range (e.g. "Last 24 hours" or "Jul 10 00:00 to Aug 21 00:00", labelled UTC), with ‹ and › buttons either side that move the range by half its length. Disable › when the range ends at "now".
+- Clicking the button opens a popover with two parts:
+  - Custom range: From and To text fields, each with a calendar button (native date-time picker; its value is read as UTC). Fields accept absolute UTC times ("2026-08-20 14:00", "2026-08-20 14:00:30") or times relative to now ("now", "now-6h", "now-2d", "now-1w"; units m, h, d, w). Validate before applying: unreadable times and From ≥ To show an inline error and don't apply. Enter applies; Escape or a click outside closes.
+  - Quick ranges, all ending at now: Last 1 hour, Last 8 hours, Last 12 hours, Last 24 hours, Last 7 days, Last 30 days. Mark the active one. Below them, "Recently used": the last four custom ranges (localStorage).
+- Keep the range in the URL hash (#from=…&to=…) so links and bookmarks reopen the same range; a valid hash overrides DEFAULT_RANGE.
+- Relative ranges re-resolve on every refresh; absolute ranges stay fixed.
+- Scale chart buckets with the range length: ≤ 2 h → 5 min; ≤ 12 h → 10 min; ≤ 36 h → 30 min; ≤ 10 d → 3 h; ≤ 45 d → 12 h; longer → 1 day. Generator/charging timelines use 5 min up to 36 h, then 15 min, 1 h, and 3 h.
+- "Current" readings and the arrival forecast use the 15 minutes before the end of the range, or before the boat's latest data if that falls inside the range (and the forecast treats that moment as now).
+- If the boat's latest data is before the range starts (e.g. a "now" range on old data), say so on the map and in the freshness line, with a button "Show the <length> before it" that sets an absolute range of the same length ending at the latest reading. If the range ends before the latest data, say the readings show the state at the end of the range.
 
 Panel 1 — Diesel (goal 1):
-- Generator hours, litres (from TotalFuelUsed max − min) and euros for the window, per day and per cruise.
+- Generator hours, litres (from TotalFuelUsed max − min) and euros for the selected range, per day and per cruise.
 - Generator start/stop events with state of charge at each; flag "generator ran while the battery had more than <X>% charge".
 - Charging source: charger running while generator off = shore; charger running while generator on = diesel. Show hours and kWh of each.
 - Waste figure: litres burned while the battery had room and shore power followed within the same day.
@@ -57,7 +70,7 @@ Panel 3 — Arrival reserve (goal 3):
 - Projected charge at cruise end at the current speed, the speed needed to arrive electric, and the latest time to stop the generator.
 - Speed-to-power curve fitted per boat from history (ggMotorPower vs speedoverground, matched by timestamp); use it for "at X kn instead of Y you save Z kWh" advice.
 
-Map: GPS track for the window from location, colored by speed, with markers where the generator started and stopped.
+Map: GPS track for the selected range from location, colored by speed, with markers where the generator started and stopped.
 
 ## Recommendations
 Rule-based and explainable only: each recommendation states the numbers behind it (e.g. "Slowing from 10 to 8 kn cuts propulsion power from ~35 to ~20 kW; you'd reach the dock at 24% without the generator"). No black-box scoring. Show at most three at once, highest euro impact first.

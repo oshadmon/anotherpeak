@@ -52,6 +52,42 @@ header.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding:
 .seg button+button{border-left:1px solid var(--line)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
 .grow{flex:1}
+/* Time range picker */
+.tp{position:relative}
+.tpbar{display:inline-flex;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+.tpbar button{border:0;background:transparent;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center}
+.tpbar button+button{border-left:1px solid var(--line)}
+.tpbar button:disabled{color:var(--muted);opacity:.45;cursor:default}
+.tpstep{padding:4px 7px}
+.tpmain{gap:8px;padding:4px 12px;font-weight:600;white-space:nowrap}
+.tpmain .utc{font-size:12px;font-weight:400;color:var(--muted)}
+.tpbar svg{flex:none}
+.tpop{position:absolute;top:calc(100% + 6px);left:0;z-index:1050;width:min(600px,calc(100vw - 24px));background:var(--panel);
+  border:1px solid var(--line);border-radius:6px;box-shadow:0 10px 28px rgba(10,25,32,.2);display:grid;grid-template-columns:minmax(0,1fr) 210px}
+.tpop h3{margin:0 0 10px;font:600 16px/1.2 var(--cond)}
+.tpop form{padding:16px;display:flex;flex-direction:column;gap:10px}
+.tfield label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.tin{position:relative;display:flex}
+.tin input{flex:1;min-width:0;border:1px solid var(--line);border-right:0;border-radius:4px 0 0 4px;background:var(--bg);padding:6px 9px;font-variant-numeric:tabular-nums}
+.tin input[aria-invalid="true"]{border-color:var(--bring)}
+.tcal{border:1px solid var(--line);border-radius:0 4px 4px 0;background:var(--panel2);padding:0 9px;cursor:pointer;display:inline-flex;align-items:center;color:var(--muted)}
+.tcal:hover{color:var(--ink)}
+.tnative{position:absolute;right:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.thint{margin:0;font-size:13px;color:var(--muted)}
+.terr{margin:0;font-size:13px;color:var(--bring)}
+.terr:empty{display:none}
+.tpop form .btn{align-self:flex-start}
+.tquick{border-left:1px solid var(--line);padding:16px 8px 12px}
+.tquick h3{padding:0 8px}
+.tquick ul{list-style:none;margin:0 0 12px;padding:0}
+.tquick button{display:block;width:100%;text-align:left;border:0;border-radius:3px;background:transparent;padding:6px 8px;cursor:pointer;color:var(--ink)}
+.tquick button:hover{background:var(--panel2)}
+.tquick button[aria-pressed="true"]{background:var(--panel2);font-weight:600;box-shadow:inset 3px 0 0 var(--ink)}
+.tquick .rec{font-size:13px}
+@media (max-width:700px){
+  .tpop{grid-template-columns:1fr}
+  .tquick{border-left:0;border-top:1px solid var(--line)}
+}
 .btn{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:6px 12px;cursor:pointer}
 .btn:hover{border-color:var(--muted)}
 .btn.primary{background:var(--ink);border-color:var(--ink);color:var(--panel)}
@@ -181,9 +217,31 @@ legend{font:600 15px/1 var(--cond);padding-right:8px}
 <body>
 <header class="top">
   <h1 class="brand">AnotherPeak <span>fleet desk</span></h1>
-  <div class="ctl" role="group" aria-label="Time window"><span>Window</span><div class="seg" id="winSeg"></div></div>
-  <div class="ctl" role="group" aria-label="Window ends"><span>Ending</span><div class="seg" id="anchorSeg">
-    <button type="button" data-a="latest">at latest data</button><button type="button" data-a="now">now</button></div></div>
+  <div class="tp" id="tp">
+    <div class="tpbar" role="group" aria-label="Time range">
+      <button type="button" class="tpstep" id="tpBack" aria-label="Move the range back by half" title="Move back"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button type="button" class="tpmain" id="tpBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="tpPop"><svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5V8l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="tpLabel">Time range</span><span class="utc">UTC</span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5l3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+      <button type="button" class="tpstep" id="tpFwd" aria-label="Move the range forward by half" title="Move forward"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="tpop" id="tpPop" role="dialog" aria-label="Choose a time range" hidden>
+      <form id="tpForm" novalidate>
+        <h3>Custom range</h3>
+        <div class="tfield"><label for="tpFrom">From</label>
+          <div class="tin"><input id="tpFrom" autocomplete="off" spellcheck="false" aria-describedby="tpHint"><button type="button" class="tcal" data-for="tpFrom" aria-label="Pick the start on a calendar"><svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div></div>
+        <div class="tfield"><label for="tpTo">To</label>
+          <div class="tin"><input id="tpTo" autocomplete="off" spellcheck="false" aria-describedby="tpHint"><button type="button" class="tcal" data-for="tpTo" aria-label="Pick the end on a calendar"><svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div></div>
+        <input type="datetime-local" id="tpNative" class="tnative" tabindex="-1" aria-hidden="true">
+        <p class="thint" id="tpHint">Times are UTC. Type a date like 2026-08-20 14:00, or a time relative to now like now-6h or now-7d.</p>
+        <p class="terr" id="tpErr" role="alert"></p>
+        <button type="submit" class="btn primary">Apply range</button>
+      </form>
+      <div class="tquick">
+        <h3>Quick ranges</h3>
+        <ul id="tpQuick"></ul>
+        <div id="tpRecentWrap" hidden><h3>Recently used</h3><ul id="tpRecent"></ul></div>
+      </div>
+    </div>
+  </div>
   <div class="grow"></div>
   <button type="button" class="btn primary" id="refreshBtn">Refresh</button>
   <button type="button" class="btn" id="settingsBtn">Settings</button>
@@ -208,7 +266,7 @@ legend{font:600 15px/1 var(--cond);padding-right:8px}
     <div class="split">
       <div class="panel"><div id="map"></div></div>
       <div class="panel">
-        <div class="pad" style="padding-bottom:0"><h2 id="totalsTitle">Fleet this window</h2></div>
+        <div class="pad" style="padding-bottom:0"><h2 id="totalsTitle">Fleet in this range</h2></div>
         <div class="totals" id="totals"></div>
       </div>
     </div>
@@ -311,7 +369,7 @@ const STORE = "ap-fleet-settings", LOCAL_ACTIONS = "ap-fleet-actions";
 const DEFAULTS = {
   protocol:"http", host:"172.233.253.95", port:"32349", dbms:"anotherpeak", destination:"network",
   agent:"AnyLog/1.23", contentType:"application/json", auth:"", timeout:60,
-  knownBoats:"Helios, HydraAix", staleMin:30, win:"7d", anchor:"latest",
+  knownBoats:"Helios, HydraAix", staleMin:30,
   dieselPrice:2.5, wDiesel:3, wBattery:2, wComfort:1,
   cellCrit:45, cellWatch:40, packCurrentWatch:50, sohGap:2, packTempGap:3, starterMin:12,
   socReserve:20, genBattMin:23, coolantMax:100, oilMin:0, motorTempMax:85, driveTempMax:85, chargerTempMax:80,
@@ -357,11 +415,31 @@ function saveSettings(){ try { localStorage.setItem(STORE, JSON.stringify(S)); }
 let S = loadSettings();
 const endpoint = () => `${S.protocol}://${S.host}:${S.port}`;
 
-const WINDOWS = {
-  "24h": { label:"24 h", ms:24*3600e3,  period:["hour",24], trend:["hour",1], line:["minute",10] },
-  "7d":  { label:"7 d",  ms:7*86400e3,  period:["day",7],   trend:["day",1],  line:["minute",10] },
-  "30d": { label:"30 d", ms:30*86400e3, period:["day",30],  trend:["day",1],  line:["minute",20] }
-};
+/* Time range: Grafana-style From/To. Relative ("now-24h") or absolute UTC ("2026-08-20 14:00"). */
+/* Date Data range: "2026-07-10 00:00:00" to "2026-08-21 00:00:00" */
+const DEFAULT_RANGE = { from:"2026-07-10 00:00:00", to:"2026-10-20 00:00:00" };   // UTC; a valid #from=&to= in the address overrides it
+const QUICK = [
+  { from:"now-1h",  label:"Last 1 hour" },
+  { from:"now-8h",  label:"Last 8 hours" },
+  { from:"now-12h", label:"Last 12 hours" },
+  { from:"now-24h", label:"Last 24 hours" },
+  { from:"now-7d",  label:"Last 7 days" },
+  { from:"now-30d", label:"Last 30 days" }
+];
+const RECENT_KEY = "ap-fleet-recent-ranges";
+function spanLabel(ms){
+  const m = Math.round(ms / 60000);
+  if (m < 60) return `${m} min`;
+  if (m < 48 * 60) return m % 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m / 60} h`;
+  return `${Math.round(m / 1440)} days`;
+}
+/* trend = chart buckets (hour or day); line = event timeline buckets (generator runs, cruises, charging source) */
+function rangeWindow(ms){
+  const H = 3600e3, D = 86400e3;
+  return { ms, label:spanLabel(ms),
+    trend: ms <= 3*D ? ["hour",1] : ["day",1],
+    line:  ms <= 10*D ? ["minute",10] : ms <= 45*D ? ["minute",20] : ["hour",1] };
+}
 const UNIT_MS = { minute:60e3, hour:3600e3, day:86400e3 };
 const LONG_TABLES = new Set(["bmwix","bcl25","ach65","elptx","gd"]);
 const TEXT_TABLES = new Set(["systemstate","vesselstate","stbddrivestate","stbdbatteryconnectionstate"]);
@@ -518,7 +596,7 @@ function unsPath(boat, table, comp){
 }
 
 /* =========================================================== state */
-const state = { anchor:null, fleetLatest:null, boats:[], latest:{}, R:{}, analysis:{}, statuses:{}, actions:[], actFilter:"open", selectedNode:null, busy:false };
+const state = { range:{ ...DEFAULT_RANGE }, anchor:null, end:null, start:null, fleetLatest:null, boats:[], latest:{}, R:{}, analysis:{}, statuses:{}, actions:[], actFilter:"open", selectedNode:null, busy:false };
 
 /* =========================================================== refresh */
 async function refresh(){
@@ -531,7 +609,7 @@ async function refresh(){
     renderTree();
 
     // boats and their latest data
-    const latestRows = await sql("latest", "select boat, max(timestamp) as t from location group by boat", ["Boat list", "Not reporting status", "Window end time"]);
+    const latestRows = await sql("latest", "select boat, max(timestamp) as t from location group by boat", ["Boat list", "Not reporting status", "Right-now time"]);
     const latest = {};
     latestRows.forEach(r => { const b = trimBoat(r.boat); if (b) latest[b] = parseTs(r.t); });
     const known = new Set([...Object.keys(latest), ...Object.keys(UNS.boatNodes)]);
@@ -540,14 +618,17 @@ async function refresh(){
     state.latest = latest;
     const fleetLatest = Object.values(latest).filter(Boolean).reduce((a, b) => (a && a > b ? a : b), null);
     state.fleetLatest = fleetLatest;
-    const anchorDate = S.anchor === "latest" && fleetLatest ? new Date(Math.ceil((fleetLatest.getTime() + 1000) / 60000) * 60000) : new Date();
-    state.anchor = anchorDate;
-    const W = WINDOWS[S.win] || WINDOWS["7d"];
+    const rv = checkRange(state.range);
+    if (rv.err) throw new Error(rv.err + " Pick another range from the time picker");
+    const start = rv.from, end = rv.to, W = rangeWindow(end - start);
+    // "Right now" = last 10 minutes before the end of the range, or before the fleet's latest data if that falls inside the range
+    const inRange = fleetLatest && fleetLatest >= start && fleetLatest < end;
+    const anchorDate = inRange ? new Date(Math.min(end.getTime(), Math.ceil((fleetLatest.getTime() + 1000) / 60000) * 60000)) : end;
+    state.anchor = anchorDate; state.end = end;
     const A = `'${sqlTime(anchorDate)}'`;
-    const start = new Date(anchorDate.getTime() - W.ms);
-    const range = `timestamp >= '${sqlTime(start)}' and timestamp < ${A}`;
+    const range = `timestamp >= '${sqlTime(start)}' and timestamp < '${sqlTime(end)}'`;
     const per = (u, n) => `period(${u}, ${n}, ${A}, timestamp)`;
-    const [pu, pn] = W.period, [tu, tn] = W.trend, [lu, ln] = W.line;
+    const [tu, tn] = W.trend, [lu, ln] = W.line;
 
     const J = {
       // snapshot: last 10 minutes, all boats in one query per table
@@ -559,15 +640,15 @@ async function refresh(){
       sSpeed: () => sql("sSpeed", `select boat, max(timestamp) as t, avg(value) as v, max(value) as mx from speedoverground where ${per("minute", 10)} group by boat`, ["Fleet board: speed", "Bring-in rule: underway"]),
       sStarter: () => sql("sStarter", `select boat, side, avg(value) as v, min(value) as mn from starterbatteryvoltage where ${per("minute", 10)} and value > 0 group by boat, side`, ["Maintenance rule: 12 V starter"]),
       sPos: () => sql("sPos", `select boat, timestamp, value from location where ${per("hour", 6)}`, ["Map"]),
-      // window summary: period() over the selected window
-      wBms: () => sql("wBms", `select boat, ip, id, side, component, avg(value) as v, min(value) as mn, max(value) as mx from bmwix where ${per(pu, pn)} and ${conds("bmwix", ["gCurrent", "gMaxCellTemperature", "gAverageTemperature", "gStateOfHealth"])} group by boat, ip, id, side, component`, ["Batteries: pack table", "Maintenance rules: health and temperature vs siblings", "Watch rules: pack current, cell temperature"]),
-      wMotor: () => sql("wMotor", `select boat, side, component, max(value) as mx, avg(value) as v from ach65 where ${per(pu, pn)} and ${conds("ach65", ["ggMotorPower", "ggMotorTemperature", "ggElectronicTemperature"])} group by boat, side, component`, ["Maintenance rules: motor and drive temperature"]),
-      wChg: () => sql("wChg", `select boat, ip, id, side, component, max(value) as mx from bcl25 where ${per(pu, pn)} and ${cond("bcl25", "gActElectronicTemperature")} group by boat, ip, id, side, component`, ["Maintenance rule: charger temperature"]),
-      wGen: () => sql("wGen", `select boat, component, min(value) as mn, max(value) as mx, avg(value) as v, count(*) as n from gd where ${per(pu, pn)} and (${cond("gd", "TotalFuelUsed")} or ${cond("gd", "EngineRunHours")} or component = 'NumUnscStarts' or (component = 'Load' and value > 0 and value < ${FILTERS["gd|Load"].lt}) or (component = 'FuelRate' and value > 0 and value < ${FILTERS["gd|FuelRate"].lt})) group by boat, component`, ["Diesel: litres, hours, euros", "Maintenance rule: failed starts", "Fleet totals"]),
-      wLowLoad: () => sql("wLowLoad", `select boat, count(*) as n from gd where ${per(pu, pn)} and component = 'Load' and value > 0 and value < ${+S.lowLoadPct} group by boat`, ["Watch rule: low generator load"]),
-      wSocX: () => sql("wSocX", `select boat, value, count(*) as n from batterystateofchargepercent where ${per(pu, pn)} and (value >= 95 or (value <= 15 and value > 0)) group by boat, value`, ["Batteries: time at extreme charge"]),
-      wSocN: () => sql("wSocN", `select boat, count(*) as n from batterystateofchargepercent where ${per(pu, pn)} and value > 0 group by boat`, ["Batteries: time at extreme charge"]),
-      // trends: increments() over the window
+      // range summary: explicit From/To over the selected range
+      wBms: () => sql("wBms", `select boat, ip, id, side, component, avg(value) as v, min(value) as mn, max(value) as mx from bmwix where ${range} and ${conds("bmwix", ["gCurrent", "gMaxCellTemperature", "gAverageTemperature", "gStateOfHealth"])} group by boat, ip, id, side, component`, ["Batteries: pack table", "Maintenance rules: health and temperature vs siblings", "Watch rules: pack current, cell temperature"]),
+      wMotor: () => sql("wMotor", `select boat, side, component, max(value) as mx, avg(value) as v from ach65 where ${range} and ${conds("ach65", ["ggMotorPower", "ggMotorTemperature", "ggElectronicTemperature"])} group by boat, side, component`, ["Maintenance rules: motor and drive temperature"]),
+      wChg: () => sql("wChg", `select boat, ip, id, side, component, max(value) as mx from bcl25 where ${range} and ${cond("bcl25", "gActElectronicTemperature")} group by boat, ip, id, side, component`, ["Maintenance rule: charger temperature"]),
+      wGen: () => sql("wGen", `select boat, component, min(value) as mn, max(value) as mx, avg(value) as v, count(*) as n from gd where ${range} and (${cond("gd", "TotalFuelUsed")} or ${cond("gd", "EngineRunHours")} or component = 'NumUnscStarts' or (component = 'Load' and value > 0 and value < ${FILTERS["gd|Load"].lt}) or (component = 'FuelRate' and value > 0 and value < ${FILTERS["gd|FuelRate"].lt})) group by boat, component`, ["Diesel: litres, hours, euros", "Maintenance rule: failed starts", "Fleet totals"]),
+      wLowLoad: () => sql("wLowLoad", `select boat, count(*) as n from gd where ${range} and component = 'Load' and value > 0 and value < ${+S.lowLoadPct} group by boat`, ["Watch rule: low generator load"]),
+      wSocX: () => sql("wSocX", `select boat, value, count(*) as n from batterystateofchargepercent where ${range} and (value >= 95 or (value <= 15 and value > 0)) group by boat, value`, ["Batteries: time at extreme charge"]),
+      wSocN: () => sql("wSocN", `select boat, count(*) as n from batterystateofchargepercent where ${range} and value > 0 group by boat`, ["Batteries: time at extreme charge"]),
+      // trends: increments() over the range
       tFuel: () => sql("tFuel", `select increments(${tu}, ${tn}, timestamp), boat, component, max(timestamp) as t, min(value) as mn, max(value) as mx from gd where ${range} and (${cond("gd", "TotalFuelUsed")} or ${cond("gd", "EngineRunHours")}) group by boat, component`, ["Diesel: litres per period chart"]),
       tBat: () => sql("tBat", `select increments(${tu}, ${tn}, timestamp), boat, component, max(timestamp) as t, min(value) as mn, max(value) as mx from bmwix where ${range} and ${conds("bmwix", ["gMaxCellTemperature", "gCurrent"])} group by boat, component`, ["Batteries: temperature and current charts"]),
       // timelines: increments() at fine resolution, for events and cruises
@@ -590,6 +671,7 @@ async function refresh(){
     if (failed) { showBanner(`${failed} of ${total} queries failed. The affected panels show what's missing; Show queries at the bottom has the details.`, true); setStatus("err", "Partial data"); }
     else setStatus("ok", `Updated ${new Date().toLocaleTimeString()}`);
     if (UNS.error) showBanner(`The UNS couldn't be read (${UNS.error}). Boats come from the data and your known-boats list; the Explorer is empty.`, true);
+    if (fleetLatest && fleetLatest < start) showBanner(`No boat reported in the selected range. The fleet's latest data is from ${fmtTime(fleetLatest)} UTC.`, true, `Show the ${W.label} before it`);
   } catch (e) {
     setStatus("err", "Couldn't connect");
     showBanner(`Couldn't query ${endpoint()}: ${e.message}. Check the connection in Settings, and that the node accepts browser requests.`);
@@ -609,7 +691,7 @@ function analyse(){
   R.lSpeed.forEach(r => { const b = trimBoat(r.boat), k = key(r.t); if (A[b] && k !== null) A[b].spd[k] = num(r.v); });
   R.lSoc.forEach(r => { const b = trimBoat(r.boat), k = key(r.t); if (A[b] && k !== null) A[b].soc[k] = num(r.v); });
 
-  const startK = Math.floor(state.start.getTime() / bMs) * bMs, endK = Math.floor(state.anchor.getTime() / bMs) * bMs;
+  const startK = Math.floor(state.start.getTime() / bMs) * bMs, endK = Math.floor((state.end.getTime() - 1) / bMs) * bMs;
   const stopB = Math.max(1, Math.ceil(S.stopMin / (bMs / 60000))), arrB = Math.max(1, Math.ceil(S.arrivalMin / (bMs / 60000)));
   state.boats.forEach(b => {
     const d = A[b]; let lastSoc = null;
@@ -726,19 +808,19 @@ function evaluate(){
       const name = `${sideName(p.side) || "Pack"} pack ${p.id}/${p.ip}`;
       if (p.sohGap !== null && p.sohGap > S.sohGap) add("maint", "battery", `${name} health is ${fmt(p.soh, 1)}%, ${fmt(p.sohGap, 1)} points below its siblings.`, ["wBms"], [u("bmwix", "gStateOfHealth")]);
       if (p.tempDelta !== null && p.tempDelta > S.packTempGap) add("maint", "battery", `${name} runs ${fmt(p.tempDelta, 1)} °C warmer than the other ${sideName(p.side).toLowerCase() || ""} packs.`, ["wBms"], [u("bmwix", "gAverageTemperature")]);
-      if (p.maxCell !== null && p.maxCell !== undefined && p.maxCell > S.cellWatch && !(cellNow > S.cellCrit)) add("watch", "battery", `${name} reached ${fmt(p.maxCell)} °C this window (watch above ${S.cellWatch} °C).`, ["wBms"], [u("bmwix", "gMaxCellTemperature")]);
+      if (p.maxCell !== null && p.maxCell !== undefined && p.maxCell > S.cellWatch && !(cellNow > S.cellCrit)) add("watch", "battery", `${name} reached ${fmt(p.maxCell)} °C this range (watch above ${S.cellWatch} °C).`, ["wBms"], [u("bmwix", "gMaxCellTemperature")]);
       if (p.peakDis !== null && p.peakDis !== undefined && p.peakDis > S.packCurrentWatch) add("watch", "battery", `${name} discharged at up to ${fmt(p.peakDis)} A (watch above ${S.packCurrentWatch} A).`, ["wBms"], [u("bmwix", "gCurrent")]);
     });
     const starter = Math.min(Infinity, ...(sStarter[b] || []).map(r => num(r.mn) ?? Infinity));
     if (isFinite(starter) && starter < S.starterMin) add("maint", "equipment", `12 V starter battery at ${fmt(starter, 1)} V (minimum ${S.starterMin} V).`, ["sStarter"], [u("starterbatteryvoltage", "")]);
     (wMotor[b] || []).forEach(r => {
       const mx = num(r.mx), side = sideName(r.side) || "Motor";
-      if (r.component === "ggMotorTemperature" && mx !== null && mx > S.motorTempMax) add("maint", "equipment", `${side} motor reached ${fmt(mx)} °C this window (limit ${S.motorTempMax} °C).`, ["wMotor"], [u("ach65", "ggMotorTemperature")]);
+      if (r.component === "ggMotorTemperature" && mx !== null && mx > S.motorTempMax) add("maint", "equipment", `${side} motor reached ${fmt(mx)} °C this range (limit ${S.motorTempMax} °C).`, ["wMotor"], [u("ach65", "ggMotorTemperature")]);
       if (r.component === "ggElectronicTemperature" && mx !== null && mx > S.driveTempMax) add("maint", "equipment", `${side} drive electronics reached ${fmt(mx)} °C (limit ${S.driveTempMax} °C).`, ["wMotor"], [u("ach65", "ggElectronicTemperature")]);
     });
     (wChg[b] || []).forEach(r => { const mx = num(r.mx); if (mx !== null && mx > S.chargerTempMax) add("maint", "equipment", `Charger (${unitLabel(r)}) electronics reached ${fmt(mx)} °C (limit ${S.chargerTempMax} °C).`, ["wChg"], [u("bcl25", "gActElectronicTemperature")]); });
     const a = A[b] || {};
-    if (a.unscIncrease > 0) add("maint", "equipment", `${fmt(a.unscIncrease)} failed generator start${a.unscIncrease > 1 ? "s" : ""} this window.`, ["wGen"], [u("gd", "NumUnscStarts")]);
+    if (a.unscIncrease > 0) add("maint", "equipment", `${fmt(a.unscIncrease)} failed generator start${a.unscIncrease > 1 ? "s" : ""} this range.`, ["wGen"], [u("gd", "NumUnscStarts")]);
     if (a.runSamples >= 12 && a.lowLoadSamples / a.runSamples * 100 > S.lowLoadShare) add("watch", "diesel", `Generator ran below ${S.lowLoadPct}% load for ${fmt(a.lowLoadSamples / a.runSamples * 100)}% of its run time, which wastes fuel.`, ["wGen", "wLowLoad"], [u("gd", "Load")]);
     if (a.avoidable > S.avoidWatchL) add("watch", "diesel", `${fmt(a.avoidable)} L (€${fmt(a.avoidable * S.dieselPrice)}) of diesel burned while the battery was above ${S.avoidRoomSoc}%, on days that ended with shore charging.`, ["lGen", "lSoc", "lChg", "lSpeed"], [u("gd", "FuelRate"), u("batterystateofchargepercent", "")]);
     const flagged = (a.runs || []).filter(r => r.flag).length;
@@ -850,7 +932,7 @@ function renderBoard(){
   const pct = v => fmt(v) + "<small>%</small>", eur = v => "€" + fmt(v), deg = v => fmt(v) + "<small>°C</small>";
   const W = state.W;
   board.innerHTML = `<table class="matrix">
-    <thead><tr><th scope="col"><span class="none" style="font-weight:400">Over ${W.label} to ${fmtTime(state.anchor)} UTC</span></th>${head}</tr></thead>
+    <thead><tr><th scope="col"><span class="none" style="font-weight:400">${esc(rangeText())} UTC</span></th>${head}</tr></thead>
     <tbody>
       <tr class="verdict"><th scope="row">Decision</th>${verdict}</tr>
       <tr><th scope="row">Why</th>${why}</tr>
@@ -914,7 +996,7 @@ function renderMap(){
 
 function renderTotals(){
   const A = state.analysis, W = state.W;
-  $("totalsTitle").textContent = `Fleet over ${W.label} to ${fmtTime(state.anchor)} UTC`;
+  $("totalsTitle").textContent = `Fleet, ${rangeText()} UTC`;
   const sum = f => state.boats.reduce((s, b) => s + (A[b]?.[f] || 0), 0);
   const cruises = state.boats.flatMap(b => A[b]?.cruises || []);
   const rate = cruises.length ? cruises.filter(c => c.electric).length / cruises.length * 100 : null;
@@ -970,7 +1052,7 @@ function renderDiesel(){
   const runs = state.boats.flatMap(b => (A[b]?.runs || []).map(r => ({ b, ...r }))).sort((x, y) => y.start - x.start).slice(0, 60);
   $("runsTable").innerHTML = `<thead><tr><th>Boat</th><th>Started (UTC)</th><th class="num">Ran for</th><th class="num">Charge at start</th><th class="num">Charge at stop</th><th class="num">Litres</th><th class="num">Cost</th><th>Note</th></tr></thead><tbody>${
     runs.map(r => `<tr class="${r.flag ? "flag" : ""}"><td>${esc(r.b)}</td><td>${fmtTime(new Date(r.start))}</td><td class="num">${fmtDur(r.minutes)}</td><td class="num">${fmt(r.socStart)}%</td><td class="num">${fmt(r.socEnd)}%</td><td class="num">${fmt(r.litres, 1)}</td><td class="num">€${fmt(r.litres * S.dieselPrice)}</td><td>${r.flag ? `Started above ${S.genStartSocMax}% charge` : ""}</td></tr>`).join("")
-    || `<tr><td colspan="8" class="none">No generator runs in this window.</td></tr>`}</tbody>`;
+    || `<tr><td colspan="8" class="none">No generator runs in this range.</td></tr>`}</tbody>`;
 }
 
 function renderBattery(){
@@ -982,7 +1064,7 @@ function renderBattery(){
       <td class="num">${fmt(p.soh, 1)}%</td><td class="num">${p.sohGap === null ? "—" : (p.sohGap > 0 ? "−" : "+") + fmt(Math.abs(p.sohGap), 1)}</td><td class="num">${fmt(p.socNow)}%</td>
       <td class="num">${fmt(p.peakDis)} A</td><td class="num">${fmt(p.peakChg)} A</td><td class="num">${fmt(p.maxCell)} °C</td><td class="num">${fmt(p.avgTemp, 1)} °C</td>
       <td class="num">${p.tempDelta === null ? "—" : (p.tempDelta >= 0 ? "+" : "−") + fmt(Math.abs(p.tempDelta), 1)} °C</td></tr>`;
-    }).join("") || `<tr><td colspan="11" class="none">No battery pack data in this window.</td></tr>`}</tbody>`;
+    }).join("") || `<tr><td colspan="11" class="none">No battery pack data in this range.</td></tr>`}</tbody>`;
   const tb = byBoat(state.R.tBat), [tu] = state.W.trend, keys = new Set(), ser = { temp:{}, cur:{} };
   state.boats.forEach(b => { ser.temp[b] = {}; ser.cur[b] = {};
     (tb[b] || []).forEach(r => { const t = parseTs(r.t); if (!t) return; const k = tu === "day" ? t.toISOString().slice(0, 10) : t.toISOString().slice(0, 13); keys.add(k);
@@ -1004,7 +1086,7 @@ function renderArrivals(){
   const all = state.boats.flatMap(b => (A[b]?.cruises || []).map(c => ({ b, ...c }))).sort((x, y) => y.start - x.start).slice(0, 80);
   $("cruiseTable").innerHTML = `<thead><tr><th>Boat</th><th>Departed (UTC)</th><th>Arrived (UTC)</th><th class="num">Duration</th><th>Arrival</th></tr></thead><tbody>${
     all.map(c => `<tr class="${c.electric ? "" : "flag"}"><td>${esc(c.b)}</td><td>${fmtTime(new Date(c.start))}</td><td>${c.open ? "Still underway" : fmtTime(new Date(c.end))}</td><td class="num">${fmtDur(c.minutes)}</td><td>${c.electric ? "Electric" : "Generator running"}</td></tr>`).join("")
-    || `<tr><td colspan="5" class="none">No cruises detected in this window.</td></tr>`}</tbody>`;
+    || `<tr><td colspan="5" class="none">No cruises detected in this range.</td></tr>`}</tbody>`;
 }
 
 /* =========================================================== explorer */
@@ -1035,9 +1117,9 @@ async function showNode(id){
     ${o.unit ? `<dt>Unit</dt><dd>${esc(o.unit)}</dd>` : ""}${n.isa95 ? `<dt>ISA-95</dt><dd>${esc(n.isa95.level)} ${esc(n.isa95.entity)}</dd>` : ""}
     ${o.focus ? `<dt>Serves</dt><dd>${o.focus.map(f => `<span class="tag">${esc({ diesel:"Diesel", battery_health:"Battery life", comfort:"Electric arrivals" }[f] || f)}</span>`).join("")}</dd>` : ""}</dl>
     <div id="nodeData"><p class="none">Reading data…</p></div>`;
-  if (!o.table || !state.anchor) { $("nodeData").innerHTML = `<p class="none">${o.table ? "Refresh first to set the time window." : "This node has no data of its own; open its children."}</p>`; return; }
+  if (!o.table || !state.anchor) { $("nodeData").innerHTML = `<p class="none">${o.table ? "Refresh first to set the time range." : "This node has no data of its own; open its children."}</p>`; return; }
   const W = state.W, A = `'${sqlTime(state.anchor)}'`, where = o.where || "1 = 1", [tu, tn] = W.trend;
-  const range = `timestamp >= '${sqlTime(state.start)}' and timestamp < ${A}`;
+  const range = `timestamp >= '${sqlTime(state.start)}' and timestamp < '${sqlTime(state.end)}'`;
   const isLong = LONG_TABLES.has(o.table), isText = o.value_column === "str_value" || TEXT_TABLES.has(o.table), valueCol = o.value_column === "str_value" ? "str_value" : "value";
   const groupCols = o.table === "location" ? "" : isLong ? "ip, id, side" : "side";
   const out = $("nodeData");
@@ -1049,17 +1131,17 @@ async function showNode(id){
       return;
     }
     if (isLong && !o.component) {
-      const rows = await sql("node", `select component, count(*) as n, min(value) as mn, max(value) as mx, avg(value) as v from ${o.table} where period(${W.period[0]}, ${W.period[1]}, ${A}, timestamp) and ${where} group by component`, ["Explorer"]);
+      const rows = await sql("node", `select component, count(*) as n, min(value) as mn, max(value) as mx, avg(value) as v from ${o.table} where ${range} and ${where} group by component`, ["Explorer"]);
       out.innerHTML = `<h3>Every measurement in this component over ${W.label}</h3><div class="tablewrap"><table class="data"><thead><tr><th>Measurement</th><th class="num">Readings</th><th class="num">Min</th><th class="num">Avg</th><th class="num">Max</th></tr></thead><tbody>${
         rows.map(r => `<tr><td>${esc(r.component)}</td><td class="num">${fmt(num(r.n))}</td><td class="num">${fmt(num(r.mn), 2)}</td><td class="num">${fmt(num(r.v), 2)}</td><td class="num">${fmt(num(r.mx), 2)}</td></tr>`).join("")}</tbody></table></div>
         <p class="none" style="font-size:13px">Values include any "not available" markers; the measurement nodes below apply the filters.</p>${sqlBlock("node")}`;
       return;
     }
     if (isText) {
-      const rows = await sql("node", `select ${groupCols ? groupCols + ", " : ""}${valueCol} as val, count(*) as n, max(timestamp) as t from ${o.table} where period(${W.period[0]}, ${W.period[1]}, ${A}, timestamp) and ${where} group by ${groupCols ? groupCols + ", " : ""}${valueCol}`, ["Explorer"]);
+      const rows = await sql("node", `select ${groupCols ? groupCols + ", " : ""}${valueCol} as val, count(*) as n, max(timestamp) as t from ${o.table} where ${range} and ${where} group by ${groupCols ? groupCols + ", " : ""}${valueCol}`, ["Explorer"]);
       const units = {}; rows.forEach(r => { const k = unitKey(r); const u = units[k] = units[k] || { label:unitLabel(r), rows:[] }; u.rows.push(r); });
       out.innerHTML = `<h3>States over ${W.label}</h3>${Object.values(units).map(u => { const latest = [...u.rows].sort((a, b) => parseTs(b.t) - parseTs(a.t))[0], tot = u.rows.reduce((s, r) => s + (num(r.n) || 0), 0);
-        return `<p><strong>${esc(u.label)}</strong>: now ${esc(latest.val || "—")}. ${u.rows.map(r => `${esc(r.val || "empty")} ${fmt((num(r.n) || 0) / tot * 100)}%`).join(", ")}.</p>`; }).join("") || "<p class='none'>No readings in this window.</p>"}${sqlBlock("node")}`;
+        return `<p><strong>${esc(u.label)}</strong>: now ${esc(latest.val || "—")}. ${u.rows.map(r => `${esc(r.val || "empty")} ${fmt((num(r.n) || 0) / tot * 100)}%`).join(", ")}.</p>`; }).join("") || "<p class='none'>No readings in this range.</p>"}${sqlBlock("node")}`;
       return;
     }
     const rows = await sql("node", `select increments(${tu}, ${tn}, timestamp)${groupCols ? ", " + groupCols : ""}, max(timestamp) as t, avg(value) as v, min(value) as mn, max(value) as mx from ${o.table} where ${range} and ${where}${groupCols ? " group by " + groupCols : ""}`, ["Explorer"]);
@@ -1118,7 +1200,7 @@ function openAction(boat, type, closesId){
 function buildPolicy(){
   const st = state.statuses[actCtx.boat] || { reasons:[] };
   const reasons = [...$("actReasons").querySelectorAll("input[data-r]:checked")].map(i => st.reasons[+i.dataset.r]).map(r => ({ status:LEVELS[r.lvl].word, goal:r.goal, text:r.text }));
-  const body = { boat:actCtx.boat, action:actCtx.closes ? "close" : $("actType").value, note:$("actNote").value.trim(), author:$("actAuthor").value.trim(), created:new Date().toISOString(), window:state.W?.label, data_until:state.anchor ? state.anchor.toISOString() : null };
+  const body = { boat:actCtx.boat, action:actCtx.closes ? "close" : $("actType").value, note:$("actNote").value.trim(), author:$("actAuthor").value.trim(), created:new Date().toISOString(), window:state.end ? `${sqlTime(state.start)} to ${sqlTime(state.end)} UTC` : null, data_until:state.anchor ? state.anchor.toISOString() : null };
   if (actCtx.closes) body.closes = actCtx.closes; else body.reasons = reasons;
   return { fleet_action:body };
 }
@@ -1177,7 +1259,10 @@ function readSettings(){
 
 /* =========================================================== chrome */
 function setStatus(k, t){ $("dot").className = "dot " + k; $("statusTxt").textContent = t; }
-function showBanner(t, warn){ $("bannerTxt").textContent = t; $("banner").className = "banner show" + (warn ? " warn" : ""); }
+function showBanner(t, warn, jumpLabel){
+  $("bannerTxt").textContent = t; $("banner").className = "banner show" + (warn ? " warn" : "");
+  const b = $("bannerBtn"); b.textContent = jumpLabel || "Open settings"; b.dataset.jump = jumpLabel ? "1" : "";
+}
 function hideBanner(){ $("banner").className = "banner"; }
 function openDialog(id){ $("scrim").classList.add("show"); $(id).classList.add("show"); }
 function closeDialogs(){ document.querySelectorAll(".dialog.show,.drawer.show").forEach(d => { d.classList.remove("show"); d.setAttribute("aria-hidden", "true"); }); $("scrim").classList.remove("show"); applyTheme(S.theme); }
@@ -1191,16 +1276,128 @@ function applyTheme(t){
 }
 darkQ.addEventListener("change", () => applyTheme(S.theme));
 
-function initControls(){
-  const seg = $("winSeg");
-  Object.entries(WINDOWS).forEach(([k, w]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = w.label; b.dataset.w = k; seg.appendChild(b); });
-  const sync = () => {
-    seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.w === S.win)));
-    $("anchorSeg").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.a === S.anchor)));
+/* =========================================================== time picker */
+const REL_UNIT = { m:60e3, h:3600e3, d:86400e3, w:7*86400e3 };
+const isRel = s => /^now/i.test(String(s).trim());
+function parseTimeExpr(s, nowMs){
+  s = String(s ?? "").trim();
+  let m = s.match(/^now(?:\s*([+-])\s*(\d+)\s*([mhdw]))?$/i);
+  if (m) { if (!m[1]) return new Date(nowMs); const d = +m[2] * REL_UNIT[m[3].toLowerCase()]; return new Date(nowMs + (m[1] === "-" ? -d : d)); }
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?\s*(?:Z|UTC)?$/i);
+  if (!m) return null;
+  const [y, mo, d, h, mi, se] = m.slice(1).map(x => x === undefined ? 0 : +x);
+  const dt = new Date(Date.UTC(y, mo - 1, d, h, mi, se));
+  return dt.getUTCMonth() === mo - 1 && dt.getUTCDate() === d && h < 24 && mi < 60 && se < 60 ? dt : null;
+}
+function checkRange(r){
+  const now = Date.now(), from = parseTimeExpr(r.from, now), to = parseTimeExpr(r.to, now);
+  if (!from) return { err:`"From" isn't a time the dashboard can read. Use a date like 2026-08-20 14:00, or now-6h.`, field:"tpFrom" };
+  if (!to) return { err:`"To" isn't a time the dashboard can read. Use a date like 2026-08-20 18:00, or now.`, field:"tpTo" };
+  if (from >= to) return { err:`"From" has to be earlier than "To".`, field:"tpFrom" };
+  return { from, to };
+}
+const absStr = d => d.getUTCSeconds() ? sqlTime(d) : sqlTime(d).slice(0, 16);
+const norm = s => String(s).trim().toLowerCase().replace(/:00$/, "");
+const sameRange = (a, b) => norm(a.from) === norm(b.from) && norm(a.to) === norm(b.to);
+function rangeText(){ return state.start && state.end ? `${fmtTime(state.start)} to ${fmtTime(state.end)}` : ""; }
+function rangeLabel(r){
+  const quick = QUICK.find(x => sameRange(r, { from:x.from, to:"now" }));
+  if (quick) return quick.label;
+  const v = checkRange(r); if (v.err) return "Invalid range";
+  if (isRel(r.from) && norm(r.to) === "now") return "Last " + spanLabel(v.to - v.from);
+  const show = (s, d) => isRel(s) ? String(s).trim() : fmtTime(d);
+  return `${show(r.from, v.from)} to ${show(r.to, v.to)}`;
+}
+function loadRecent(){ try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]").filter(r => r && r.from && r.to); } catch { return []; } }
+function rememberRange(r){
+  if (QUICK.some(x => sameRange(r, { from:x.from, to:"now" })) || sameRange(r, DEFAULT_RANGE)) return;
+  const list = [r, ...loadRecent().filter(x => !sameRange(x, r))].slice(0, 4);
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(list)); } catch {}
+}
+function writeHash(){ try { history.replaceState(null, "", `#from=${encodeURIComponent(state.range.from)}&to=${encodeURIComponent(state.range.to)}`); } catch {} }
+function readHash(){
+  const p = new URLSearchParams(location.hash.slice(1)), r = { from:p.get("from") || "", to:p.get("to") || "" };
+  return r.from && r.to && !checkRange(r).err ? r : null;
+}
+function setRange(r, remember){
+  state.range = { from:String(r.from).trim(), to:String(r.to).trim() };
+  if (remember) rememberRange(state.range);
+  writeHash(); renderPicker(); refresh();
+}
+function renderPicker(){
+  $("tpLabel").textContent = rangeLabel(state.range);
+  $("tpFwd").disabled = norm(state.range.to) === "now";
+  const item = (r, label, cls) => {
+    const li = document.createElement("li"), b = document.createElement("button");
+    b.type = "button"; b.textContent = label; if (cls) b.className = cls;
+    b.setAttribute("aria-pressed", String(sameRange(r, state.range)));
+    b.onclick = () => { closePicker(true); setRange(r, false); };
+    li.appendChild(b); return li;
   };
-  sync();
-  seg.addEventListener("click", e => { const b = e.target.closest("button[data-w]"); if (!b) return; S.win = b.dataset.w; saveSettings(); sync(); refresh(); });
-  $("anchorSeg").addEventListener("click", e => { const b = e.target.closest("button[data-a]"); if (!b) return; S.anchor = b.dataset.a; saveSettings(); sync(); refresh(); });
+  $("tpQuick").replaceChildren(...QUICK.map(x => item({ from:x.from, to:"now" }, x.label)));
+  const rec = loadRecent();
+  $("tpRecentWrap").hidden = !rec.length;
+  $("tpRecent").replaceChildren(...rec.map(r => item(r, rangeLabel(r), "rec")));
+}
+function setPickErr(msg, field){
+  $("tpErr").textContent = msg || "";
+  ["tpFrom", "tpTo"].forEach(id => $(id).setAttribute("aria-invalid", String(id === field)));
+}
+function openPicker(){
+  $("tpFrom").value = state.range.from; $("tpTo").value = state.range.to; setPickErr("");
+  renderPicker();
+  const pop = $("tpPop"); pop.hidden = false; pop.style.left = "0px";
+  const over = pop.getBoundingClientRect().right - (document.documentElement.clientWidth - 12);
+  if (over > 0) pop.style.left = -over + "px";
+  $("tpBtn").setAttribute("aria-expanded", "true");
+  $("tpFrom").focus(); $("tpFrom").select();
+}
+function closePicker(refocus){
+  if ($("tpPop").hidden) return;
+  $("tpPop").hidden = true; $("tpBtn").setAttribute("aria-expanded", "false");
+  if (refocus) $("tpBtn").focus();
+}
+function shiftRange(dir){
+  const v = checkRange(state.range); if (v.err) return;
+  const span = v.to - v.from, step = Math.round(span / 2 / 60e3) * 60e3 * dir, now = Date.now(), to = v.to.getTime() + step;
+  if (to >= now - 60e3) { setRange({ from:absStr(new Date(Math.floor((now - span) / 60e3) * 60e3)), to:"now" }, true); return; }
+  setRange({ from:absStr(new Date(v.from.getTime() + step)), to:absStr(new Date(to)) }, true);
+}
+function jumpToLatest(){
+  const v = checkRange(state.range); if (!state.fleetLatest || v.err) return;
+  const to = new Date(Math.ceil((state.fleetLatest.getTime() + 1000) / 60e3) * 60e3), from = new Date(to - (v.to - v.from));
+  setRange({ from:absStr(from), to:absStr(to) }, true);
+}
+function initPicker(){
+  const hashed = readHash(); if (hashed) state.range = hashed;
+  $("tpBtn").onclick = () => $("tpPop").hidden ? openPicker() : closePicker(false);
+  $("tpBack").onclick = () => shiftRange(-1);
+  $("tpFwd").onclick = () => shiftRange(1);
+  $("tpForm").onsubmit = e => {
+    e.preventDefault();
+    const r = { from:$("tpFrom").value, to:$("tpTo").value }, v = checkRange(r);
+    if (v.err) { setPickErr(v.err, v.field); $(v.field).focus(); return; }
+    closePicker(true); setRange(r, true);
+  };
+  ["tpFrom", "tpTo"].forEach(id => $(id).addEventListener("input", () => setPickErr("")));
+  // Calendar: one native datetime-local picker, moved next to whichever field asked for it. Values are read as UTC.
+  const nat = $("tpNative"); let target = null;
+  document.querySelectorAll(".tcal").forEach(b => b.onclick = () => {
+    target = $(b.dataset.for);
+    const d = parseTimeExpr(target.value, Date.now()) || new Date();
+    b.parentElement.appendChild(nat);
+    nat.value = sqlTime(d).slice(0, 16).replace(" ", "T");
+    try { nat.showPicker(); } catch { nat.style.pointerEvents = "auto"; nat.focus(); nat.click(); }
+  });
+  nat.addEventListener("change", () => { if (target && nat.value) { target.value = nat.value.replace("T", " ").slice(0, 16); setPickErr(""); target.focus(); } });
+  document.addEventListener("mousedown", e => { if (!$("tpPop").hidden && !$("tp").contains(e.target)) closePicker(false); });
+  $("tpPop").addEventListener("keydown", e => { if (e.key === "Escape") { e.stopPropagation(); closePicker(true); } });
+  window.addEventListener("hashchange", () => { const h = readHash(); if (h && !sameRange(h, state.range)) { state.range = h; renderPicker(); refresh(); } });
+  writeHash(); renderPicker();
+}
+
+function initControls(){
+  initPicker();
   document.querySelector("nav.tabs").addEventListener("click", e => {
     const b = e.target.closest("button[data-tab]"); if (!b) return;
     document.querySelectorAll("nav.tabs button").forEach(x => x.setAttribute("aria-selected", String(x === b)));
@@ -1209,10 +1406,10 @@ function initControls(){
   });
   $("refreshBtn").onclick = () => { UNS.loaded = false; refresh(); };
   $("settingsBtn").onclick = () => { renderSettings(); $("testResult").textContent = ""; openDrawer("settingsDrawer"); };
-  $("bannerBtn").onclick = $("settingsBtn").onclick;
+  $("bannerBtn").onclick = () => $("bannerBtn").dataset.jump ? jumpToLatest() : $("settingsBtn").onclick();
   $("closeSettings").onclick = closeDialogs; $("closeQueries").onclick = closeDialogs; $("scrim").onclick = closeDialogs;
   $("settingsForm").addEventListener("change", e => { if (e.target.name === "theme") applyTheme(e.target.value); });
-  $("resetBtn").onclick = () => { const keep = { win:S.win, anchor:S.anchor }; S = { ...DEFAULTS, ...keep }; renderSettings(); };
+  $("resetBtn").onclick = () => { S = { ...DEFAULTS }; renderSettings(); };
   $("saveBtn").onclick = () => { S = readSettings(); saveSettings(); closeDialogs(); UNS.loaded = false; refresh(); };
   $("testBtn").onclick = async () => {
     const saved = S; S = readSettings(); $("testResult").textContent = `Sending "get status" to ${endpoint()}…`; $("testResult").className = "";

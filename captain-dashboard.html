@@ -69,6 +69,45 @@ h2{margin:0;font:600 19px/1.2 var(--cond)}
 .dot.ok{background:var(--ok)} .dot.err{background:var(--danger)} .dot.busy{background:var(--amber)}
 select.plain{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:4px 6px}
 
+/* Time range picker */
+.tp{position:relative}
+.tpbar{display:inline-flex;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.tpbar button{border:0;background:transparent;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center}
+.tpbar button+button{border-left:1px solid var(--line)}
+.tpbar button:disabled{color:var(--muted);opacity:.45;cursor:default}
+.tpstep{padding:5px 7px}
+.tpmain{gap:8px;padding:5px 12px;font-weight:600;white-space:nowrap}
+.tpmain .utc{font-size:12px;font-weight:400;color:var(--muted)}
+.tpbar svg{flex:none}
+.tpop{position:absolute;top:calc(100% + 6px);left:0;z-index:1100;width:min(600px,calc(100vw - 24px));background:var(--surface);
+  border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 28px rgba(10,30,45,.2);display:grid;grid-template-columns:minmax(0,1fr) 210px}
+.tpop h3{margin:0 0 10px;font:600 16px/1.2 var(--cond)}
+.tpop form{padding:16px;display:flex;flex-direction:column;gap:10px}
+.tfield label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.tin{position:relative;display:flex}
+.tin input{flex:1;min-width:0;border:1px solid var(--line);border-right:0;border-radius:6px 0 0 6px;background:var(--bg);padding:6px 9px;font-variant-numeric:tabular-nums}
+.tin input[aria-invalid="true"]{border-color:var(--danger)}
+.tcal{border:1px solid var(--line);border-radius:0 6px 6px 0;background:var(--surface);padding:0 9px;cursor:pointer;display:inline-flex;align-items:center;color:var(--muted)}
+.tcal:hover{color:var(--ink)}
+.tnative{position:absolute;right:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.thint{margin:0;font-size:13px;color:var(--muted)}
+.terr{margin:0;font-size:13px;color:var(--danger);min-height:0}
+.terr:empty{display:none}
+.tpop form .btn{align-self:flex-start}
+.tquick{border-left:1px solid var(--line);padding:16px 8px 12px}
+.tquick h3{padding:0 8px}
+.tquick ul{list-style:none;margin:0 0 12px;padding:0}
+.tquick button{display:block;width:100%;text-align:left;border:0;border-radius:4px;background:transparent;padding:6px 8px;cursor:pointer;color:var(--ink)}
+.tquick button:hover{background:var(--grid)}
+.tquick button[aria-pressed="true"]{background:var(--grid);font-weight:600;box-shadow:inset 3px 0 0 var(--ink)}
+.tquick .rec{font-size:13px}
+.linkbtn{border:0;background:none;padding:0;color:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
+.mapnote .btn{margin-top:10px}
+@media (max-width:700px){
+  .tpop{grid-template-columns:1fr}
+  .tquick{border-left:0;border-top:1px solid var(--line)}
+}
+
 .banner{margin:16px 20px 0;padding:10px 14px;border-left:4px solid var(--danger);background:var(--surface);display:none;gap:12px;align-items:center;flex-wrap:wrap}
 .banner.show{display:flex}
 .banner.warn{border-left-color:var(--amber)}
@@ -237,15 +276,29 @@ pre.preview{margin:0;background:var(--bg);border:1px solid var(--line);border-ra
     <label for="boatSel">Boat</label>
     <select id="boatSel" aria-label="Boat"><option>Loading…</option></select>
   </div>
-  <div class="group" role="group" aria-label="Time window">
-    <span>Window</span>
-    <div class="seg" id="winSeg"></div>
-  </div>
-  <div class="group" role="group" aria-label="Window ends at">
-    <span>Ending at</span>
-    <div class="seg" id="anchorSeg">
-      <button type="button" data-a="latest" aria-pressed="true">Latest data</button>
-      <button type="button" data-a="now" aria-pressed="false">Now</button>
+  <div class="tp" id="tp">
+    <div class="tpbar" role="group" aria-label="Time range">
+      <button type="button" class="tpstep" id="tpBack" aria-label="Move the range back by half" title="Move back"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button type="button" class="tpmain" id="tpBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="tpPop"><svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5V8l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="tpLabel">Last 24 hours</span><span class="utc">UTC</span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5l3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+      <button type="button" class="tpstep" id="tpFwd" aria-label="Move the range forward by half" title="Move forward"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="tpop" id="tpPop" role="dialog" aria-label="Choose a time range" hidden>
+      <form id="tpForm" novalidate>
+        <h3>Custom range</h3>
+        <div class="tfield"><label for="tpFrom">From</label>
+          <div class="tin"><input id="tpFrom" autocomplete="off" spellcheck="false" aria-describedby="tpHint"><button type="button" class="tcal" data-for="tpFrom" aria-label="Pick the start on a calendar"><svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div></div>
+        <div class="tfield"><label for="tpTo">To</label>
+          <div class="tin"><input id="tpTo" autocomplete="off" spellcheck="false" aria-describedby="tpHint"><button type="button" class="tcal" data-for="tpTo" aria-label="Pick the end on a calendar"><svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div></div>
+        <input type="datetime-local" id="tpNative" class="tnative" tabindex="-1" aria-hidden="true">
+        <p class="thint" id="tpHint">Times are UTC. Type a date like 2026-08-20 14:00, or a time relative to now like now-6h or now-7d.</p>
+        <p class="terr" id="tpErr" role="alert"></p>
+        <button type="submit" class="btn primary">Apply range</button>
+      </form>
+      <div class="tquick">
+        <h3>Quick ranges</h3>
+        <ul id="tpQuick"></ul>
+        <div id="tpRecentWrap" hidden><h3>Recently used</h3><ul id="tpRecent"></ul></div>
+      </div>
     </div>
   </div>
   <div class="spacer"></div>
@@ -425,16 +478,32 @@ let S = loadSettings();
 const endpoint = () => `${S.protocol}://${S.host}:${S.port}`;
 const N = k => { const v = parseFloat(S[k]); return isFinite(v) ? v : parseFloat(DEFAULTS[k]); };
 
-/* Windows: period() for window stats, increments() for charts, gen = bucket for generator/charging timelines */
-const WINDOWS = {
-  "1h":  {label:"1 h",  ms:3600e3,     period:["hour",1],  inc:["minute",5],  gen:["minute",5]},
-  "6h":  {label:"6 h",  ms:6*3600e3,   period:["hour",6],  inc:["minute",10], gen:["minute",5]},
-  "24h": {label:"24 h", ms:24*3600e3,  period:["day",1],   inc:["minute",30], gen:["minute",5]},
-  "7d":  {label:"7 d",  ms:7*86400e3,  period:["day",7],   inc:["hour",3],    gen:["minute",15]},
-  "30d": {label:"30 d", ms:30*86400e3, period:["day",30],  inc:["hour",12],   gen:["hour",1]}
-};
+/* Time range: Grafana-style From/To. Relative ("now-24h") or absolute UTC ("2026-08-20 14:00"). */
+const QUICK = [
+  {from:"now-1h",  label:"Last 1 hour"},
+  {from:"now-8h",  label:"Last 8 hours"},
+  {from:"now-12h", label:"Last 12 hours"},
+  {from:"now-24h", label:"Last 24 hours"},
+  {from:"now-7d",  label:"Last 7 days"},
+  {from:"now-30d", label:"Last 30 days"}
+];
+
+/* Date Data range: "2026-07-10 00:00:00" to "2026-08-21 00:00:00" */
+const DEFAULT_RANGE = {from:"2026-07-10 00:00:00", to:"2026-07-11 00:00:00"};
+const RECENT_KEY = "anotherpeak_recent_ranges";
+/* Chart bucket (inc) and generator/charging timeline bucket (gen) scale with the span */
+function rangeWindow(ms){
+  const H = 3600e3, D = 86400e3;
+  const [inc, gen] = ms <= 2*H  ? [["minute",5],  ["minute",5]]
+                   : ms <= 12*H ? [["minute",10], ["minute",5]]
+                   : ms <= 36*H ? [["minute",30], ["minute",5]]
+                   : ms <= 10*D ? [["hour",3],    ["minute",15]]
+                   : ms <= 45*D ? [["hour",12],   ["hour",1]]
+                   :              [["day",1],     ["hour",3]];
+  return { ms, label:fmtDur(ms), inc, gen };
+}
 const UNIT_MS = {minute:60e3, hour:3600e3, day:86400e3};
-const state = { boat:null, boats:{}, win:"24h", anchor:"latest", timer:null, busy:false, tab:"battery", hl:null, curves:{}, last:null };
+const state = { boat:null, boats:{}, range:{...DEFAULT_RANGE}, timer:null, busy:false, tab:"battery", hl:null, curves:{}, last:null };
 
 /* =================== Helpers =================== */
 const $ = id => document.getElementById(id);
@@ -646,7 +715,10 @@ function drawTrack(pts, genEvents, fit = true){
   if (fit && bounds.isValid()) map.fitBounds(bounds.pad(0.15), { maxZoom:16 });
   return { dist, count:pts.length };
 }
-function mapNote(text){ const n = $("mapNote"); n.textContent = text || ""; n.className = "mapnote" + (text ? " show" : ""); }
+function mapNote(text, action){
+  const n = $("mapNote"); n.textContent = text || ""; n.className = "mapnote" + (text ? " show" : "");
+  if (text && action) { const b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.dataset.jump = ""; b.textContent = action; n.append(document.createElement("br"), b); }
+}
 
 /* =================== Charts =================== */
 const charts = {};
@@ -764,15 +836,19 @@ async function refresh(){
     await loadBoats();
     hideBanner();
     if (!state.boat) { setStatus("ok", "Connected"); mapNote("No boats found in the location table."); return; }
-    const W = WINDOWS[state.win], latest = state.boats[state.boat];
+    const rv = checkRange(state.range);
+    if (rv.err) { setStatus("err", "Invalid time range"); showBanner(rv.err + " Pick another range from the time picker.", true); return; }
+    const startDate = rv.from, endDate = rv.to, W = rangeWindow(endDate - startDate), latest = state.boats[state.boat];
     if (!latest) showBanner(`No data came back for ${state.boat}. The node that stores it may be offline — check "Requests sent" below.`, true);
-    const anchorDate = state.anchor === "latest" && latest ? new Date(latest.getTime() + 1000) : new Date();
-    const anchor = sqlTime(anchorDate), startDate = new Date(anchorDate.getTime() - W.ms), start = sqlTime(startDate);
+    // "Current" readings = last 15 min before the end of the range, or before the latest data if that falls inside the range
+    const inRange = latest && latest >= startDate && latest < endDate;
+    const anchorDate = inRange ? new Date(Math.min(endDate.getTime(), latest.getTime() + 1000)) : endDate;
+    const anchor = sqlTime(anchorDate), start = sqlTime(startDate), end = sqlTime(endDate);
     const boat = q(state.boat);
-    const [pu, pn] = W.period, [iu, inN] = W.inc, [gu, gn] = W.gen;
+    const [iu, inN] = W.inc, [gu, gn] = W.gen;
     const per = (u, n) => `period(${u}, ${n}, '${anchor}', timestamp)`;
-    const snap = per("minute", 15), win = per(pu, pn);
-    const range = `timestamp >= '${start}' and timestamp < '${anchor}'`;
+    const snap = per("minute", 15);
+    const range = `timestamp >= '${start}' and timestamp < '${end}'`, win = range;
     const B = `boat = '${boat}'`;
     const inc = `increments(${iu}, ${inN}, timestamp)`, ginc = `increments(${gu}, ${gn}, timestamp)`;
     const PU = "side, ip, id";
@@ -830,7 +906,7 @@ async function refresh(){
     keys.forEach((k, i) => { R[k] = results[i].ok ? results[i].v : []; if (!results[i].ok) failed++; });
     const curve = await curveP;
 
-    const ctx = { R, W, anchorDate, startDate, latest, incMs:UNIT_MS[iu] * inN, genMs:UNIT_MS[gu] * gn, curve };
+    const ctx = { R, W, anchorDate, startDate, endDate, latest, incMs:UNIT_MS[iu] * inN, genMs:UNIT_MS[gu] * gn, curve };
     const M = buildModel(ctx);
     state.last = { ctx, M };
     renderAll(ctx, M, true);
@@ -884,7 +960,7 @@ function powerAt(curve, v){
 /* =================== Model =================== */
 function buildModel({ R, W, anchorDate, latest, incMs, genMs, curve }){
   const staleMs = N("staleMin") * 60e3;
-  const ref = latest && state.anchor === "latest" ? latest : anchorDate;
+  const ref = anchorDate;
   const isStale = t => !t || (ref - t) > staleMs;
   const sideRows = rows => { const m = {}; rows.forEach(r => m[trim(r.side)] = r); return m; };
   const alerts = [];
@@ -913,11 +989,11 @@ function buildModel({ R, W, anchorDate, latest, incMs, genMs, curve }){
   });
   packs.forEach(p => {
     const set = (lv, text) => { p.level = worst(p.level, lv); p.why.push(text); add(lv, "battery", p.key, `${p.name}: ${text}`); };
-    if (isStale(p.last)) { set("stale", p.last ? `no data since ${fmtTime(p.last, true)} UTC` : "no data in this window"); return; }
+    if (isStale(p.last)) { set("stale", p.last ? `no data since ${fmtTime(p.last, true)} UTC` : "no data in this range"); return; }
     if (p.cur !== null && Math.abs(p.cur) > N("thrCurrent")) set("alert", `current ${fmt(p.cur, 0)} A, above ${N("thrCurrent")} A`);
-    else if (p.curPeak > N("thrCurrent")) set("watch", `current peaked at ${fmt(p.curPeak, 0)} A in this window`);
+    else if (p.curPeak > N("thrCurrent")) set("watch", `current peaked at ${fmt(p.curPeak, 0)} A in this range`);
     if (p.cell !== null && p.cell > N("thrCellTemp")) set("alert", `hottest cell ${fmt(p.cell, 0)} °C, above ${N("thrCellTemp")} °C`);
-    else if (p.cellMax !== null && p.cellMax > N("thrCellTemp")) set("watch", `hottest cell reached ${fmt(p.cellMax, 0)} °C in this window`);
+    else if (p.cellMax !== null && p.cellMax > N("thrCellTemp")) set("watch", `hottest cell reached ${fmt(p.cellMax, 0)} °C in this range`);
     if (p.delta !== null && p.delta > N("thrPackDelta")) set("watch", `${fmt(p.delta, 1)} °C warmer than the other ${SIDE_NAME[p.side].toLowerCase()} packs`);
   });
 
@@ -948,11 +1024,11 @@ function buildModel({ R, W, anchorDate, latest, incMs, genMs, curve }){
     m.tempMax = num(w.ggMotorTemperature?.mx); m.etempMax = num(w.ggElectronicTemperature?.mx); m.powMax = num(w.ggMotorPower?.mx);
     m.level = "ok"; m.why = [];
     const set = (lv, text) => { m.level = worst(m.level, lv); m.why.push(text); add(lv, "propulsion", m.key, `${m.name}: ${text}`); };
-    if (isStale(m.last)) { set("stale", m.last ? `no data since ${fmtTime(m.last, true)} UTC` : "no data in this window"); return; }
+    if (isStale(m.last)) { set("stale", m.last ? `no data since ${fmtTime(m.last, true)} UTC` : "no data in this range"); return; }
     if (m.temp > N("thrMotorTemp")) set("alert", `motor ${fmt(m.temp, 0)} °C, above ${N("thrMotorTemp")} °C`);
-    else if (m.tempMax > N("thrMotorTemp")) set("watch", `motor reached ${fmt(m.tempMax, 0)} °C in this window`);
+    else if (m.tempMax > N("thrMotorTemp")) set("watch", `motor reached ${fmt(m.tempMax, 0)} °C in this range`);
     if (m.etemp > N("thrElecTemp")) set("alert", `electronics ${fmt(m.etemp, 0)} °C, above ${N("thrElecTemp")} °C`);
-    else if (m.etempMax > N("thrElecTemp")) set("watch", `electronics reached ${fmt(m.etempMax, 0)} °C in this window`);
+    else if (m.etempMax > N("thrElecTemp")) set("watch", `electronics reached ${fmt(m.etempMax, 0)} °C in this range`);
   });
   // Motors that reported before the window but not in it
   const sp = sideRows(R.sSpeed), speedNow = (() => { const v = ["B", "T"].map(s => num(sp[s]?.v)).filter(v => v !== null); return v.length ? Math.max(...v) : null; })();
@@ -973,9 +1049,9 @@ function buildModel({ R, W, anchorDate, latest, incMs, genMs, curve }){
     c.l = [1, 2, 3].map(i => ({ a:g("currentL" + i), v:g("voltageL" + i) }));
     c.level = "ok"; c.why = [];
     const set = (lv, text) => { c.level = worst(c.level, lv); c.why.push(text); add(lv, "charging", c.key, `${c.name}: ${text}`); };
-    if (isStale(c.last)) { set("stale", c.last ? `no data since ${fmtTime(c.last, true)} UTC` : "no data in this window"); return; }
+    if (isStale(c.last)) { set("stale", c.last ? `no data since ${fmtTime(c.last, true)} UTC` : "no data in this range"); return; }
     if (c.etemp > N("thrElecTemp")) set("alert", `electronics ${fmt(c.etemp, 0)} °C, above ${N("thrElecTemp")} °C`);
-    else if (c.etempMax > N("thrElecTemp")) set("watch", `electronics reached ${fmt(c.etempMax, 0)} °C in this window`);
+    else if (c.etempMax > N("thrElecTemp")) set("watch", `electronics reached ${fmt(c.etempMax, 0)} °C in this range`);
   });
 
   /* Converter */
@@ -987,7 +1063,7 @@ function buildModel({ R, W, anchorDate, latest, incMs, genMs, curve }){
     c.last = Object.values(c.comp).map(r => parseTs(r.t)).filter(Boolean).sort((a, b) => b - a)[0] || null;
     c.state = cnvState.get(c.key)?.v ?? null; c.pAct = g("gPowerActual") ?? g("powerActual"); c.pReq = g("gPowerRequested") ?? g("powerRequest"); c.dcV = g("dcVoltage");
     c.level = isStale(c.last) ? "stale" : "ok"; c.why = [];
-    if (c.level === "stale") { c.why.push("not reporting"); add("stale", "converter", c.key, `${c.name}: ${c.last ? "no data since " + fmtTime(c.last, true) + " UTC" : "no data in this window"}`); }
+    if (c.level === "stale") { c.why.push("not reporting"); add("stale", "converter", c.key, `${c.name}: ${c.last ? "no data since " + fmtTime(c.last, true) + " UTC" : "no data in this range"}`); }
   });
 
   /* Generator */
@@ -1008,8 +1084,8 @@ function buildModel({ R, W, anchorDate, latest, incMs, genMs, curve }){
   if (isStale(gen.last) && R.gRpm.length === 0) gen.level = "stale";
   else if (isStale(gen.last)) gset("stale", `no data since ${fmtTime(gen.last, true)} UTC`);
   if (gen.running && gen.coolant > N("thrCoolant")) gset("alert", `coolant ${fmt(gen.coolant, 0)} °C, above ${N("thrCoolant")} °C`);
-  else if (gen.maxCoolant > N("thrCoolant")) gset("watch", `coolant reached ${fmt(gen.maxCoolant, 0)} °C in this window`);
-  if (gen.failed > 0) gset("watch", `${fmt(gen.failed, 0)} failed start${gen.failed > 1 ? "s" : ""} in this window`);
+  else if (gen.maxCoolant > N("thrCoolant")) gset("watch", `coolant reached ${fmt(gen.maxCoolant, 0)} °C in this range`);
+  if (gen.failed > 0) gset("watch", `${fmt(gen.failed, 0)} failed start${gen.failed > 1 ? "s" : ""} in this range`);
 
   // Generator timeline + events (bucket = W.gen)
   const genBk = new Map(); R.gRpm.forEach(r => { const t = parseTs(r.t); if (t) genBk.set(Math.floor(t / genMs) * genMs, num(r.mx) > 0); });
@@ -1165,9 +1241,10 @@ function renderAll(ctx, M, fit){
   const tr = drawTrack(pts, M.events, fit);
   M.dist = tr.dist;
   const latest = ctx.latest;
-  mapNote(tr.count ? "" : (state.anchor === "now" && latest && Date.now() - latest.getTime() > ctx.W.ms
-    ? `No positions in the last ${ctx.W.label}. The latest data is from ${fmtTime(latest, true)} UTC — switch to "Latest data".`
-    : "No positions in this window. Try a longer window."));
+  const before = latest && latest < ctx.startDate;
+  mapNote(tr.count ? "" : before
+    ? `No positions in this range. ${state.boat}'s latest data is from ${fmtTime(latest, true)} UTC.`
+    : "No positions in this range. Try a longer range.", before ? `Show the ${ctx.W.label} before it` : "");
 }
 
 function renderHelm(ctx, M){
@@ -1188,7 +1265,7 @@ function renderHelm(ctx, M){
   const lastEv = M.events[M.events.length - 1];
   $("genSub").textContent = g.running
     ? `${fmt(g.load, 0)}% load, ${fmt(g.fuelRate, 1)} L/h (${eur((g.fuelRate || 0) * N("dieselPrice"))}/h)` + (lastEv?.type === "start" ? `, since ${fmtTime(lastEv.t)} UTC` : "")
-    : lastEv?.type === "stop" ? `Stopped at ${fmtTime(lastEv.t, true)} UTC` : g.hours ? `Ran ${fmt(g.hours, 0)} h in this window` : "";
+    : lastEv?.type === "stop" ? `Stopped at ${fmtTime(lastEv.t, true)} UTC` : g.hours ? `Ran ${fmt(g.hours, 0)} h in this range` : "";
 
   // Arrival
   const A = M.arrival, v = $("arrVerdict"), ul = $("arrList");
@@ -1212,8 +1289,11 @@ function renderHelm(ctx, M){
   if (latest) {
     const age = Date.now() - latest.getTime(), stale = age > 15 * 60e3;
     f.className = "fresh" + (stale ? " stale" : "");
-    f.innerHTML = `Latest data <strong>${fmtTime(latest, true)} UTC</strong>` +
-      (stale ? ` — <strong>${fmtDur(age)} ago</strong>. Everything above shows the last recorded state${state.anchor === "latest" ? ", and the forecast treats that moment as now" : ""}.` : ` (${fmtDur(age)} ago).`);
+    const before = latest < ctx.startDate, after = latest >= ctx.endDate, snapped = !before && !after && ctx.anchorDate < ctx.endDate;
+    f.innerHTML = `Latest data <strong>${fmtTime(latest, true)} UTC</strong>` + (stale ? ` — <strong>${fmtDur(age)} ago</strong>.` : ` (${fmtDur(age)} ago).`) +
+      (before ? ` That's before the selected range, so the readings above are empty. <button type="button" class="linkbtn" data-jump>Show the ${esc(ctx.W.label)} before it</button>`
+       : after ? ` Readings above show the state at ${fmtTime(ctx.endDate, true)} UTC, the end of the selected range.`
+       : snapped && stale ? " Everything above shows the last recorded state, and the forecast treats that moment as now." : "");
   } else f.textContent = "No data for this boat yet.";
 }
 
@@ -1277,8 +1357,8 @@ function renderLists(M){
   const c = M.counts, o = $("overall");
   const n = c.alert + c.watch;
   if (!M.packs.size && !M.motors.size && M.gen.running === null && !M.chargers.size) {
-    o.className = "overall watch"; o.textContent = "No readings from this boat in this window";
-    $("overallSub").textContent = "Try a longer window, or check the requests log below.";
+    o.className = "overall watch"; o.textContent = "No readings from this boat in this range";
+    $("overallSub").textContent = "Try a longer range, or check the requests log below.";
     $("recs").innerHTML = ""; $("alerts").innerHTML = `<li class="empty">Nothing to check without data.</li>`;
     return;
   }
@@ -1295,7 +1375,7 @@ function renderLists(M){
   });
 
   const ul = $("alerts"); ul.textContent = "";
-  if (!M.alerts.length) ul.innerHTML = `<li class="empty">Nothing outside the thresholds in this window.</li>`;
+  if (!M.alerts.length) ul.innerHTML = `<li class="empty">Nothing outside the thresholds in this range.</li>`;
   M.alerts.slice(0, 14).forEach(a => {
     const li = document.createElement("li"); li.className = a.level;
     const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = { alert:"Act now", watch:"Watch", stale:"Silent" }[a.level];
@@ -1343,7 +1423,7 @@ function renderPanels(ctx, M){
   /* Batteries */
   const packs = [...M.packs.values()].sort((a, b) => (a.side + a.short).localeCompare(b.side + b.short));
   const pRow = p => `<tr class="${state.hl === p.key ? "hl" : ""}"><td><span class="swatch" style="background:${sideColor(p.side)}"></span>${esc(p.name)} <span class="sub">${esc(p.code)}</span></td>` +
-    (p.level === "stale" ? `<td class="stale" colspan="7">not reporting — last ${p.last ? fmtTime(p.last, true) + " UTC" : "never in window"}</td>` :
+    (p.level === "stale" ? `<td class="stale" colspan="7">not reporting — last ${p.last ? fmtTime(p.last, true) + " UTC" : "never in range"}</td>` :
     cell(p.soc, 0) + cell(p.cur, 1, lvlIf(Math.abs(p.cur ?? 0), N("thrCurrent"))) + cell(p.curPeak, 0, lvlIf(p.curPeak, N("thrCurrent")) && "watch") +
     cell(p.cell, 0, lvlIf(p.cell, N("thrCellTemp"))) + cell(p.delta, 1, p.delta > N("thrPackDelta") ? "watch" : "") + cell(p.volt, 1) +
     `<td>${fmt(p.soh, 1)}${p.sohMin !== null && p.soh !== null && p.sohMin < p.soh - 0.2 ? ` <span class="sub">(min ${fmt(p.sohMin, 1)})</span>` : ""}</td>`) + `</tr>`;
@@ -1355,8 +1435,8 @@ function renderPanels(ctx, M){
       ${stat(hiH("B") + " / " + hiH("T"), "Time above 95% charge, port / stbd")}
       ${stat(loH("B") + " / " + loH("T"), "Time below 15% charge, port / stbd")}
     </div>
-    <div class="tablewrap"><table class="units"><thead><tr><th>Pack</th><th>Charge %</th><th>Current A</th><th>Peak |A| in window</th><th>Hottest cell °C</th><th>vs siblings °C</th><th>Voltage V</th><th>Health %</th></tr></thead>
-    <tbody>${packs.map(pRow).join("") || `<tr><td colspan="8" class="stale">No battery data in this window.</td></tr>`}</tbody></table></div>
+    <div class="tablewrap"><table class="units"><thead><tr><th>Pack</th><th>Charge %</th><th>Current A</th><th>Peak |A| in range</th><th>Hottest cell °C</th><th>vs siblings °C</th><th>Voltage V</th><th>Health %</th></tr></thead>
+    <tbody>${packs.map(pRow).join("") || `<tr><td colspan="8" class="stale">No battery data in this range.</td></tr>`}</tbody></table></div>
     <div class="charts">
       <section class="chart"><h4>Pack current</h4><div class="sub">Largest magnitude per ${subInc}; negative is discharging. Alert at ±${N("thrCurrent")} A.</div><div class="box"><canvas id="cCur"></canvas></div></section>
       <section class="chart"><h4>Hottest cell per pack</h4><div class="sub">Max per ${subInc}. Alert at ${N("thrCellTemp")} °C.</div><div class="box"><canvas id="cTemp"></canvas></div></section>
@@ -1378,7 +1458,7 @@ function renderPanels(ctx, M){
   /* Propulsion */
   const mots = [...M.motors.values()].sort((a, b) => a.side.localeCompare(b.side));
   const mRow = m => `<tr class="${state.hl === m.key ? "hl" : ""}"><td><span class="swatch" style="background:${sideColor(m.side)}"></span>${esc(m.name)}</td>` +
-    (m.level === "stale" ? `<td class="stale" colspan="6">not reporting — last ${m.last ? fmtTime(m.last, true) + " UTC" : "never in window"}</td>` :
+    (m.level === "stale" ? `<td class="stale" colspan="6">not reporting — last ${m.last ? fmtTime(m.last, true) + " UTC" : "never in range"}</td>` :
     cell(m.power, 1) + cell(m.powMax, 0) + cell(m.volt, 0) + cell(m.temp, 0, lvlIf(m.temp, N("thrMotorTemp"), m.tempMax)) + cell(m.etemp, 0, lvlIf(m.etemp, N("thrElecTemp"), m.etempMax)) + cell(m.hours, 0)) + `</tr>`;
   const curve = M.curve, A = M.arrival;
   const eff = curve.map(c => ({ v:c.v, kwhpd:(c.p + N("houseLoad")) / c.v })).filter(c => c.v >= 2).sort((a, b) => a.kwhpd - b.kwhpd)[0];
@@ -1390,7 +1470,7 @@ function renderPanels(ctx, M){
       ${stat(eff ? fmt(eff.v, 1) : "—", eff ? `Most efficient speed (${fmt(eff.kwhpd, 2)} kWh per ${S.speedUnit === "kn" ? "NM" : "unit"})` : "Most efficient speed", eff ? S.speedUnit : "")}
     </div>
     <div class="tablewrap"><table class="units"><thead><tr><th>Motor</th><th>Power kW</th><th>Peak kW</th><th>Voltage V</th><th>Motor °C</th><th>Electronics °C</th><th>Hours</th></tr></thead>
-    <tbody>${mots.map(mRow).join("") || `<tr><td colspan="7" class="stale">No motor data in this window.</td></tr>`}</tbody></table></div>
+    <tbody>${mots.map(mRow).join("") || `<tr><td colspan="7" class="stale">No motor data in this range.</td></tr>`}</tbody></table></div>
     <div class="charts">
       <section class="chart"><h4>Speed and power</h4><div class="sub">Typical propulsion power at each speed, from the last 14 days (15-min averages, both motors). ${curve.length ? "" : "Not enough history yet."}</div><div class="box"><canvas id="cCurve"></canvas></div></section>
       <section class="chart"><h4>Speed over ground</h4><div class="sub">Average and max per ${subInc}</div><div class="box"><canvas id="cSpeed"></canvas></div></section>
@@ -1421,11 +1501,11 @@ function renderPanels(ctx, M){
       ${stat(fmt(g.hours, 1), `Run hours in ${W.label}`, "h")}
       ${stat(fmt(g.litres, 0), `Diesel burned in ${W.label}`, "L")}
       ${stat(eur(g.litres !== null ? g.litres * price : null), `Cost at €${price}/L` + (days > 1 && g.litres !== null ? `, ${eur(g.litres * price / days)} per day` : ""))}
-      ${stat(fmt(g.starts, 0), "Starts in this window" + (g.failed ? `, ${fmt(g.failed, 0)} failed` : ""))}
+      ${stat(fmt(g.starts, 0), "Starts in this range" + (g.failed ? `, ${fmt(g.failed, 0)} failed` : ""))}
       ${stat(fmt(g.avgLoad, 0), "Average load while running", "%")}
       ${stat(g.hours ? fmt(g.litres / g.hours, 1) : fmt(g.avgFuel, 1), "Litres per running hour", "L/h")}
     </div>
-    <div class="tablewrap"><table class="units"><thead><tr><th>Reading, last 15 min</th><th>Value</th><th>Max while running in window</th></tr></thead><tbody>
+    <div class="tablewrap"><table class="units"><thead><tr><th>Reading, last 15 min</th><th>Value</th><th>Max while running in range</th></tr></thead><tbody>
       <tr class="${state.hl === "gen" ? "hl" : ""}"><td>Engine</td><td>${g.running === null ? "—" : g.running ? `Running, ${fmt(g.rpm, 0)} rpm` : "Off"}</td><td></td></tr>
       <tr><td>Load</td>${cell(g.load, 0)}<td>—</td></tr>
       <tr><td>Fuel rate, L/h</td>${cell(g.fuelRate, 1)}<td>—</td></tr>
@@ -1438,7 +1518,7 @@ function renderPanels(ctx, M){
     <div class="charts">
       <section class="chart"><h4>Generator and battery</h4><div class="sub">Fuel rate and average charge, ${W.gen[1]}-${W.gen[0]} buckets, UTC</div><div class="box"><canvas id="cGen"></canvas></div></section>
       <section class="chart"><h4>Starts and stops</h4><div class="sub">Most recent first; highlighted starts had more than ${N("stopGenSoc")}% charge</div>
-        <ul class="events" style="margin-top:8px;max-height:220px;overflow-y:auto">${evList || `<li class="empty">No starts or stops in this window.</li>`}</ul></section>
+        <ul class="events" style="margin-top:8px;max-height:220px;overflow-y:auto">${evList || `<li class="empty">No starts or stops in this range.</li>`}</ul></section>
     </div>`;
   const gks = [...new Set([...M.fuelBk.keys(), ...M.socBk.keys()])].sort((a, b) => a - b);
   const gl = gks.map(k => fmtTime(new Date(k), withDate));
@@ -1458,7 +1538,7 @@ function renderPanels(ctx, M){
   /* Charging */
   const chs = [...M.chargers.values()].sort((a, b) => (a.side + a.short).localeCompare(b.side + b.short));
   const cRow = c => `<tr class="${state.hl === c.key ? "hl" : ""}"><td>${c.side ? `<span class="swatch" style="background:${sideColor(c.side)}"></span>` : ""}${esc(c.name)} <span class="sub">${esc(c.code)}</span></td>` +
-    (c.level === "stale" ? `<td class="stale" colspan="6">not reporting — last ${c.last ? fmtTime(c.last, true) + " UTC" : "never in window"}</td>` :
+    (c.level === "stale" ? `<td class="stale" colspan="6">not reporting — last ${c.last ? fmtTime(c.last, true) + " UTC" : "never in range"}</td>` :
     `<td>${esc(c.state ?? "—")}</td>` + cell(c.dc, 1) + cell(c.acV, 0) + cell(c.acA, 1) + `<td>${c.l.map(x => fmt(x.a, 1)).join(" / ")}</td>` + cell(c.etemp, 0, lvlIf(c.etemp, N("thrElecTemp"), c.etempMax))) + `</tr>`;
   const src = M.src, tot = src.shoreKwh + src.dieselKwh;
   $("tab-charging").innerHTML = `
@@ -1469,7 +1549,7 @@ function renderPanels(ctx, M){
       ${stat(S.shorePower === "yes" ? "Yes" : S.shorePower === "no" ? "No" : "Unknown", "Shore power at the dock (set in settings)")}
     </div>
     <div class="tablewrap"><table class="units"><thead><tr><th>Charger</th><th>State</th><th>DC out kW</th><th>AC V</th><th>AC A</th><th>L1 / L2 / L3 A</th><th>Electronics °C</th></tr></thead>
-    <tbody>${chs.map(cRow).join("") || `<tr><td colspan="7" class="stale">No charger data in this window.</td></tr>`}</tbody></table></div>
+    <tbody>${chs.map(cRow).join("") || `<tr><td colspan="7" class="stale">No charger data in this range.</td></tr>`}</tbody></table></div>
     <p class="sub">Charging with the generator on counts as diesel-sourced when the charger and generator run in the same ${W.gen[1]}-${W.gen[0]} bucket.</p>`;
 
   /* Converter */
@@ -1498,19 +1578,126 @@ function renderPanels(ctx, M){
 }
 
 /* =================== Controls =================== */
-function initWindows(){
-  const seg = $("winSeg");
-  Object.entries(WINDOWS).forEach(([k, w]) => {
-    const b = document.createElement("button"); b.type = "button"; b.textContent = w.label;
-    b.setAttribute("aria-pressed", String(k === state.win));
-    b.onclick = () => { state.win = k; seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); refresh(); };
-    seg.appendChild(b);
+/* Time picker */
+const REL_UNIT = {m:60e3, h:3600e3, d:86400e3, w:7*86400e3};
+const isRel = s => /^now/i.test(trim(s));
+function parseTimeExpr(s, nowMs){
+  s = trim(s);
+  let m = s.match(/^now(?:\s*([+-])\s*(\d+)\s*([mhdw]))?$/i);
+  if (m) { if (!m[1]) return new Date(nowMs); const d = +m[2] * REL_UNIT[m[3].toLowerCase()]; return new Date(nowMs + (m[1] === "-" ? -d : d)); }
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?\s*(?:Z|UTC)?$/i);
+  if (!m) return null;
+  const [y, mo, d, h, mi, se] = m.slice(1).map(x => x === undefined ? 0 : +x);
+  const dt = new Date(Date.UTC(y, mo - 1, d, h, mi, se));
+  return dt.getUTCMonth() === mo - 1 && dt.getUTCDate() === d && h < 24 && mi < 60 && se < 60 ? dt : null;
+}
+function checkRange(r){
+  const now = Date.now(), from = parseTimeExpr(r.from, now), to = parseTimeExpr(r.to, now);
+  if (!from) return { err:`"From" isn't a time the dashboard can read. Use a date like 2026-08-20 14:00, or now-6h.`, field:"tpFrom" };
+  if (!to) return { err:`"To" isn't a time the dashboard can read. Use a date like 2026-08-20 18:00, or now.`, field:"tpTo" };
+  if (from >= to) return { err:`"From" has to be earlier than "To".`, field:"tpFrom" };
+  return { from, to };
+}
+const absStr = d => d.getUTCSeconds() ? sqlTime(d) : sqlTime(d).slice(0, 16);
+const sameRange = (a, b) => trim(a.from).toLowerCase() === trim(b.from).toLowerCase() && trim(a.to).toLowerCase() === trim(b.to).toLowerCase();
+function rangeLabel(r){
+  const quick = QUICK.find(x => sameRange(r, { from:x.from, to:"now" }));
+  if (quick) return quick.label;
+  const v = checkRange(r); if (v.err) return "Invalid range";
+  if (isRel(r.from) && trim(r.to).toLowerCase() === "now") return "Last " + fmtDur(v.to - v.from);
+  const show = (s, d) => isRel(s) ? trim(s) : fmtTime(d, true);
+  return `${show(r.from, v.from)} to ${show(r.to, v.to)}`;
+}
+function loadRecent(){ try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]").filter(r => r && r.from && r.to); } catch { return []; } }
+function rememberRange(r){
+  if (QUICK.some(x => sameRange(r, { from:x.from, to:"now" }))) return;
+  const list = [r, ...loadRecent().filter(x => !sameRange(x, r))].slice(0, 4);
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(list)); } catch {}
+}
+function writeHash(){
+  try { history.replaceState(null, "", `#from=${encodeURIComponent(state.range.from)}&to=${encodeURIComponent(state.range.to)}`); } catch {}
+}
+function readHash(){
+  const p = new URLSearchParams(location.hash.slice(1)), r = { from:p.get("from") || "", to:p.get("to") || "" };
+  return r.from && r.to && !checkRange(r).err ? r : null;
+}
+function setRange(r, remember){
+  state.range = { from:trim(r.from), to:trim(r.to) };
+  if (remember) rememberRange(state.range);
+  writeHash(); renderPicker(); refresh();
+}
+function renderPicker(){
+  $("tpLabel").textContent = rangeLabel(state.range);
+  $("tpFwd").disabled = trim(state.range.to).toLowerCase() === "now";
+  const item = (r, label, cls) => {
+    const li = document.createElement("li"), b = document.createElement("button");
+    b.type = "button"; b.textContent = label; if (cls) b.className = cls;
+    b.setAttribute("aria-pressed", String(sameRange(r, state.range)));
+    b.onclick = () => { closePicker(true); setRange(r, false); };
+    li.appendChild(b); return li;
+  };
+  $("tpQuick").replaceChildren(...QUICK.map(x => item({ from:x.from, to:"now" }, x.label)));
+  const rec = loadRecent();
+  $("tpRecentWrap").hidden = !rec.length;
+  $("tpRecent").replaceChildren(...rec.map(r => item(r, rangeLabel(r), "rec")));
+}
+function setErr(msg, field){
+  $("tpErr").textContent = msg || "";
+  ["tpFrom", "tpTo"].forEach(id => $(id).setAttribute("aria-invalid", String(id === field)));
+}
+function openPicker(){
+  $("tpFrom").value = state.range.from; $("tpTo").value = state.range.to; setErr("");
+  renderPicker();
+  const pop = $("tpPop"); pop.hidden = false; pop.style.left = "0px";
+  const over = pop.getBoundingClientRect().right - (document.documentElement.clientWidth - 12);
+  if (over > 0) pop.style.left = -over + "px";
+  $("tpBtn").setAttribute("aria-expanded", "true");
+  $("tpFrom").focus(); $("tpFrom").select();
+}
+function closePicker(refocus){
+  if ($("tpPop").hidden) return;
+  $("tpPop").hidden = true; $("tpBtn").setAttribute("aria-expanded", "false");
+  if (refocus) $("tpBtn").focus();
+}
+function shiftRange(dir){
+  const v = checkRange(state.range); if (v.err) return;
+  const span = v.to - v.from, step = Math.round(span / 2 / 60e3) * 60e3 * dir, now = Date.now();
+  let to = v.to.getTime() + step;
+  if (to >= now - 60e3) { setRange({ from:absStr(new Date(Math.floor((now - span) / 60e3) * 60e3)), to:"now" }, true); return; }
+  setRange({ from:absStr(new Date(v.from.getTime() + step)), to:absStr(new Date(to)) }, true);
+}
+function jumpToLatest(){
+  const latest = state.boats[state.boat], v = checkRange(state.range); if (!latest || v.err) return;
+  const to = new Date(Math.ceil((latest.getTime() + 1000) / 60e3) * 60e3), from = new Date(to - (v.to - v.from));
+  setRange({ from:absStr(from), to:absStr(to) }, true);
+}
+function initPicker(){
+  const hashed = readHash(); if (hashed) state.range = hashed;
+  $("tpBtn").onclick = () => $("tpPop").hidden ? openPicker() : closePicker(false);
+  $("tpBack").onclick = () => shiftRange(-1);
+  $("tpFwd").onclick = () => shiftRange(1);
+  $("tpForm").onsubmit = e => {
+    e.preventDefault();
+    const r = { from:$("tpFrom").value, to:$("tpTo").value }, v = checkRange(r);
+    if (v.err) { setErr(v.err, v.field); $(v.field).focus(); return; }
+    closePicker(true); setRange(r, true);
+  };
+  ["tpFrom", "tpTo"].forEach(id => $(id).addEventListener("input", () => setErr("")));
+  // Calendar: one native datetime-local picker, moved next to whichever field asked for it. Values are read as UTC.
+  const nat = $("tpNative"); let target = null;
+  document.querySelectorAll(".tcal").forEach(b => b.onclick = () => {
+    target = $(b.dataset.for);
+    const d = parseTimeExpr(target.value, Date.now()) || new Date();
+    b.parentElement.appendChild(nat);
+    nat.value = sqlTime(d).slice(0, 16).replace(" ", "T");
+    try { nat.showPicker(); } catch { nat.style.pointerEvents = "auto"; nat.focus(); nat.click(); }
   });
-  $("anchorSeg").querySelectorAll("button").forEach(b => b.onclick = () => {
-    state.anchor = b.dataset.a;
-    $("anchorSeg").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
-    refresh();
-  });
+  nat.addEventListener("change", () => { if (target && nat.value) { target.value = nat.value.replace("T", " ").slice(0, 16); setErr(""); target.focus(); } });
+  document.addEventListener("mousedown", e => { if (!$("tpPop").hidden && !$("tp").contains(e.target)) closePicker(false); });
+  $("tpPop").addEventListener("keydown", e => { if (e.key === "Escape") { e.stopPropagation(); closePicker(true); } });
+  document.addEventListener("click", e => { if (e.target.closest("[data-jump]")) jumpToLatest(); });
+  window.addEventListener("hashchange", () => { const h = readHash(); if (h && !sameRange(h, state.range)) { state.range = h; renderPicker(); refresh(); } });
+  writeHash(); renderPicker();
 }
 $("boatSel").onchange = e => { state.boat = e.target.value; state.hl = null; refresh(); };
 $("refreshBtn").onclick = refresh;
@@ -1597,7 +1784,7 @@ function applyTheme(choice){
 darkQuery.addEventListener("change", () => { appliedTheme = null; applyTheme(S.theme); });
 applyTheme(S.theme);
 
-initWindows();
+initPicker();
 renderLegend();
 refresh();
 </script>

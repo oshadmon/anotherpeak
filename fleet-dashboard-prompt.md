@@ -39,19 +39,20 @@ Load "blockchain get uns" and "blockchain get object". UNS nodes have id, name, 
 
 ## Query strategy (all shapes below are verified against this network)
 A small, fixed set of grouped queries per refresh, independent of fleet size; each device table is read once for all boats. Run in parallel with a concurrency limit of about 6; one failure must not blank the page.
-- Anchor time: select boat, max(timestamp) as t from location group by boat. Use the fleet's latest timestamp rounded up to the next minute (period() excludes its end point), with "now" as an option. A boat more than 30 minutes behind the fleet is "Not reporting".
+- Time range: every query works on the selected From/To range (see "Time range picker" below). Default: 2026-07-10 00:00:00 → 2026-08-21 00:00:00 UTC, set as a single DEFAULT_RANGE constant that is easy to change.
+- Anchor time ("right now"): select boat, max(timestamp) as t from location group by boat. If the fleet's latest timestamp falls inside the range, the anchor is that timestamp rounded up to the next minute (period() excludes its end point), capped at the range end; otherwise the anchor is the range end. A boat more than 30 minutes behind the fleet is "Not reporting".
 - Snapshot (last 10 minutes), e.g.:
   select boat, ip, id, side, component, max(timestamp) as t, avg(value) as v, min(value) as mn, max(value) as mx from bmwix where period(minute, 10, '<anchor>', timestamp) and (component = 'gCurrent' or (component = 'gMaxCellTemperature' and value > 0) or (component = 'gStateOfHealth' and value > 0) or component = 'gStateOfCharge') group by boat, ip, id, side, component
   (returns all 16 packs × 4 measurements for both boats in one call)
 - Text and numbers together:
   select boat, ip, id, side, component, str_value, max(timestamp) as t, avg(value) as v from bcl25 where period(minute, 10, '<anchor>', timestamp) and (component = 'gActDcPower' or component = 'gState') group by boat, ip, id, side, component, str_value
   (the gState row with the latest t is the current state)
-- Window summary: the same shapes with period(day, 7, ...) etc. for the selected window (24 h / 7 d / 30 d).
-- Trends: increments() with an explicit range, grouped by boat and component:
-  select increments(day, 1, timestamp), boat, component, max(timestamp) as t, min(value) as mn, max(value) as mx from gd where timestamp >= '<start>' and timestamp < '<anchor>' and ((component = 'TotalFuelUsed' and value < 214748364.8) or (component = 'EngineRunHours' and value < 2147483648)) group by boat, component
+- Range summary: the same shapes with the explicit range in the WHERE clause instead of period(): timestamp >= '<from>' and timestamp < '<to>'. Use period() only for the 10-minute snapshot (and the 6-hour latest-position read).
+- Trends: increments() with the explicit range, grouped by boat and component; hourly buckets for ranges up to 3 days, daily beyond:
+  select increments(day, 1, timestamp), boat, component, max(timestamp) as t, min(value) as mn, max(value) as mx from gd where timestamp >= '<from>' and timestamp < '<to>' and ((component = 'TotalFuelUsed' and value < 214748364.8) or (component = 'EngineRunHours' and value < 2147483648)) group by boat, component
   Litres per day = that day's max minus the previous day's max (the counter runs between readings).
-- Distributions: select boat, value, count(*) as n from batterystateofchargepercent where period(...) and (value >= 95 or (value <= 15 and value > 0)) group by boat, value
-- Timelines for events: increments(minute, 10) (20 for 30 days) of EngineRPM max and FuelRate avg (gd), gActDcPower avg per charger unit (bcl25), speed avg (speedoverground, side = 'B'), and charge avg (batterystateofchargepercent), each grouped by boat. Bucket rows client-side by flooring max(timestamp) to the bucket size.
+- Distributions: select boat, value, count(*) as n from batterystateofchargepercent where <range> and (value >= 95 or (value <= 15 and value > 0)) group by boat, value
+- Timelines for events: increments(minute, 10) for ranges up to 10 days, 20 minutes up to 45 days, 1 hour beyond, of EngineRPM max and FuelRate avg (gd), gActDcPower avg per charger unit (bcl25), speed avg (speedoverground, side = 'B'), and charge avg (batterystateofchargepercent), each grouped by boat. Bucket rows client-side by flooring max(timestamp) to the bucket size.
 Rules: increments() and period() cannot be combined; no arithmetic in the SELECT list; no joins. Compute ratios and combine tables in JavaScript.
 
 ## Derived figures (client-side, from the timelines)
@@ -65,16 +66,28 @@ Rules: increments() and period() cannot be combined; no arithmetic in the SELECT
 Each boat gets one status, with reasons that state their values and thresholds:
 - Bring in: hottest cell above 45 °C now; underway on battery below 20% charge with the generator off; generator start battery below 23 V; coolant above 100 °C while running; oil pressure below a configurable minimum (off by default; units unconfirmed).
 - Needs maintenance: pack health more than 2 points below its siblings; pack more than 3 °C warmer than its side; motor or drive electronics above 85 °C; charger electronics above 80 °C; failed generator starts increased; 12 V starter below 12 V.
-- Watch: cell above 40 °C in the window; pack current above 50 A; generator below 40% load for more than half its run time; avoidable diesel above 20 L; generator starts above 50% charge; electric arrival rate below 70% (with at least 3 cruises).
+- Watch: cell above 40 °C in the range; pack current above 50 A; generator below 40% load for more than half its run time; avoidable diesel above 20 L; generator starts above 50% charge; electric arrival rate below 70% (with at least 3 cruises).
 - Not reporting: see anchor time.
 Decision per boat: "Pull in now" for Bring in; "Check the boat's link" for Not reporting; every other boat gets a usage order ("Use first", "Use 2nd", …, "Use last"), with boats that need maintenance ranked after healthy ones and labelled "fix soon". Order within each group by a weighted penalty: scale each figure from 0 (best in the fleet) to 1 (worst) — diesel = mean of cost and avoidable cost; battery = mean of weakest health, hottest cell and peak discharge; comfort = electric arrival rate — then total = weights × parts. Show the penalty and its parts in the decision cell, and explain the method in one plain sentence under the table.
 
 ## Layout
+Top bar: title, a Grafana-style time range picker, Refresh, Settings and connection status.
+
+Time range picker:
+- One button showing the current range (e.g. "Last 24 hours" or "Jul 10, 00:00 to Aug 21, 00:00", labelled UTC), with ‹ and › buttons either side that move the range by half its length. Disable › when the range ends at "now".
+- Clicking the button opens a popover with two parts:
+  - Custom range: From and To text fields, each with a calendar button (native date-time picker; its value is read as UTC). Fields accept absolute UTC times ("2026-08-20 14:00", "2026-08-20 14:00:30") or times relative to now ("now", "now-6h", "now-2d", "now-1w"; units m, h, d, w). Validate before applying: unreadable times and From ≥ To show an inline error and don't apply. Enter applies; Escape or a click outside closes.
+  - Quick ranges, all ending at now: Last 1 hour, Last 8 hours, Last 12 hours, Last 24 hours, Last 7 days, Last 30 days. Mark the active one. Below them, "Recently used": the last four custom ranges (localStorage).
+- Keep the range in the URL hash (#from=…&to=…) so links and bookmarks reopen the same range; a valid hash overrides DEFAULT_RANGE. The range is not a Settings item.
+- Relative ranges re-resolve on every refresh; absolute ranges stay fixed.
+- The comparison table header and the fleet totals title show the range ("Jul 10, 00:00 to Aug 21, 00:00 UTC").
+- If the fleet's latest data is before the range starts (e.g. a "now" range on old data), show a banner saying so, with a button "Show the <length> before it" that sets an absolute range of the same length ending at the latest reading.
+
 Fleet tab (landing): a comparison table with one column per boat (sorted by decision), headed by the boat name, status word and data freshness. Rows, top to bottom: Decision; Why (top 3 reasons, each with a Source link); Right now (charge port/starboard, generator on/off, charging kW or speed); Diesel (cost, litres and hours, avoidable diesel, share charged from diesel, average load, high-charge starts); Battery life (weakest pack health, largest gap to siblings, hottest cell, warmest pack vs its side, peak discharge, time at ≥95% and ≤15%, packs flagged); Electric arrivals (cruises, arrival rate); Equipment (hottest motor, drive, charger; failed starts); Actions. Tint cells that break a threshold and mark the fleet's best value in each row. Below: a map of latest positions coloured by status, and fleet totals.
 Other tabs: Diesel (league table, litres per day chart, charging source chart, generator runs), Batteries (every pack, with outliers highlighted, and trend charts), Arrivals (rates and cruise list), Explorer (UNS), Actions.
 
 ## Actions
-Buttons per boat: Bring in, Schedule maintenance, Acknowledge, Dismiss. A dialog shows the reasons to record (checkboxes), a note, the author, and the exact policy that will be written, e.g. {"fleet_action": {"boat", "action", "reasons", "note", "author", "created", "window", "data_until"}}.
+Buttons per boat: Bring in, Schedule maintenance, Acknowledge, Dismiss. A dialog shows the reasons to record (checkboxes), a note, the author, and the exact policy that will be written, e.g. {"fleet_action": {"boat", "action", "reasons", "note", "author", "created", "window", "data_until"}} (window = the selected range as "<from> to <to> UTC"; data_until = the anchor time).
 - When blockchain writing is enabled in Settings: POST with headers command: "blockchain insert where policy=!new_policy and local=true and master=!ledger_conn" and AnyLog-Agent, and body "<new_policy={...}>". Closing an action writes a new fleet_action with action "close" and "closes": <original id>. An action is open until a close policy references it.
 - When disabled (the default): keep actions in localStorage, with JSON export.
 Open actions show in the boat's column and on an Actions tab with an open-count badge.
