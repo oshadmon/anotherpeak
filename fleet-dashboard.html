@@ -417,7 +417,7 @@ const endpoint = () => `${S.protocol}://${S.host}:${S.port}`;
 
 /* Time range: Grafana-style From/To. Relative ("now-24h") or absolute UTC ("2026-08-20 14:00"). */
 /* Date Data range: "2026-07-10 00:00:00" to "2026-08-21 00:00:00" */
-const DEFAULT_RANGE = { from:"2026-07-10 00:00:00", to:"2026-10-20 00:00:00" };   // UTC; a valid #from=&to= in the address overrides it
+const DEFAULT_RANGE = { from:"2026-07-10 00:00:00", to:"2026-07-20 00:00:00" };   // UTC; a valid #from=&to= in the address overrides it
 const QUICK = [
   { from:"now-1h",  label:"Last 1 hour" },
   { from:"now-8h",  label:"Last 8 hours" },
