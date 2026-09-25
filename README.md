@@ -10,7 +10,7 @@ as company → boat → component → measurement. Each node points to the exact
 with the goal it serves: diesel, battery life or electric arrivals. That lets both boats be compared side by side from
 the same queries.
 
-**Source data**
+**Source data**: The original data has a timestamp range of  "2026-07-10 00:00:00" to "2026-08-21 00:00:00" UTC
 - [Helios](http://45.33.11.32/Sample-Data/vessel-data2/helios/)
 - [HydraAix](http://45.33.11.32/Sample-Data/vessel-data2/hydraaix/)
 
